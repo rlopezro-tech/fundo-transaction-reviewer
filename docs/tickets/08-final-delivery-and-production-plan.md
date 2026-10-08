@@ -33,7 +33,7 @@ Turn the implemented tickets into a small, defensible take-home submission: one 
 ## Acceptance criteria
 
 - [ ] The documented command works from a clean checkout; cache-only replay runs without an API key or provider access and reproduces the submitted output hashes.
-- [ ] The CLI can process a small new Plaid-shaped transaction file without ground truth; it reports flags/features/offers but makes **no measured-accuracy claim** for that file.
+- [ ] The CLI can process a small new Plaid-shaped input envelope without ground truth **online or from its exact existing cache entries**; it reports flags/features/offers but makes **no measured-accuracy claim**. An uncached strict-offline run fails visibly rather than pretending to review unseen transactions.
 - [ ] `README.md` and `SOLUTION.md` contain all challenge deliverables, including measured versus estimated labels, actual spend below US$10, a failed/less successful attempt, explicit omissions, and all tools used.
 - [ ] `SOLUTION.md` includes the two short NSF/61-day answers and the four production topics: shadow gate, drift, historical replay, and underwriter feedback.
 - [ ] The final reports show per-business before/after/truth metrics, monthly-revenue dollar error, hard-negative false flags, concrete mistakes, offer comparisons, and 2%/5%/10% sensitivity with reproducible method.

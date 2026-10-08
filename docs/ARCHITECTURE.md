@@ -1,6 +1,6 @@
 # Fundo Transaction Reviewer — v1 Architecture
 
-> **Status:** proposed v1 design; implementation and results are pending. [CHALLENGE.md](CHALLENGE.md) is the source of truth. [IMPLEMENTATION_CHECKLIST.md](IMPLEMENTATION_CHECKLIST.md) tracks requirements and open policy choices. This document defines the system boundary, components, data flow and verification plan—not measured performance or a production deployment.
+> **Status:** proposed v1 design; implementation and results are pending. [CHALLENGE.md](CHALLENGE.md) is the source of truth. Approved project choices are in [BUSINESS_RULES.md](BUSINESS_RULES.md) and [DEVELOPMENT_RULES.md](DEVELOPMENT_RULES.md); [IMPLEMENTATION_CHECKLIST.md](IMPLEMENTATION_CHECKLIST.md) tracks implementation evidence. This document defines components and flow, not measured performance or a production deployment.
 
 ## 1. V1 scope and acceptance contract
 
@@ -20,7 +20,7 @@ V1 is one **modular Python batch pipeline** behind a CLI. It accepts seeded, Pla
 
 ```mermaid
 flowchart LR
-    I[Plaid-shaped JSONL<br/>synthetic or new input] --> N[Validate, normalize,<br/>window and deduplicate]
+    I[JSON input envelope<br/>accounts + Plaid-shaped transactions] --> N[Validate and normalize,<br/>filter pending/window]
     N --> L[Legacy keyword labels]
     L --> Q[Review request per transaction]
     Q --> C{Versioned response cache}
@@ -39,20 +39,20 @@ flowchart LR
     O --> R[Flags, business results,<br/>errors and cost]
 ```
 
-Ground truth is **never passed to the reviewer**. A new file without truth still produces flags and before/after features, but cannot claim measured accuracy. An offline cache miss fails reproducibility; an online provider failure records degraded review and preserves the legacy label. These are distinct outcomes.
+Ground truth is **never passed to the reviewer**. A new file without truth can produce flags and before/after features through online review (or if its exact requests are already cached), but cannot claim measured accuracy. An uncached offline input fails visibly; an online provider failure records degraded review and preserves the legacy label. These are distinct outcomes.
 
 ## 3. Data contracts and ownership
 
 | Contract | Fields and invariants | Owner |
 | --- | --- | --- |
-| Transaction | Stable ID, business/account ID, date, `amount`, `name`, optional `merchant_name`, pending status and available Plaid category fields. In Plaid Transactions, **negative = money in; positive = money out**. Preserve the raw record and use a normalized view for rules. | Input module |
+| Transaction | Stable transaction/account IDs, date, `amount`, `name`, optional `merchant_name`, pending status and available Plaid category fields; the input envelope maps accounts to businesses and coverage. In Plaid Transactions, **negative = money in; positive = money out**. Preserve the raw record and use a normalized view for rules. | Input module |
 | Legacy label | One winning group or explicit `unmatched`, business/personal, derived revenue, matched rule IDs and ruleset version. All 13 named groups remain representable. | Keyword engine + deterministic revenue rule |
 | Review proposal | Transaction ID, keep/change, proposed group and business/personal, confidence and brief reason. The model cannot edit source transactions or supply authoritative revenue. | LLM; then schema and semantic validation in code |
 | Final label | Validated proposal or unchanged legacy label, revenue **recomputed in code**, and provenance (`cache`, `online`, `provider_failure`, etc.). | Review orchestrator |
 | Truth label | Separate, ID-keyed reference for synthetic evaluation only; excluded from model input and cache keys. | Data generator / evaluation fixture |
 | Credit result | Per-business window coverage, deposit and revenue totals, AMR, NSF/overdraft counts, daily funder payments, high-risk debit share and offer. | Credit module |
 
-Reject missing/duplicate IDs, malformed dates or amounts, and unsupported files rather than silently guessing. Pending/posted duplicates, date-window boundaries, currencies and short histories need explicit policies in [IMPLEMENTATION_CHECKLIST.md](IMPLEMENTATION_CHECKLIST.md) before implementation. Use integer cents or `Decimal` for money, never binary floating-point for offer arithmetic.
+Reject missing/duplicate IDs, malformed dates or amounts, and unsupported files rather than silently guessing. Approved pending/posted, date-window, currency and short-history policies are in [BUSINESS_RULES.md](BUSINESS_RULES.md); they still need implementation tests. Use integer cents or `Decimal` for money, never binary floating-point for offer arithmetic.
 
 ## 4. Modules and pipeline
 
@@ -73,18 +73,18 @@ These are **responsibility boundaries**, not a mandate for one file per row. Kee
 
 ## 5. Technology choices
 
-- **Runtime and files:** Python 3.12+, `uv` with committed `pyproject.toml` / `uv.lock`, and standard-library `argparse`, JSONL/CSV, `datetime`, `hashlib`, logging and `Decimal`. Prefer plain files over pandas or a database at this scale. A one-command CLI entry point will be added with the implementation; Docker is unnecessary for this local batch pipeline.
+- **Runtime and files:** Python 3.12+, `uv` with committed `pyproject.toml` / `uv.lock`, and standard-library `argparse`, JSON, `datetime`, `hashlib`, logging and `Decimal`. Prefer plain files over pandas or a database at this scale. A one-command CLI entry point will be added with the implementation; Docker is unnecessary for this local batch pipeline.
 - **Provider integration:** Official OpenAI Python SDK, **Responses API**, and Pydantic Structured Outputs. Start experiments with configurable `gpt-6-luna` because the task is repetitive and spend is capped; promote it only if measured review quality is adequate. Pin dependencies and record the exact model identifier, prompt and schema versions in every run. [OpenAI model documentation](https://developers.openai.com/api/docs/models/gpt-6-luna), [Structured Outputs documentation](https://developers.openai.com/api/docs/guides/structured-outputs).
-- **Tests:** `pytest` for fast unit and CLI integration tests. No Plaid API dependency: Plaid defines the input contract; seeded synthetic data is the default. Plaid Sandbox is optional. [Plaid Transactions documentation](https://plaid.com/docs/api/products/transactions/).
+- **Tests:** `pytest` for fast unit and CLI integration tests. No Plaid API/Sandbox dependency: Plaid defines the input contract; seeded synthetic data is the default. [Plaid Transactions documentation](https://plaid.com/docs/api/products/transactions/).
 - **Storage:** Repository-local `data/transactions/`, `data/ground_truth/`, `cache/` and generated `reports/`. Commit synthetic fixtures and LLM response cache; keep secrets out of Git.
 
 ## 6. Rules, model boundary and failure policy
 
 **Code owns** sign interpretation, input validity, keyword precedence, revenue exclusions, feature denominators, window normalization, offer arithmetic, cache keys and reporting. **The LLM only judges whether the existing semantic label and business/personal flag should change**, with confidence and a concise reason. Code checks allowed groups, ID alignment, confidence range and keep/change consistency, then derives revenue from the final label and transaction direction. Invalid, refused, incomplete or unavailable online responses retain the legacy label and surface a failure status; they never become silent approvals.
 
-Treat all bank description fields as counterparty-controlled, untrusted text. Delimit them as data in the prompt; do not execute instructions found there. Structured output reduces shape errors but does not replace validation. Bound retries and enforce a **pre-call spend ceiling below US$10**; report actual usage/cost separately from estimates. Do not claim a model or threshold is correct until measured against held-out truth cases.
+Treat all bank description fields as counterparty-controlled, untrusted text. Delimit them as data in the prompt; do not execute instructions found there. Structured output reduces shape errors but does not replace validation. Bound retries and enforce the approved **$8 operating ceiling and hard stop below US$10**; report actual usage/cost separately from estimates. Do not claim a model is good enough until measured against held-out truth cases; no confidence threshold suppresses valid change flags in v1.
 
-The exact keyword lists, precedence, revenue-excluding groups, pending/duplicate policy, daily funder-payment estimator, high-risk denominator, negative-offer floor and review threshold are **open design choices** tracked in [IMPLEMENTATION_CHECKLIST.md](IMPLEMENTATION_CHECKLIST.md). Version and test each adopted choice; never imply Fundo supplied it.
+Keyword lists, precedence, revenue exclusions, pending/duplicate policy, funder-payment estimator, high-risk denominator, negative-offer floor and flag policy are **approved v1 choices** documented in [BUSINESS_RULES.md](BUSINESS_RULES.md). Version and test each; never imply Fundo supplied them.
 
 ## 7. Reproducibility, tests and outputs
 

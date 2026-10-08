@@ -15,7 +15,7 @@ Build the reviewer that inspects **each existing legacy label** and either keeps
 ## Scope
 
 1. Define a versioned prompt and structured response contract containing transaction ID, `keep`/`change`, proposed group or `unmatched`, proposed business/personal flag, confidence, and a short reason. The request must include the existing legacy group/flag and only the transaction fields needed for review. Never include Ticket 02 ground truth.
-2. Define a deterministic **flag policy**: which validated `change` proposals become underwriter flags, including any confidence threshold and what happens below it. Record both the raw proposal and the applied decision so the threshold can be audited. A `keep` response is an outcome, not a flag.
+2. Implement the approved **flag policy**: every validated `change` becomes an underwriter flag regardless of self-reported confidence, and is applied only to the illustrative reviewed scenario. Record both raw proposal and applied decision. A `keep` response is an outcome, not a flag; no confidence threshold suppresses valid doubts in v1.
 3. Treat `name`, `merchant_name`, and other bank descriptions as **untrusted data**. Delimit them in the prompt and explicitly instruct the model not to obey commands inside them. Include the Ticket 02 instruction-like transaction as an adversarial test.
 4. Validate the response in code: exact transaction ID, allowed group and flag values, confidence range, `keep`/`change` consistency, and bounded reason length. Reject invented groups, changed amounts/dates/IDs, malformed or incomplete output, and contradictory proposals.
 5. Apply a validated correction only to the semantic group and business/personal flag. Recompute revenue using Ticket 03's authoritative code function and the original signed amount. Preserve legacy label, proposed label, final label, reason, confidence, and provenance for later comparison.
@@ -26,7 +26,7 @@ Build the reviewer that inspects **each existing legacy label** and either keeps
 
 - `src/fundo_reviewer/reviewer.py` (or an equally small module) with request/response schemas, prompt builder, validator, flag policy, and final-label application.
 - A versioned prompt/schema and short model-versus-code boundary note, including the untrusted-text rule and failure behavior.
-- Tests in `tests/` for keep/change, group and business/personal corrections, revenue recomputation, threshold boundaries, invalid output, ID mismatch, provider failure, and prompt-injection text.
+- Tests in `tests/` for keep/change, group and business/personal corrections, revenue recomputation, confidence-range boundaries and no-suppression flag policy, invalid output, ID mismatch, provider failure, and prompt-injection text.
 
 ## Acceptance criteria
 

@@ -1,17 +1,17 @@
 # V1 Implementation Checklist
 
-> **Status:** planning checklist; unchecked items are not implemented or verified. [CHALLENGE.md](CHALLENGE.md) is the source of truth. [ARCHITECTURE.md](ARCHITECTURE.md) defines the technical design. Fundo explicitly allows a focused 6–8 hour submission rather than implementing everything; if we reduce scope, record the omission and reason in `SOLUTION.md` instead of silently checking an item.
+> **Status:** implementation checklist; unchecked items are not implemented or verified. [CHALLENGE.md](CHALLENGE.md) is the source of truth. The 17 planning decisions are approved in [BUSINESS_RULES.md](BUSINESS_RULES.md) and [DEVELOPMENT_RULES.md](DEVELOPMENT_RULES.md), but **approval is not implementation evidence**. [ARCHITECTURE.md](ARCHITECTURE.md) defines the technical design. The user chose to complete all in-scope deliverables without unnecessary extras; disclose any unforeseen omission in `SOLUTION.md` rather than silently checking an item.
 
-Use this file to track **what must be built or written**, **what policy we must choose**, and **how completion will be verified**. A checkbox is complete only when its code, test, report, or document evidence exists. The policies below are **our design choices**, not rules supplied by Fundo.
+Use this file to track **what must be built or written** and **how completion will be verified**. The policy choices are approved in the two rules documents, but a checkbox is complete only when its code, test, report, or delivery-document evidence exists. The policies are **our design choices**, not rules supplied by Fundo.
 
-## 1. Decisions to close before calculation code
+## 1. Approved policies to implement and verify
 
 - [ ] Define the exact transaction fields retained from Plaid-shaped input; document date-window boundaries, currency handling, pending/posted duplicates, and malformed-record behavior. **Evidence:** input contract and tests.
 - [ ] Define the 13 keyword lists, normalization/matching behavior, explicit group precedence, and representation of unmatched transactions. Keep the deliberately imperfect engine versioned. **Evidence:** ruleset and precedence/collision tests.
 - [ ] Define how the business/personal flag is assigned and the exact groups that exclude a business credit from revenue. **Evidence:** written eligibility rule and tests for deposits that are not sales.
 - [ ] Define average monthly revenue normalization for 90-day and incomplete windows, the denominator for revenue/deposits, and the denominator and unit for high-risk debit share. **Evidence:** feature definitions and arithmetic tests.
 - [ ] Define which active-advance **debits** count as other-funder payments and how to estimate their daily amount. Do not treat funder disbursements or ordinary expenses as payments. **Evidence:** estimator and direction tests.
-- [ ] Define offer rounding, any negative-offer floor, the review/flag threshold, and the seeded sampling method for 2%/5%/10% mislabel scenarios. **Evidence:** policy notes and boundary tests.
+- [ ] Implement the approved offer rounding/negative floor, all-valid-change flag policy (no confidence threshold), and seeded sampling method for 2%/5%/10% mislabel scenarios. **Evidence:** policy notes and boundary tests.
 
 ## 2. Data and legacy labels — build
 

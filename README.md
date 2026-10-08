@@ -5,8 +5,10 @@
 ## Source of truth
 
 - [CHALLENGE.md](docs/CHALLENGE.md) — original Fundo challenge.
+- [BUSINESS_RULES.md](docs/BUSINESS_RULES.md) — approved v1 financial and labeling decisions; implementation pending.
+- [DEVELOPMENT_RULES.md](docs/DEVELOPMENT_RULES.md) — approved v1 scope, safety, testing, and delivery decisions; implementation pending.
 - [ARCHITECTURE.md](docs/ARCHITECTURE.md) — high-level design.
-- [IMPLEMENTATION_CHECKLIST.md](docs/IMPLEMENTATION_CHECKLIST.md) — v1 implementation checklist and open policy decisions.
+- [IMPLEMENTATION_CHECKLIST.md](docs/IMPLEMENTATION_CHECKLIST.md) — v1 implementation and evidence checklist.
 - [FINANCIAL_GLOSSARY.md](docs/FINANCIAL_GLOSSARY.md) — plain-English financial glossary for developers.
 
 ## Setup and run
