@@ -1,0 +1,17 @@
+[project]
+name = "fundo-transaction-reviewer"
+version = "0.1.0"
+description = "Reproducible transaction-label reviewer for the Fundo AI Engineer take-home"
+readme = "README.md"
+requires-python = ">=3.12,<3.15"
+dependencies = [
+    "openai>=2,<3",
+    "pydantic>=2,<3",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=8,<10",
+]
+
+# Packaging and a CLI entry point will be added when implementation begins.
