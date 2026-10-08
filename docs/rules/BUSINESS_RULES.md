@@ -1,6 +1,6 @@
 # Business rules — approved v1 decisions
 
-> **Status:** all 17 planning blocks are approved across this file and [DEVELOPMENT_RULES.md](DEVELOPMENT_RULES.md); implementation and measured results are still pending. [CHALLENGE.md](CHALLENGE.md) is the source of truth. Rules tagged **Fundo** come from the challenge; **V1 choices** are our interpretations, not Fundo policy or verified financial facts. Changing an approved choice requires a policy-version change and renewed tests/reports.
+> **Status:** all 17 planning blocks are approved across this file and [DEVELOPMENT_RULES.md](DEVELOPMENT_RULES.md); implementation and measured results are still pending. [CHALLENGE.md](../CHALLENGE.md) is the source of truth. Rules tagged **Fundo** come from the challenge; **V1 choices** are our interpretations, not Fundo policy or verified financial facts. Changing an approved choice requires a policy-version change and renewed tests/reports.
 
 ## 1. Purpose and limits
 

@@ -1,6 +1,6 @@
 # V1 Implementation Checklist
 
-> **Status:** implementation checklist; unchecked items are not implemented or verified. [CHALLENGE.md](CHALLENGE.md) is the source of truth. The 17 planning decisions are approved in [BUSINESS_RULES.md](BUSINESS_RULES.md) and [DEVELOPMENT_RULES.md](DEVELOPMENT_RULES.md), but **approval is not implementation evidence**. [ARCHITECTURE.md](ARCHITECTURE.md) defines the technical design. The user chose to complete all in-scope deliverables without unnecessary extras; disclose any unforeseen omission in `SOLUTION.md` rather than silently checking an item.
+> **Status:** implementation checklist; unchecked items are not implemented or verified. [CHALLENGE.md](CHALLENGE.md) is the source of truth. The 17 planning decisions are approved in [BUSINESS_RULES.md](rules/BUSINESS_RULES.md) and [DEVELOPMENT_RULES.md](rules/DEVELOPMENT_RULES.md), but **approval is not implementation evidence**. [ARCHITECTURE.md](ARCHITECTURE.md) defines the technical design. The user chose to complete all in-scope deliverables without unnecessary extras; disclose any unforeseen omission in `SOLUTION.md` rather than silently checking an item.
 
 Use this file to track **what must be built or written** and **how completion will be verified**. The policy choices are approved in the two rules documents, but a checkbox is complete only when its code, test, report, or delivery-document evidence exists. The policies are **our design choices**, not rules supplied by Fundo.
 

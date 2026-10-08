@@ -1,6 +1,6 @@
 # Fundo Transaction Reviewer — v1 Architecture
 
-> **Status:** proposed v1 design; implementation and results are pending. [CHALLENGE.md](CHALLENGE.md) is the source of truth. Approved project choices are in [BUSINESS_RULES.md](BUSINESS_RULES.md) and [DEVELOPMENT_RULES.md](DEVELOPMENT_RULES.md); [IMPLEMENTATION_CHECKLIST.md](IMPLEMENTATION_CHECKLIST.md) tracks implementation evidence. This document defines components and flow, not measured performance or a production deployment.
+> **Status:** proposed v1 design; implementation and results are pending. [CHALLENGE.md](CHALLENGE.md) is the source of truth. Approved project choices are in [BUSINESS_RULES.md](rules/BUSINESS_RULES.md) and [DEVELOPMENT_RULES.md](rules/DEVELOPMENT_RULES.md); [IMPLEMENTATION_CHECKLIST.md](IMPLEMENTATION_CHECKLIST.md) tracks implementation evidence. This document defines components and flow, not measured performance or a production deployment.
 
 ## 1. V1 scope and acceptance contract
 
@@ -52,7 +52,7 @@ Ground truth is **never passed to the reviewer**. A new file without truth can p
 | Truth label | Separate, ID-keyed reference for synthetic evaluation only; excluded from model input and cache keys. | Data generator / evaluation fixture |
 | Credit result | Per-business window coverage, deposit and revenue totals, AMR, NSF/overdraft counts, daily funder payments, high-risk debit share and offer. | Credit module |
 
-Reject missing/duplicate IDs, malformed dates or amounts, and unsupported files rather than silently guessing. Approved pending/posted, date-window, currency and short-history policies are in [BUSINESS_RULES.md](BUSINESS_RULES.md); they still need implementation tests. Use integer cents or `Decimal` for money, never binary floating-point for offer arithmetic.
+Reject missing/duplicate IDs, malformed dates or amounts, and unsupported files rather than silently guessing. Approved pending/posted, date-window, currency and short-history policies are in [BUSINESS_RULES.md](rules/BUSINESS_RULES.md); they still need implementation tests. Use integer cents or `Decimal` for money, never binary floating-point for offer arithmetic.
 
 ## 4. Modules and pipeline
 
@@ -84,7 +84,7 @@ These are **responsibility boundaries**, not a mandate for one file per row. Kee
 
 Treat all bank description fields as counterparty-controlled, untrusted text. Delimit them as data in the prompt; do not execute instructions found there. Structured output reduces shape errors but does not replace validation. Bound retries and enforce the approved **$8 operating ceiling and hard stop below US$10**; report actual usage/cost separately from estimates. Do not claim a model is good enough until measured against held-out truth cases; no confidence threshold suppresses valid change flags in v1.
 
-Keyword lists, precedence, revenue exclusions, pending/duplicate policy, funder-payment estimator, high-risk denominator, negative-offer floor and flag policy are **approved v1 choices** documented in [BUSINESS_RULES.md](BUSINESS_RULES.md). Version and test each; never imply Fundo supplied them.
+Keyword lists, precedence, revenue exclusions, pending/duplicate policy, funder-payment estimator, high-risk denominator, negative-offer floor and flag policy are **approved v1 choices** documented in [BUSINESS_RULES.md](rules/BUSINESS_RULES.md). Version and test each; never imply Fundo supplied them.
 
 ## 7. Reproducibility, tests and outputs
 
