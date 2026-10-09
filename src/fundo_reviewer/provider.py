@@ -97,9 +97,17 @@ class OpenAIProvider:
                 )
                 return response
             except RateLimitError as exc:
+                message = str(exc).lower()
+                # A depleted billing balance is not a transient rate limit;
+                # retrying it only wastes time and obscures the real blocker.
+                if ("insufficient_quota" in message or "credit_balance_exhausted" in message
+                        or "no credits remaining" in message):
+                    raise FatalReviewError(
+                        "provider API credit balance exhausted; add credits or use a funded project/key"
+                    ) from exc
                 # Daily quota cannot be fixed by a short retry; surface it so
                 # the run can resume from committed batch cache after reset.
-                if "requests per day" in str(exc).lower():
+                if "requests per day" in message:
                     raise FatalReviewError("provider daily request quota exhausted; resume from cache after reset") from exc
                 if attempt == 3:
                     raise FatalReviewError("provider minute request quota persisted after bounded retries; resume later") from exc

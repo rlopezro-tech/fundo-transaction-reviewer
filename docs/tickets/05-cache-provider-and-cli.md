@@ -1,6 +1,6 @@
 # Ticket 05 — Provider integration, cache, budget, and CLI replay
 
-**Status:** Implementation committed; final paid full-cohort cache and no-key replay verification pending the account's 50 RPD reset. Do not treat this ticket as accepted until those gates pass.
+**Status:** Implementation committed; final paid full-cohort cache and no-key replay verification blocked by exhausted API credits (alternate model pilot returned `credit_balance_exhausted`). Do not treat this ticket as accepted until those gates pass.
 
 **Type:** Reproducible execution
 

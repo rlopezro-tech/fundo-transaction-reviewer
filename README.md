@@ -1,6 +1,6 @@
 # Fundo Transaction Reviewer
 
-> Tickets 01–04 are implemented. Tickets 05–07 have provider/cache/CLI, credit/offer, and evaluation/sensitivity code, but the full paid cache, measured quality report, and no-key 2,000-record replay are **pending**. Ticket 08 and final validation remain in progress.
+> Tickets 01–04 are implemented. Tickets 05–07 have provider/cache/CLI, credit/offer, and evaluation/sensitivity code, but the full paid cache, measured quality report, and no-key 2,000-record replay are **pending**. The current API project returned `credit_balance_exhausted` on an alternate-model pilot; a funded key/project is required for live completion. Ticket 08 and final validation remain in progress.
 
 ## Source of truth
 

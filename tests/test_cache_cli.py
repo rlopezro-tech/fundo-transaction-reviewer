@@ -7,12 +7,14 @@ from decimal import Decimal
 from pathlib import Path
 from types import SimpleNamespace
 
+import httpx
 import pytest
+from openai import RateLimitError
 
 from fundo_reviewer import cache as cache_module
 from fundo_reviewer.cache import (
     BatchReviewCache, BudgetExceeded, CacheCorrupt, CacheMiss, ReviewCache, SpendLedger,
-    batch_identity, request_key, usage_derived_cost,
+    batch_identity, pricing_version, request_key, usage_derived_cost,
 )
 from fundo_reviewer.cli import run_pipeline
 from fundo_reviewer.data import load_input
@@ -20,7 +22,7 @@ from fundo_reviewer.legacy import label_transaction
 from fundo_reviewer.provider import (
     BatchProviderShape, BudgetedBatchProvider, BudgetedProvider, OpenAIProvider, build_batch_request,
 )
-from fundo_reviewer.reviewer import ProviderReply, build_request, review_one
+from fundo_reviewer.reviewer import FatalReviewError, ProviderReply, build_request, review_one
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -173,6 +175,46 @@ def test_batch_key_changes_with_context_and_budget_blocks_before_call(tmp_path):
     with pytest.raises(BudgetExceeded):
         guard.review_batch(two)
     assert fake.calls == 0
+
+
+def test_alternative_model_has_distinct_price_budget_and_cache_key(tmp_path):
+    request = _request()
+    assert request_key(request, "gpt-5.6-luna") != request_key(request, "gpt-6-luna")
+    assert pricing_version("gpt-5.6-luna") != pricing_version("gpt-6-luna")
+    usage = {"input_tokens": 1_000_000, "output_tokens": 1_000_000}
+    assert usage_derived_cost(usage, "gpt-5.6-luna") == Decimal("1.40")
+    assert usage_derived_cost(usage, "gpt-6-luna") == Decimal("0.60")
+    ledger = SpendLedger(tmp_path / "mixed.jsonl")
+    first = ledger.reserve(request, "gpt-6-luna")
+    second = ledger.reserve(request, "gpt-5.6-luna")
+    assert second.reserved_usd > first.reserved_usd
+    ledger.settle(first, {"input_tokens": 100, "output_tokens": 40})
+    ledger.settle(second, {"input_tokens": 100, "output_tokens": 40})
+    assert ledger.settled_usd == Decimal("0.000030") + Decimal("0.000068")
+    assert SpendLedger(tmp_path / "mixed.jsonl").settled_usd == ledger.settled_usd
+
+
+def test_alternative_model_batch_replays_without_key_at_its_own_price(tmp_path, monkeypatch):
+    path = tmp_path / "alternative.jsonl"
+    ledger = tmp_path / "ledger.jsonl"
+    fake = FakeBatchProvider()
+    online = run_pipeline(SMALL, tmp_path / "online", "online", path, ledger,
+                          model="gpt-5.6-luna", provider=fake, batch_size=80)
+    assert online["degraded_count"] == 0
+    assert online["versions"]["pricing"] == pricing_version("gpt-5.6-luna")
+    assert online["new_usage_derived_cost_usd"] == str(usage_derived_cost(
+        online["new_provider_usage"], "gpt-5.6-luna"
+    ))
+    monkeypatch.delenv("OPENAI_API_KEY", raising=False)
+    offline = run_pipeline(SMALL, tmp_path / "offline", "offline", path, ledger,
+                           model="gpt-5.6-luna", batch_size=80)
+    assert offline["cache_hits"] == online["accepted_transactions"]
+    assert (tmp_path / "online" / "review_outcomes.json").read_bytes() == (
+        tmp_path / "offline" / "review_outcomes.json"
+    ).read_bytes()
+    with pytest.raises(CacheMiss):
+        run_pipeline(SMALL, tmp_path / "wrong_model", "offline", path, ledger,
+                     model="gpt-6-luna", batch_size=80)
 
 
 def test_online_fill_then_no_key_offline_replay_is_byte_identical(tmp_path, monkeypatch):
@@ -340,3 +382,24 @@ def test_openai_batch_adapter_uses_structured_outputs_without_tools_or_key(monke
     assert captured["max_output_tokens"] == 16000
     assert captured["store"] is False and captured["reasoning"] == {"effort": "none"}
     assert "tools" not in captured
+
+
+def test_openai_credit_exhaustion_is_fatal_without_retries():
+    calls = []
+
+    class NoCreditResponses:
+        def parse(self, **kwargs):
+            calls.append(kwargs)
+            response = httpx.Response(429, request=httpx.Request("POST", "https://api.openai.com/v1/responses"))
+            raise RateLimitError(
+                "insufficient_quota: credit_balance_exhausted: You have no credits remaining",
+                response=response, body={"code": "credit_balance_exhausted"},
+            )
+
+    adapter = object.__new__(OpenAIProvider)
+    adapter.model = "gpt-5.6-luna"
+    adapter.client = SimpleNamespace(responses=NoCreditResponses())
+    adapter._last_call_at = None
+    with pytest.raises(FatalReviewError, match="credit balance exhausted"):
+        adapter.review_batch(build_batch_request((_request(),)))
+    assert len(calls) == 1

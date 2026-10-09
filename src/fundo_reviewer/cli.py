@@ -10,8 +10,8 @@ from pathlib import Path
 from typing import Any
 
 from fundo_reviewer.cache import (
-    PRICING_VERSION, BatchReviewCache, CacheCorrupt, CacheMiss, ReviewCache, SpendLedger,
-    batch_identity,
+    BatchReviewCache, CacheCorrupt, CacheMiss, ReviewCache, SpendLedger,
+    batch_identity, pricing_version,
     usage_derived_cost,
 )
 from fundo_reviewer.credit import FEATURE_POLICY_VERSION, OFFER_POLICY_VERSION, build_credit_report
@@ -108,7 +108,7 @@ def _run_batched(normalized, labels, *, mode, cache_path, ledger_path, model, pr
             batch_hits += 1
             if reply.usage:
                 historical_usage.update(reply.usage)
-            historical_cost += usage_derived_cost(reply.usage)
+            historical_cost += usage_derived_cost(reply.usage, model)
         by_id = None
         if reply.status == "completed" and isinstance(reply.parsed, list):
             try:
@@ -188,7 +188,7 @@ def run_pipeline(
                 new_api_calls += 1
                 outcome = review_one(request, budgeted)
                 if outcome.review_status in {"kept", "changed"}:
-                    cache.append(request, model, outcome, usage_derived_cost(outcome.usage))
+                    cache.append(request, model, outcome, usage_derived_cost(outcome.usage, model))
                 if outcome.usage:
                     new_usage.update(outcome.usage)
             else:
@@ -198,7 +198,7 @@ def run_pipeline(
                     raise CacheCorrupt(f"cached proposal invalid for {transaction.transaction_id}: {outcome.error}")
                 if cached.usage:
                     historical_usage.update(cached.usage)
-                historical_cost += usage_derived_cost(cached.usage)
+                historical_cost += usage_derived_cost(cached.usage, model)
             outcomes.append(outcome)
     input_sha256 = hashlib.sha256(input_path.read_bytes()).hexdigest()
     status_counts = dict(sorted(Counter(item.review_status for item in outcomes).items()))
@@ -228,7 +228,7 @@ def run_pipeline(
             "prompt": PROMPT_VERSION,
             "response_schema": SCHEMA_VERSION,
             "flag_policy": FLAG_POLICY_VERSION,
-            "pricing": PRICING_VERSION,
+            "pricing": pricing_version(model),
             "credit_features": FEATURE_POLICY_VERSION,
             "illustrative_offer": OFFER_POLICY_VERSION,
         },
@@ -241,7 +241,7 @@ def run_pipeline(
         "new_api_calls": new_api_calls,
         "new_provider_usage": dict(sorted(new_usage.items())),
         "historical_cached_usage": dict(sorted(historical_usage.items())),
-        "new_usage_derived_cost_usd": str(usage_derived_cost(dict(new_usage))),
+        "new_usage_derived_cost_usd": str(usage_derived_cost(dict(new_usage), model)),
         "historical_cache_usage_derived_cost_usd": str(historical_cost),
         "accuracy": "not_measured_without_separate_truth_evaluation",
         "credit_report_sha256": hashlib.sha256(credit_path.read_bytes()).hexdigest(),

@@ -76,7 +76,7 @@ def run_pilot(variant: str, model: str = DEFAULT_MODEL) -> dict:
             if outcome.review_status == "provider_failure":
                 raise RuntimeError(f"pilot stopped after provider failure for {transaction_id}: {outcome.error}")
             if not outcome.degraded:
-                cache.append(request, model, outcome, usage_derived_cost(outcome.usage))
+                cache.append(request, model, outcome, usage_derived_cost(outcome.usage, model))
         else:
             outcome = review_one(request, _Static(reply))
             if outcome.degraded:

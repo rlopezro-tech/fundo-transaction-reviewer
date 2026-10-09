@@ -19,10 +19,11 @@ from fundo_reviewer.reviewer import (
 
 
 CACHE_VERSION = "review-cache-v1"
-PRICING_VERSION = "gpt-6-luna-standard-2026-10-08"
-PRICED_MODEL = "gpt-6-luna"
-INPUT_USD_PER_MILLION = Decimal("0.10")
-OUTPUT_USD_PER_MILLION = Decimal("0.50")
+DEFAULT_PRICED_MODEL = "gpt-6-luna"
+MODEL_PRICES = {
+    "gpt-6-luna": (Decimal("0.10"), Decimal("0.50"), "gpt-6-luna-standard-2026-10-08"),
+    "gpt-5.6-luna": (Decimal("0.20"), Decimal("1.20"), "gpt-5.6-luna-standard-2026-10-09"),
+}
 OPERATING_CEILING_USD = Decimal("8.00")
 HARD_LIMIT_USD = Decimal("10.00")
 MAX_OUTPUT_TOKENS = 500
@@ -39,6 +40,13 @@ class CacheCorrupt(ValueError):
 
 class BudgetExceeded(FatalReviewError):
     pass
+
+
+def pricing_version(model: str) -> str:
+    try:
+        return MODEL_PRICES[model][2]
+    except KeyError as exc:
+        raise BudgetExceeded(f"no approved price/budget guard for model {model!r}") from exc
 
 
 def _canonical(value: Any) -> str:
@@ -121,7 +129,7 @@ class ReviewCache:
             "proposal": outcome.proposal.model_dump(mode="json"),
             "raw_response": outcome.raw_response,
             "usage": outcome.usage,
-            "pricing_version": PRICING_VERSION,
+            "pricing_version": pricing_version(model),
             "usage_derived_cost_usd": str(cost_usd),
         }
         integrity = _digest(entry)
@@ -196,8 +204,8 @@ class BatchReviewCache:
             "raw_response": reply.raw_response,
             "usage": reply.usage,
             "validated_outcomes": validated_outcomes,
-            "pricing_version": PRICING_VERSION,
-            "usage_derived_cost_usd": str(usage_derived_cost(reply.usage)),
+            "pricing_version": pricing_version(identity["model"]),
+            "usage_derived_cost_usd": str(usage_derived_cost(reply.usage, identity["model"])),
         }
         self.path.parent.mkdir(parents=True, exist_ok=True)
         with self.path.open("a", encoding="utf-8") as stream:
@@ -207,8 +215,9 @@ class BatchReviewCache:
         self.entries[key] = entry
 
 
-def usage_derived_cost(usage: dict[str, int] | None) -> Decimal:
-    """Conservative standard-tier amount from actual token counts, no cache discount."""
+def usage_derived_cost(usage: dict[str, int] | None, model: str = DEFAULT_PRICED_MODEL) -> Decimal:
+    """Standard-tier price estimate from token counts, without cache discount."""
+    pricing_version(model)
     if not usage:
         return Decimal(0)
     input_tokens = usage.get("input_tokens", 0)
@@ -216,14 +225,16 @@ def usage_derived_cost(usage: dict[str, int] | None) -> Decimal:
     if (not isinstance(input_tokens, int) or not isinstance(output_tokens, int)
             or input_tokens < 0 or output_tokens < 0):
         raise ValueError("provider usage token counts must be nonnegative integers")
-    return (Decimal(input_tokens) * INPUT_USD_PER_MILLION
-            + Decimal(output_tokens) * OUTPUT_USD_PER_MILLION) / Decimal(1_000_000)
+    input_rate, output_rate, _ = MODEL_PRICES[model]
+    return (Decimal(input_tokens) * input_rate
+            + Decimal(output_tokens) * output_rate) / Decimal(1_000_000)
 
 
 @dataclass(frozen=True)
 class Reservation:
     call_id: str
     reserved_usd: Decimal
+    model: str
 
 
 class SpendLedger:
@@ -290,48 +301,46 @@ class SpendLedger:
         self.events.append(event)
 
     def reserve(self, request: ReviewRequest, model: str, max_output_tokens: int = MAX_OUTPUT_TOKENS) -> Reservation:
-        if model != PRICED_MODEL:
-            raise BudgetExceeded(f"no approved price/budget guard for model {model!r}")
+        pricing_version(model)
         if max_output_tokens <= 0:
             raise ValueError("max_output_tokens must be positive")
         # Deliberately overestimate tokenization using UTF-8 byte count plus
         # fixed framing/schema overhead. Standard price ignores discounts.
         input_bound = len((request.system_prompt + request.user_prompt).encode("utf-8")) + 3000
-        reserved = usage_derived_cost({"input_tokens": input_bound, "output_tokens": max_output_tokens})
+        reserved = usage_derived_cost({"input_tokens": input_bound, "output_tokens": max_output_tokens}, model)
         if self.committed_usd + reserved > self.ceiling_usd:
             raise BudgetExceeded(f"next call may exceed ${self.ceiling_usd} operating ceiling")
         call_id = f"{request_key(request, model)}-{len(self.events):08d}"
         self._append({
             "type": "reserve", "call_id": call_id, "reserved_usd": str(reserved),
             "request_key": request_key(request, model), "model": model,
-            "pricing_version": PRICING_VERSION,
+            "pricing_version": pricing_version(model),
             "at_utc": datetime.now(timezone.utc).isoformat(),
         })
-        return Reservation(call_id, reserved)
+        return Reservation(call_id, reserved, model)
 
     def reserve_batch(
         self, identity: dict[str, Any], model: str, system_prompt: str,
         user_prompt: str, max_output_tokens: int = BATCH_MAX_OUTPUT_TOKENS,
     ) -> Reservation:
-        if model != PRICED_MODEL:
-            raise BudgetExceeded(f"no approved price/budget guard for model {model!r}")
+        pricing_version(model)
         if max_output_tokens <= 0:
             raise ValueError("max_output_tokens must be positive")
         input_bound = len((system_prompt + user_prompt).encode("utf-8")) + 6000
-        reserved = usage_derived_cost({"input_tokens": input_bound, "output_tokens": max_output_tokens})
+        reserved = usage_derived_cost({"input_tokens": input_bound, "output_tokens": max_output_tokens}, model)
         if self.committed_usd + reserved > self.ceiling_usd:
             raise BudgetExceeded(f"next batch may exceed ${self.ceiling_usd} operating ceiling")
         key = _digest(identity)
         call_id = f"{key}-{len(self.events):08d}"
         self._append({
             "type": "reserve", "call_id": call_id, "reserved_usd": str(reserved),
-            "request_key": key, "model": model, "pricing_version": PRICING_VERSION,
+            "request_key": key, "model": model, "pricing_version": pricing_version(model),
             "at_utc": datetime.now(timezone.utc).isoformat(),
         })
-        return Reservation(call_id, reserved)
+        return Reservation(call_id, reserved, model)
 
     def settle(self, reservation: Reservation, usage: dict[str, int] | None) -> Decimal:
-        cost = usage_derived_cost(usage)
+        cost = usage_derived_cost(usage, reservation.model)
         if cost > reservation.reserved_usd:
             raise BudgetExceeded("actual usage exceeded reserved worst-case cost; stop further calls")
         self._append({
