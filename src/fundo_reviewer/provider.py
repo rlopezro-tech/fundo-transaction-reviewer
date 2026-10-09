@@ -1,4 +1,4 @@
-"""Small OpenAI Responses adapter; imported/instantiated only in online mode."""
+"""OpenAI/OpenRouter adapters; imported/instantiated only in online mode."""
 
 from __future__ import annotations
 
@@ -154,6 +154,106 @@ class OpenAIProvider:
         return self._reply(response, batched=True)
 
 
+class OpenRouterProvider(OpenAIProvider):
+    """OpenRouter's OpenAI-compatible Chat Completions API."""
+
+    def __init__(self, model: str = "openrouter/free"):
+        api_key = os.environ.get("OPENROUTER_API_KEY")
+        if not api_key:
+            raise RuntimeError("OPENROUTER_API_KEY is required for OpenRouter online review")
+        from openai import OpenAI
+
+        self.model = model if model == "openrouter/free" else model.removeprefix("openrouter/")
+        self.client = OpenAI(
+            api_key=api_key, base_url="https://openrouter.ai/api/v1",
+            max_retries=0, timeout=180.0,
+        )
+        self._last_call_at: float | None = None
+
+    def _request(self, system_prompt: str, user_prompt: str, text_format: type[BaseModel], max_output_tokens: int):
+        from openai import RateLimitError
+
+        for attempt in range(4):
+            try:
+                if self._last_call_at is not None:
+                    time.sleep(max(0.0, 7.0 - (time.monotonic() - self._last_call_at)))
+                self._last_call_at = time.monotonic()
+                response = self.client.chat.completions.create(
+                    model=self.model,
+                    messages=[
+                        {"role": "system", "content": system_prompt},
+                        {"role": "user", "content": user_prompt},
+                    ],
+                    response_format={
+                        "type": "json_schema",
+                        "json_schema": {
+                            "name": "transaction_review_batch" if text_format is BatchProviderShape else "transaction_review",
+                            "strict": True,
+                            "schema": text_format.model_json_schema(),
+                        },
+                    },
+                    max_tokens=max_output_tokens,
+                    extra_body={
+                        "provider": {"require_parameters": True},
+                        "reasoning": {"effort": "low"},
+                    },
+                )
+                return response
+            except RateLimitError as exc:
+                if attempt == 3:
+                    raise FatalReviewError("OpenRouter free-model rate limit persisted after bounded retries") from exc
+                retry_after = exc.response.headers.get("retry-after") if exc.response else None
+                try:
+                    delay = min(max(float(retry_after), 1), 60) if retry_after else 15.0 * (attempt + 1)
+                except ValueError:
+                    delay = 15.0 * (attempt + 1)
+                time.sleep(delay)
+            except Exception as exc:
+                # A batch failure must stop the run; otherwise the CLI would
+                # repeatedly send the remaining batches despite a bad key,
+                # schema mismatch, or transport outage.
+                raise FatalReviewError(
+                    f"OpenRouter request failed ({type(exc).__name__}); stop and inspect before retrying"
+                ) from exc
+
+    def _reply(self, response, *, batched: bool) -> ProviderReply:
+        choice = response.choices[0] if response.choices else None
+        message = choice.message if choice else None
+        usage = None
+        if response.usage is not None:
+            usage = {
+                "input_tokens": response.usage.prompt_tokens,
+                "output_tokens": response.usage.completion_tokens,
+            }
+        raw: dict[str, Any] = {
+            "response_id": response.id,
+            "model": response.model,
+            "finish_reason": choice.finish_reason if choice else None,
+            "output_text": message.content if message else None,
+        }
+        if usage is not None:
+            raw["usage"] = usage
+        if message is None:
+            return ProviderReply("incomplete", raw_response=raw, usage=usage)
+        if message.refusal:
+            return ProviderReply("refused", raw_response=raw, usage=usage)
+        if choice.finish_reason != "stop":
+            return ProviderReply("incomplete", raw_response=raw, usage=usage)
+        parsed = None
+        if message.content:
+            try:
+                parsed = json.loads(message.content)
+                if batched:
+                    parsed = parsed.get("reviews") if isinstance(parsed, dict) else None
+            except (json.JSONDecodeError, ValueError):
+                parsed = None
+        return ProviderReply(
+            "completed",
+            parsed=parsed,
+            raw_response=raw, usage=usage,
+        )
+
+
 class BudgetedProvider:
     def __init__(self, provider: ReviewProvider, ledger: SpendLedger, model: str):
         self.provider = provider
@@ -168,7 +268,7 @@ class BudgetedProvider:
 
 
 class BudgetedBatchProvider:
-    def __init__(self, provider: OpenAIProvider, ledger: SpendLedger, model: str):
+    def __init__(self, provider: ReviewProvider, ledger: SpendLedger, model: str):
         self.provider = provider
         self.ledger = ledger
         self.model = model

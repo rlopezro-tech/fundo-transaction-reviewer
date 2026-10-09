@@ -23,7 +23,7 @@
 
 The project uses Python 3.12 and `uv`. Dependencies are declared in
 `pyproject.toml` and pinned in `uv.lock`. Install with `uv sync --group dev`.
-For online cache filling, put `OPENAI_API_KEY=...` in a local, gitignored `.env`
+For the OpenAI path, put `OPENAI_API_KEY=...` in a local, gitignored `.env`
 file, or export it in your shell; never commit it. `uv run --env-file .env`
 loads that file for one command. The selected `gpt-6-luna` is the least-cost
 model in OpenAI's current flagship family at the published standard short-context
@@ -37,10 +37,22 @@ PYTHONPATH=src uv run --env-file .env python -m fundo_reviewer.cli --mode online
 This command will call the paid model for uncached batches and is **not yet a
 completed demonstration**. It may stop at the account's daily request limit;
 rerunning resumes from validated cached batches. On 2026-10-09 it stopped before
-the first main-cohort response, so the main cache is still empty. A conservative
-pre-call spend guard stops before the USD 8 operating ceiling. See
-[EXECUTION.md](docs/EXECUTION.md) for the measured pilot, pricing assumptions
-and current limitations. If you export the key instead, omit `--env-file .env`.
+the first OpenAI main-cohort response. The OpenAI default cache is still empty.
+A conservative pre-call spend guard stops before the USD 8 operating ceiling.
+See [EXECUTION.md](docs/EXECUTION.md) for the alternative-provider experiment,
+measured pilot, pricing assumptions and current limitations. If you export the
+key instead, omit `--env-file .env`.
+
+## OpenRouter experiment (incomplete)
+
+An OpenRouter-compatible adapter is available with `OPENROUTER_API_KEY` in the
+ignored `.env` file. The least-cost paid model tested was `openai/gpt-oss-20b`;
+its reported price is USD 0.02/M input and USD 0.10/M output. The attempt to
+review the 2,000-row cohort was stopped: only 160 rows (8%) had valid responses,
+while many large-batch responses were invalid or incomplete. No full report was
+generated. The experimental caches are kept separate from the OpenAI main
+cache; do not resume them until the provider output is fixed and a clean pilot
+passes. Details and exact progress are in [EXECUTION.md](docs/EXECUTION.md).
 
 Fast local tests run with `uv run --group dev pytest -q`; they require no API key.
 

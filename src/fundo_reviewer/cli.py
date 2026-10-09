@@ -18,7 +18,7 @@ from fundo_reviewer.credit import FEATURE_POLICY_VERSION, OFFER_POLICY_VERSION, 
 from fundo_reviewer.data import load_input
 from fundo_reviewer.legacy import RULESET_VERSION, label_transactions
 from fundo_reviewer.provider import (
-    DEFAULT_MODEL, BudgetedBatchProvider, BudgetedProvider, OpenAIProvider, build_batch_request,
+    DEFAULT_MODEL, BudgetedBatchProvider, BudgetedProvider, OpenAIProvider, OpenRouterProvider, build_batch_request,
 )
 from fundo_reviewer.revenue import REVENUE_POLICY_VERSION
 from fundo_reviewer.reviewer import (
@@ -67,7 +67,9 @@ def _run_batched(normalized, labels, *, mode, cache_path, ledger_path, model, pr
     cache = BatchReviewCache(cache_path)
     budgeted = None
     if mode == "online":
-        live = provider if provider is not None else OpenAIProvider(model)
+        live = provider if provider is not None else (
+            OpenRouterProvider(model) if model.startswith("openrouter/") else OpenAIProvider(model)
+        )
         if not hasattr(live, "review_batch"):
             raise TypeError("batch mode requires provider.review_batch")
         budgeted = BudgetedBatchProvider(live, SpendLedger(ledger_path), model)
@@ -136,6 +138,13 @@ def _run_batched(normalized, labels, *, mode, cache_path, ledger_path, model, pr
             # explicit degraded status. A transport failure has no model
             # decision to replay and must be eligible for a later online retry.
             cache.append(identity, reply, validated)
+        if model.startswith("openrouter/") and any(item.degraded for item in batch_outcomes):
+            # OpenRouter free/low-cost endpoints have returned malformed or
+            # incomplete batch JSON. Preserve the response, then stop rather
+            # than spend on every remaining batch with a broken contract.
+            raise FatalReviewError(
+                "OpenRouter batch response was degraded; cached for diagnosis, stopping before more calls"
+            )
         outcomes.extend(batch_outcomes)
     return outcomes, cache_hits, batch_hits, new_api_calls, new_usage, historical_usage, historical_cost
 
@@ -169,7 +178,9 @@ def run_pipeline(
         budgeted: BudgetedProvider | None = None
         if mode == "online":
             # Lazy key/provider access. Offline imports no SDK client or key.
-            live_provider = provider if provider is not None else OpenAIProvider(model)
+            live_provider = provider if provider is not None else (
+                OpenRouterProvider(model) if model.startswith("openrouter/") else OpenAIProvider(model)
+            )
             budgeted = BudgetedProvider(live_provider, SpendLedger(ledger_path), model)
         outcomes = []
         cache_hits = 0

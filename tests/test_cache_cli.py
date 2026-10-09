@@ -314,6 +314,24 @@ def test_batch_missing_id_is_explicit_degraded_not_silent_keep(tmp_path):
     assert not any(record["flag"] for record in json.loads((tmp_path / "offline" / "review_outcomes.json").read_text()))
 
 
+def test_openrouter_degraded_batch_stops_after_caching_response(tmp_path):
+    path = tmp_path / "openrouter.jsonl"
+    ledger = tmp_path / "ledger.jsonl"
+    with pytest.raises(FatalReviewError, match="OpenRouter batch response was degraded"):
+        run_pipeline(
+            SMALL, tmp_path / "online", "online", path, ledger,
+            model="openrouter/openai/gpt-oss-20b",
+            provider=FakeBatchProvider(omit_one=True), batch_size=2,
+        )
+    assert path.exists()
+    # A cached malformed response is still not treated as a success on replay.
+    with pytest.raises(FatalReviewError, match="OpenRouter batch response was degraded"):
+        run_pipeline(
+            SMALL, tmp_path / "offline", "offline", path, ledger,
+            model="openrouter/openai/gpt-oss-20b", batch_size=2,
+        )
+
+
 def test_batch_transport_failure_degrades_but_can_be_retried_online(tmp_path):
     class FailingBatchProvider:
         def review_batch(self, batch):
