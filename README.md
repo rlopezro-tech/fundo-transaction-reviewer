@@ -17,6 +17,7 @@
 - [EXECUTION.md](docs/EXECUTION.md) — Ticket 05 model, pilot, cache, budget and execution assumptions.
 - [CREDIT_POLICY.md](docs/CREDIT_POLICY.md) — Ticket 06 feature denominators, coverage, and illustrative offer policy.
 - [EVALUATION.md](docs/EVALUATION.md) — Ticket 07 strict synthetic-truth join and seeded sensitivity method.
+- [COMPLETION_MATRIX.md](docs/COMPLETION_MATRIX.md) — direct evidence and remaining final gates.
 
 ## Setup and run
 
@@ -76,7 +77,30 @@ usage and labels the cost as usage-derived estimate, not a billing receipt.
 The credit report shows legacy and reviewed features/illustrative offers with
 their deltas; it does not represent a real Fundo funding decision.
 
+For a **small truth-free input** using the same documented envelope, use the
+included sample as a shape example, or replace its path with a new file. The
+new file needs online mode until its exact responses have been cached:
+
+```bash
+PYTHONPATH=src uv run python -m fundo_reviewer.cli --mode online --input tests/fixtures/input_90_days.json --output-dir reports/new_input --cache cache/new_input.jsonl
+```
+
+This path emits flags, features and illustrative offers, **not measured
+accuracy**. It does not require Plaid API or Sandbox credentials. An uncached
+offline run must fail explicitly. Keep real customer files and keys out of Git.
+
 Run the separate synthetic sensitivity/evaluation command from
 [`docs/EVALUATION.md`](docs/EVALUATION.md). The committed sensitivity artifact
 is a **simulation**, not measured reviewer quality; the latter waits for the
 full reviewed cohort.
+
+Once `reports/main` contains a complete reviewed run, generate the separate
+synthetic-truth quality report and deterministic sensitivity results:
+
+```bash
+PYTHONPATH=src uv run python -m fundo_reviewer.evaluation --review-dir reports/main --output-dir reports/evaluation
+```
+
+The truth file is opened only by this evaluation command, never by the
+reviewer. See [`SOLUTION.md`](SOLUTION.md) for the engineering interpretation,
+limitations, production plan and tool disclosure.
