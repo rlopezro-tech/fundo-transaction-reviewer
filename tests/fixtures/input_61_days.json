@@ -1,0 +1,31 @@
+{
+  "as_of": "2026-10-08",
+  "accounts": [
+    {
+      "account_id": "acct_short",
+      "business_id": "biz_short",
+      "coverage_start": "2026-08-09",
+      "coverage_end": "2026-10-08"
+    }
+  ],
+  "transactions": [
+    {
+      "transaction_id": "tx_short_first",
+      "account_id": "acct_short",
+      "date": "2026-08-09",
+      "amount": -50.00,
+      "name": "CUSTOMER DEPOSIT",
+      "pending": false,
+      "iso_currency_code": "USD"
+    },
+    {
+      "transaction_id": "tx_short_last",
+      "account_id": "acct_short",
+      "date": "2026-10-08",
+      "amount": 20.00,
+      "name": "SUPPLIER PAYMENT",
+      "pending": false,
+      "iso_currency_code": "USD"
+    }
+  ]
+}

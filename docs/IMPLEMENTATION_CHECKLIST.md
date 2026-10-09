@@ -6,7 +6,7 @@ Use this file to track **what must be built or written** and **how completion wi
 
 ## 1. Approved policies to implement and verify
 
-- [ ] Define the exact transaction fields retained from Plaid-shaped input; document date-window boundaries, currency handling, pending/posted duplicates, and malformed-record behavior. **Evidence:** input contract and tests.
+- [x] Define the exact transaction fields retained from Plaid-shaped input; document date-window boundaries, currency handling, pending/posted duplicates, and malformed-record behavior. **Evidence:** [input contract](INPUT_CONTRACT.md), `src/fundo_reviewer/data.py`, `tests/test_data.py`.
 - [ ] Define the 13 keyword lists, normalization/matching behavior, explicit group precedence, and representation of unmatched transactions. Keep the deliberately imperfect engine versioned. **Evidence:** ruleset and precedence/collision tests.
 - [ ] Define how the business/personal flag is assigned and the exact groups that exclude a business credit from revenue. **Evidence:** written eligibility rule and tests for deposits that are not sales.
 - [ ] Define average monthly revenue normalization for 90-day and incomplete windows, the denominator for revenue/deposits, and the denominator and unit for high-risk debit share. **Evidence:** feature definitions and arithmetic tests.
@@ -18,7 +18,7 @@ Use this file to track **what must be built or written** and **how completion wi
 - [ ] Generate a deterministic, synthetic dataset of about 10 businesses, roughly 90 days each, and a couple thousand Plaid-shaped transactions. Use **no real customer data**. **Evidence:** committed seed/generator and dataset summary.
 - [ ] Include normal and funder-relevant adversarial cases: noisy descriptions; processor revenue versus funder loan (`SQUARE INC` / `SQUARE CAPITAL`); punctuation-sensitive keyword misses; internal transfers; personal credits; hard negatives; and a bank with no NSF fees. **Evidence:** scenario inventory and fixture tests.
 - [ ] Keep a **separate, ID-keyed ground-truth label** derived from scenario intent, not copied from the legacy engine. Never send it to the reviewer. **Evidence:** generation test and prompt/cache inspection.
-- [ ] Validate Plaid Transactions sign convention: positive `amount` is money out; negative is money in. Validate required IDs, dates, amounts, and business/account association. **Evidence:** input tests.
+- [x] Validate Plaid Transactions sign convention: positive `amount` is money out; negative is money in. Validate required IDs, dates, amounts, and business/account association. **Evidence:** `src/fundo_reviewer/data.py`, `tests/test_data.py`.
 - [ ] Label every transaction with a versioned, deliberately simple keyword engine; log matched rules and apply explicit precedence when groups collide. **Evidence:** deterministic label output and tests.
 - [ ] Support all 13 groups: Not average monthly revenue; NSFs; Overdraft; Internal transfer; UCC; Active advance; Auto deposit; Revenue verification; High risk — gambling; High risk — bankruptcy; High risk — debt settlement payments; High risk — garnishment; High risk — other. Also assign business/personal. **Evidence:** taxonomy coverage test.
 - [ ] Derive revenue in code **only** for an eligible business credit after the exclusion rule; do not equate every deposit with sales. **Evidence:** eligibility tests.

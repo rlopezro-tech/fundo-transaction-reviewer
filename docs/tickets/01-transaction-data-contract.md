@@ -1,6 +1,6 @@
 # Ticket 01 — Transaction data contract and observation window
 
-**Status:** Ready for implementation; no code is completed by writing this ticket.
+**Status:** Completed — input validation and normalization only; downstream pipeline remains pending.
 
 **Type:** Foundation
 
@@ -31,14 +31,21 @@ Define and implement the smallest reproducible input contract for **Plaid-shaped
 
 ## Acceptance criteria
 
-- [ ] A valid new transaction file normalizes to stable records while preserving raw fields and business/account association.
-- [ ] Tests prove `-100.00` is a $100 inflow and `+100.00` is a $100 outflow; money is not calculated with binary floating point.
-- [ ] Window tests cover both inclusive boundaries, an out-of-window record, 90-day coverage, and a separately identified 61-day history.
-- [ ] Coverage is read from explicit metadata, not guessed from the first transaction date; multiple-account behavior is documented and tested.
-- [ ] Pending/posted examples cannot be counted twice; duplicate IDs and malformed records fail with actionable errors.
-- [ ] Currency and zero-amount policies are documented and tested.
-- [ ] Validation works without truth labels, an API key, or a Plaid connection.
-- [ ] The challenge's required behavior is distinguished from our chosen policies in the contract and tests.
+- [x] A valid new transaction file normalizes to stable records while preserving raw fields and business/account association.
+- [x] Tests prove `-100.00` is a $100 inflow and `+100.00` is a $100 outflow; money is not calculated with binary floating point.
+- [x] Window tests cover both inclusive boundaries, an out-of-window record, 90-day coverage, and a separately identified 61-day history.
+- [x] Coverage is read from explicit metadata, not guessed from the first transaction date; multiple-account behavior is documented and tested.
+- [x] Pending/posted examples cannot be counted twice; duplicate IDs and malformed records fail with actionable errors.
+- [x] Currency and zero-amount policies are documented and tested.
+- [x] Validation works without truth labels, an API key, or a Plaid connection.
+- [x] The challenge's required behavior is distinguished from our chosen policies in the contract and tests.
+
+## Completion evidence
+
+- `src/fundo_reviewer/data.py` implements the versioned `input-v1` contract, Decimal parsing, inclusive coverage intersection, posted-only filtering, validation and stable output order.
+- [Input contract](../INPUT_CONTRACT.md) documents the exact JSON envelope and approved policies without presenting them as Fundo rules.
+- `tests/fixtures/input_90_days.json` and `tests/fixtures/input_61_days.json` are small truth-free examples; `tests/test_data.py` covers the acceptance criteria and error paths.
+- `uv run --group dev pytest -q` passed **34 tests**. This does **not** claim that the full reviewer CLI, dataset or reports exist.
 
 ## Out of scope
 

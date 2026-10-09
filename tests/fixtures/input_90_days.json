@@ -1,0 +1,62 @@
+{
+  "as_of": "2026-10-08",
+  "accounts": [
+    {
+      "account_id": "acct_001",
+      "business_id": "biz_001",
+      "coverage_start": "2026-07-11",
+      "coverage_end": "2026-10-08"
+    }
+  ],
+  "transactions": [
+    {
+      "transaction_id": "tx_start",
+      "account_id": "acct_001",
+      "date": "2026-07-11",
+      "amount": -100.00,
+      "name": "ACH CREDIT CUSTOMER",
+      "merchant_name": "Example Customer",
+      "category": ["Transfer", "Credit"],
+      "personal_finance_category": {"primary": "INCOME", "detailed": "INCOME_OTHER_INCOME"},
+      "pending": false,
+      "iso_currency_code": "USD"
+    },
+    {
+      "transaction_id": "tx_pending",
+      "account_id": "acct_001",
+      "date": "2026-10-07",
+      "amount": 10.00,
+      "name": "CARD PURCHASE PENDING",
+      "pending": true,
+      "iso_currency_code": "USD"
+    },
+    {
+      "transaction_id": "tx_posted",
+      "account_id": "acct_001",
+      "date": "2026-10-08",
+      "amount": 10.25,
+      "name": "CARD PURCHASE POSTED",
+      "pending": false,
+      "pending_transaction_id": "tx_pending",
+      "iso_currency_code": "USD"
+    },
+    {
+      "transaction_id": "tx_end",
+      "account_id": "acct_001",
+      "date": "2026-10-08",
+      "amount": 100.00,
+      "name": "ACH DEBIT VENDOR",
+      "pending": false,
+      "iso_currency_code": "USD"
+    },
+    {
+      "transaction_id": "tx_old",
+      "account_id": "acct_001",
+      "date": "2026-07-10",
+      "amount": -5.00,
+      "name": "OLDER DEPOSIT",
+      "pending": false,
+      "iso_currency_code": "USD"
+    }
+  ]
+}

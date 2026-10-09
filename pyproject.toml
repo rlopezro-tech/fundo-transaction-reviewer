@@ -14,4 +14,8 @@ dev = [
     "pytest>=8,<10",
 ]
 
-# Packaging and a CLI entry point will be added when implementation begins.
+# Packaging and a CLI entry point belong to the later pipeline ticket.
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["tests"]
