@@ -57,7 +57,7 @@ class FakeProvider:
 
 def test_versions_and_fake_provider_reviews_every_existing_legacy_label():
     assert (PROMPT_VERSION, SCHEMA_VERSION, FLAG_POLICY_VERSION) == (
-        "review-prompt-v1", "review-schema-v1", "all-valid-changes-v1"
+        "review-prompt-v3", "review-schema-v3", "all-valid-changes-v1"
     )
     normalized = load_input(ROOT / "data" / "transactions" / "main_90_days.json")
     labels = label_transactions(normalized.transactions)

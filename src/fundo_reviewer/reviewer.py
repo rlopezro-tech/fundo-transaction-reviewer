@@ -15,8 +15,8 @@ from fundo_reviewer.legacy import LegacyLabel
 from fundo_reviewer.revenue import ALLOWED_GROUPS, is_revenue_eligible
 
 
-PROMPT_VERSION = "review-prompt-v1"
-SCHEMA_VERSION = "review-schema-v1"
+PROMPT_VERSION = "review-prompt-v3"
+SCHEMA_VERSION = "review-schema-v3"
 FLAG_POLICY_VERSION = "all-valid-changes-v1"
 SYSTEM_PROMPT = (
     "You review an EXISTING legacy transaction label, not label from scratch. "
@@ -26,7 +26,16 @@ SYSTEM_PROMPT = (
     "keep and explain uncertainty. Do not infer verified legal events or failed payments from text alone. "
     "Do not change transaction ID, date, amount or other source facts. Do not calculate revenue, "
     "credit features, or an offer. Reply only in the specified structured schema, with a brief "
-    "reason an underwriter can read in five seconds."
+    "reason of at most 160 characters an underwriter can read in five seconds. Choose a group "
+    "only from the supplied enum; use unmatched for ordinary activity with no specific group. "
+    "Distinguish SQUARE INC merchant settlement from SQUARE CAPITAL funding; a word match alone "
+    "does not prove an advance, NSF fee, or legal event. Notice UCC 1 / OD-FEE punctuation misses. "
+    "An internal transfer is not an NSF merely because 'nsf' is inside 'transfer'. Keep a label "
+    "when the bank text cannot justify a correction. Explicit funder repayment text supports "
+    "Active advance even for an outflow; client direct/auto deposits can keep Auto deposit. "
+    "A payment for bankruptcy counsel or a filing service can keep its relevant group as a "
+    "synthetic risk signal without claiming the legal event is verified. Do not switch these "
+    "to unmatched merely because legal or sales facts remain unverified."
 )
 
 
@@ -100,6 +109,10 @@ class ProviderReply:
 
 class ReviewProvider(Protocol):
     def review(self, request: ReviewRequest) -> ProviderReply: ...
+
+
+class FatalReviewError(RuntimeError):
+    """Execution must stop rather than degrade, e.g. a pre-call budget denial."""
 
 
 @dataclass(frozen=True, slots=True)
@@ -202,13 +215,15 @@ def review_one(request: ReviewRequest, provider: ReviewProvider) -> ReviewOutcom
     """Online outcome; failures are visible degraded fallbacks, never fake keeps."""
     try:
         reply = provider.review(request)
+    except FatalReviewError:
+        raise
     except Exception as exc:
         return _fallback(request, "provider_failure", None, None, f"{type(exc).__name__}: {exc}")
     if not isinstance(reply, ProviderReply):
         return _fallback(request, "invalid_response", reply, None, "provider returned no ProviderReply")
     raw = reply.raw_response if reply.raw_response is not None else reply.parsed
     if reply.status != "completed":
-        status = reply.status if reply.status in {"refused", "incomplete"} else "invalid_response"
+        status = reply.status if reply.status in {"refused", "incomplete", "provider_failure"} else "invalid_response"
         return _fallback(request, status, raw, reply.usage, f"provider status {reply.status}")
     try:
         proposal = validate_proposal(reply.parsed, request)

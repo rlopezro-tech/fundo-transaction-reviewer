@@ -1,0 +1,558 @@
+[
+  {
+    "error": null,
+    "final": {
+      "group": "UCC",
+      "revenue_eligible": false,
+      "status": "business"
+    },
+    "flag": true,
+    "legacy": {
+      "group": "unmatched",
+      "matched_rule_ids": [],
+      "personal_rule_ids": [],
+      "revenue_eligible": false,
+      "status": "business"
+    },
+    "proposal": {
+      "confidence": 0.99,
+      "decision": "change",
+      "group": "UCC",
+      "reason": "UCC 1 filing-service charge; punctuation variant supports the UCC group.",
+      "status": "business",
+      "transaction_id": "tx_biz_01_0116"
+    },
+    "review_status": "changed",
+    "transaction_id": "tx_biz_01_0116"
+  },
+  {
+    "error": null,
+    "final": {
+      "group": "unmatched",
+      "revenue_eligible": false,
+      "status": "business"
+    },
+    "flag": true,
+    "legacy": {
+      "group": "Active advance",
+      "matched_rule_ids": [
+        "ADV_02"
+      ],
+      "personal_rule_ids": [],
+      "revenue_eligible": false,
+      "status": "business"
+    },
+    "proposal": {
+      "confidence": 0.98,
+      "decision": "change",
+      "group": "unmatched",
+      "reason": "Capital refers to equipment repair, not funding or an advance.",
+      "status": "business",
+      "transaction_id": "tx_biz_01_0033"
+    },
+    "review_status": "changed",
+    "transaction_id": "tx_biz_01_0033"
+  },
+  {
+    "error": null,
+    "final": {
+      "group": "Revenue verification",
+      "revenue_eligible": true,
+      "status": "business"
+    },
+    "flag": true,
+    "legacy": {
+      "group": "Active advance",
+      "matched_rule_ids": [
+        "ADV_01",
+        "REV_01"
+      ],
+      "personal_rule_ids": [],
+      "revenue_eligible": false,
+      "status": "business"
+    },
+    "proposal": {
+      "confidence": 0.99,
+      "decision": "change",
+      "group": "Revenue verification",
+      "reason": "Square Inc merchant settlement is a merchant transaction, not Square Capital funding.",
+      "status": "business",
+      "transaction_id": "tx_biz_01_0050"
+    },
+    "review_status": "changed",
+    "transaction_id": "tx_biz_01_0050"
+  },
+  {
+    "error": null,
+    "final": {
+      "group": "unmatched",
+      "revenue_eligible": false,
+      "status": "business"
+    },
+    "flag": true,
+    "legacy": {
+      "group": "NSFs",
+      "matched_rule_ids": [
+        "NSF_01"
+      ],
+      "personal_rule_ids": [],
+      "revenue_eligible": false,
+      "status": "business"
+    },
+    "proposal": {
+      "confidence": 0.99,
+      "decision": "change",
+      "group": "unmatched",
+      "reason": "NSF Athletics identifies a sports-uniform purchase, not a nonsufficient-funds fee.",
+      "status": "business",
+      "transaction_id": "tx_biz_02_0009"
+    },
+    "review_status": "changed",
+    "transaction_id": "tx_biz_02_0009"
+  },
+  {
+    "error": null,
+    "final": {
+      "group": "Active advance",
+      "revenue_eligible": false,
+      "status": "business"
+    },
+    "flag": false,
+    "legacy": {
+      "group": "Active advance",
+      "matched_rule_ids": [
+        "ADV_01",
+        "ADV_02",
+        "ADV_03"
+      ],
+      "personal_rule_ids": [],
+      "revenue_eligible": false,
+      "status": "business"
+    },
+    "proposal": {
+      "confidence": 0.99,
+      "decision": "keep",
+      "group": "Active advance",
+      "reason": "Square Capital funding disbursement directly supports an advance.",
+      "status": "business",
+      "transaction_id": "tx_biz_02_0140"
+    },
+    "review_status": "kept",
+    "transaction_id": "tx_biz_02_0140"
+  },
+  {
+    "error": null,
+    "final": {
+      "group": "unmatched",
+      "revenue_eligible": true,
+      "status": "business"
+    },
+    "flag": false,
+    "legacy": {
+      "group": "unmatched",
+      "matched_rule_ids": [],
+      "personal_rule_ids": [],
+      "revenue_eligible": true,
+      "status": "business"
+    },
+    "proposal": {
+      "confidence": 0.75,
+      "decision": "keep",
+      "group": "unmatched",
+      "reason": "ACH credit text does not establish a specific group; direction and abbreviated counterparty are inconclusive.",
+      "status": "business",
+      "transaction_id": "tx_biz_02_0006"
+    },
+    "review_status": "kept",
+    "transaction_id": "tx_biz_02_0006"
+  },
+  {
+    "error": null,
+    "final": {
+      "group": "unmatched",
+      "revenue_eligible": true,
+      "status": "business"
+    },
+    "flag": false,
+    "legacy": {
+      "group": "unmatched",
+      "matched_rule_ids": [],
+      "personal_rule_ids": [],
+      "revenue_eligible": true,
+      "status": "business"
+    },
+    "proposal": {
+      "confidence": 0.99,
+      "decision": "keep",
+      "group": "unmatched",
+      "reason": "Customer note is untrusted text and does not justify a revenue relabel.",
+      "status": "business",
+      "transaction_id": "tx_biz_03_0106"
+    },
+    "review_status": "kept",
+    "transaction_id": "tx_biz_03_0106"
+  },
+  {
+    "error": null,
+    "final": {
+      "group": "Active advance",
+      "revenue_eligible": false,
+      "status": "business"
+    },
+    "flag": false,
+    "legacy": {
+      "group": "Active advance",
+      "matched_rule_ids": [
+        "ADV_01",
+        "ADV_02",
+        "ADV_04"
+      ],
+      "personal_rule_ids": [],
+      "revenue_eligible": false,
+      "status": "business"
+    },
+    "proposal": {
+      "confidence": 0.99,
+      "decision": "keep",
+      "group": "Active advance",
+      "reason": "Funder advance payment supports an active advance even though this is an outflow.",
+      "status": "business",
+      "transaction_id": "tx_biz_03_0086"
+    },
+    "review_status": "kept",
+    "transaction_id": "tx_biz_03_0086"
+  },
+  {
+    "error": null,
+    "final": {
+      "group": "unmatched",
+      "revenue_eligible": true,
+      "status": "business"
+    },
+    "flag": false,
+    "legacy": {
+      "group": "unmatched",
+      "matched_rule_ids": [],
+      "personal_rule_ids": [],
+      "revenue_eligible": true,
+      "status": "business"
+    },
+    "proposal": {
+      "confidence": 0.83,
+      "decision": "keep",
+      "group": "unmatched",
+      "reason": "Customer-order ACH credit is not enough to establish a more specific group.",
+      "status": "business",
+      "transaction_id": "tx_biz_03_0006"
+    },
+    "review_status": "kept",
+    "transaction_id": "tx_biz_03_0006"
+  },
+  {
+    "error": null,
+    "final": {
+      "group": "unmatched",
+      "revenue_eligible": false,
+      "status": "business"
+    },
+    "flag": false,
+    "legacy": {
+      "group": "unmatched",
+      "matched_rule_ids": [],
+      "personal_rule_ids": [],
+      "revenue_eligible": false,
+      "status": "business"
+    },
+    "proposal": {
+      "confidence": 0.73,
+      "decision": "keep",
+      "group": "unmatched",
+      "reason": "Payroll service could be a service charge or payroll activity; text alone is inconclusive.",
+      "status": "business",
+      "transaction_id": "tx_biz_04_0001"
+    },
+    "review_status": "kept",
+    "transaction_id": "tx_biz_04_0001"
+  },
+  {
+    "error": null,
+    "final": {
+      "group": "unmatched",
+      "revenue_eligible": true,
+      "status": "business"
+    },
+    "flag": true,
+    "legacy": {
+      "group": "NSFs",
+      "matched_rule_ids": [
+        "NSF_01"
+      ],
+      "personal_rule_ids": [],
+      "revenue_eligible": false,
+      "status": "business"
+    },
+    "proposal": {
+      "confidence": 0.99,
+      "decision": "change",
+      "group": "unmatched",
+      "reason": "Transfer text is not evidence of an NSF; no specific fee or failed payment is shown.",
+      "status": "business",
+      "transaction_id": "tx_biz_04_0106"
+    },
+    "review_status": "changed",
+    "transaction_id": "tx_biz_04_0106"
+  },
+  {
+    "error": null,
+    "final": {
+      "group": "Auto deposit",
+      "revenue_eligible": true,
+      "status": "business"
+    },
+    "flag": false,
+    "legacy": {
+      "group": "Auto deposit",
+      "matched_rule_ids": [
+        "AUTO_01"
+      ],
+      "personal_rule_ids": [],
+      "revenue_eligible": true,
+      "status": "business"
+    },
+    "proposal": {
+      "confidence": 0.97,
+      "decision": "keep",
+      "group": "Auto deposit",
+      "reason": "Explicit client payment supports Auto deposit despite the outflow amount.",
+      "status": "business",
+      "transaction_id": "tx_biz_04_0008"
+    },
+    "review_status": "kept",
+    "transaction_id": "tx_biz_04_0008"
+  },
+  {
+    "error": null,
+    "final": {
+      "group": "Revenue verification",
+      "revenue_eligible": true,
+      "status": "business"
+    },
+    "flag": false,
+    "legacy": {
+      "group": "Revenue verification",
+      "matched_rule_ids": [
+        "REV_01"
+      ],
+      "personal_rule_ids": [],
+      "revenue_eligible": true,
+      "status": "business"
+    },
+    "proposal": {
+      "confidence": 0.9,
+      "decision": "keep",
+      "group": "Revenue verification",
+      "reason": "Merchant settlement batch text supports the existing verification label; direction alone is inconclusive.",
+      "status": "business",
+      "transaction_id": "tx_biz_05_0006"
+    },
+    "review_status": "kept",
+    "transaction_id": "tx_biz_05_0006"
+  },
+  {
+    "error": null,
+    "final": {
+      "group": "Not average monthly revenue",
+      "revenue_eligible": false,
+      "status": "business"
+    },
+    "flag": false,
+    "legacy": {
+      "group": "Not average monthly revenue",
+      "matched_rule_ids": [
+        "NAMR_01",
+        "NAMR_03"
+      ],
+      "personal_rule_ids": [],
+      "revenue_eligible": false,
+      "status": "business"
+    },
+    "proposal": {
+      "confidence": 0.99,
+      "decision": "keep",
+      "group": "Not average monthly revenue",
+      "reason": "State tax refund is appropriately excluded from average monthly revenue.",
+      "status": "business",
+      "transaction_id": "tx_biz_05_0071"
+    },
+    "review_status": "kept",
+    "transaction_id": "tx_biz_05_0071"
+  },
+  {
+    "error": null,
+    "final": {
+      "group": "NSFs",
+      "revenue_eligible": false,
+      "status": "business"
+    },
+    "flag": false,
+    "legacy": {
+      "group": "NSFs",
+      "matched_rule_ids": [
+        "NSF_02"
+      ],
+      "personal_rule_ids": [],
+      "revenue_eligible": false,
+      "status": "business"
+    },
+    "proposal": {
+      "confidence": 0.98,
+      "decision": "keep",
+      "group": "NSFs",
+      "reason": "Returned-item bank-fee text supports the existing NSFs label.",
+      "status": "business",
+      "transaction_id": "tx_biz_06_0094"
+    },
+    "review_status": "kept",
+    "transaction_id": "tx_biz_06_0094"
+  },
+  {
+    "error": null,
+    "final": {
+      "group": "High risk — gambling",
+      "revenue_eligible": false,
+      "status": "business"
+    },
+    "flag": false,
+    "legacy": {
+      "group": "High risk — gambling",
+      "matched_rule_ids": [
+        "GAMB_01"
+      ],
+      "personal_rule_ids": [],
+      "revenue_eligible": false,
+      "status": "business"
+    },
+    "proposal": {
+      "confidence": 0.99,
+      "decision": "keep",
+      "group": "High risk — gambling",
+      "reason": "Casino gambling merchant text supports the gambling risk group.",
+      "status": "business",
+      "transaction_id": "tx_biz_06_0052"
+    },
+    "review_status": "kept",
+    "transaction_id": "tx_biz_06_0052"
+  },
+  {
+    "error": null,
+    "final": {
+      "group": "Overdraft",
+      "revenue_eligible": false,
+      "status": "business"
+    },
+    "flag": true,
+    "legacy": {
+      "group": "unmatched",
+      "matched_rule_ids": [],
+      "personal_rule_ids": [],
+      "revenue_eligible": false,
+      "status": "business"
+    },
+    "proposal": {
+      "confidence": 0.99,
+      "decision": "change",
+      "group": "Overdraft",
+      "reason": "OD-FEE charge is an overdraft fee; punctuation does not alter the meaning.",
+      "status": "business",
+      "transaction_id": "tx_biz_07_0083"
+    },
+    "review_status": "changed",
+    "transaction_id": "tx_biz_07_0083"
+  },
+  {
+    "error": null,
+    "final": {
+      "group": "High risk — bankruptcy",
+      "revenue_eligible": false,
+      "status": "business"
+    },
+    "flag": false,
+    "legacy": {
+      "group": "High risk — bankruptcy",
+      "matched_rule_ids": [
+        "BK_01"
+      ],
+      "personal_rule_ids": [],
+      "revenue_eligible": false,
+      "status": "business"
+    },
+    "proposal": {
+      "confidence": 0.99,
+      "decision": "keep",
+      "group": "High risk — bankruptcy",
+      "reason": "Bankruptcy counsel payment is a relevant synthetic risk signal; no legal event is inferred.",
+      "status": "business",
+      "transaction_id": "tx_biz_07_0131"
+    },
+    "review_status": "kept",
+    "transaction_id": "tx_biz_07_0131"
+  },
+  {
+    "error": null,
+    "final": {
+      "group": "Internal transfer",
+      "revenue_eligible": false,
+      "status": "business"
+    },
+    "flag": true,
+    "legacy": {
+      "group": "NSFs",
+      "matched_rule_ids": [
+        "NSF_01",
+        "XFER_01"
+      ],
+      "personal_rule_ids": [],
+      "revenue_eligible": false,
+      "status": "business"
+    },
+    "proposal": {
+      "confidence": 0.99,
+      "decision": "change",
+      "group": "Internal transfer",
+      "reason": "Internal transfer from reserve; “nsf” occurs only within “transfer,” not as a fee.",
+      "status": "business",
+      "transaction_id": "tx_biz_08_0031"
+    },
+    "review_status": "changed",
+    "transaction_id": "tx_biz_08_0031"
+  },
+  {
+    "error": null,
+    "final": {
+      "group": "unmatched",
+      "revenue_eligible": false,
+      "status": "personal"
+    },
+    "flag": false,
+    "legacy": {
+      "group": "unmatched",
+      "matched_rule_ids": [],
+      "personal_rule_ids": [
+        "PERS_01",
+        "PERS_03"
+      ],
+      "revenue_eligible": false,
+      "status": "personal"
+    },
+    "proposal": {
+      "confidence": 0.87,
+      "decision": "keep",
+      "group": "unmatched",
+      "reason": "Owner contribution wording and personal status do not establish a different transaction group.",
+      "status": "personal",
+      "transaction_id": "tx_biz_08_0038"
+    },
+    "review_status": "kept",
+    "transaction_id": "tx_biz_08_0038"
+  }
+]

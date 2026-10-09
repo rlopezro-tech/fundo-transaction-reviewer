@@ -1,0 +1,108 @@
+{
+  "accepted_transactions": 20,
+  "accuracy": "not_measured_without_separate_truth_evaluation",
+  "as_of": "2026-10-08",
+  "batch_size": 20,
+  "cache_batch_hits": 0,
+  "cache_hits": 0,
+  "coverage": [
+    {
+      "business_id": "biz_01",
+      "days": 90,
+      "end": "2026-10-08",
+      "is_complete_90_days": true,
+      "start": "2026-07-11"
+    },
+    {
+      "business_id": "biz_02",
+      "days": 90,
+      "end": "2026-10-08",
+      "is_complete_90_days": true,
+      "start": "2026-07-11"
+    },
+    {
+      "business_id": "biz_03",
+      "days": 90,
+      "end": "2026-10-08",
+      "is_complete_90_days": true,
+      "start": "2026-07-11"
+    },
+    {
+      "business_id": "biz_04",
+      "days": 90,
+      "end": "2026-10-08",
+      "is_complete_90_days": true,
+      "start": "2026-07-11"
+    },
+    {
+      "business_id": "biz_05",
+      "days": 90,
+      "end": "2026-10-08",
+      "is_complete_90_days": true,
+      "start": "2026-07-11"
+    },
+    {
+      "business_id": "biz_06",
+      "days": 90,
+      "end": "2026-10-08",
+      "is_complete_90_days": true,
+      "start": "2026-07-11"
+    },
+    {
+      "business_id": "biz_07",
+      "days": 90,
+      "end": "2026-10-08",
+      "is_complete_90_days": true,
+      "start": "2026-07-11"
+    },
+    {
+      "business_id": "biz_08",
+      "days": 90,
+      "end": "2026-10-08",
+      "is_complete_90_days": true,
+      "start": "2026-07-11"
+    },
+    {
+      "business_id": "biz_09",
+      "days": 90,
+      "end": "2026-10-08",
+      "is_complete_90_days": true,
+      "start": "2026-07-11"
+    },
+    {
+      "business_id": "biz_10",
+      "days": 90,
+      "end": "2026-10-08",
+      "is_complete_90_days": true,
+      "start": "2026-07-11"
+    }
+  ],
+  "degraded_count": 0,
+  "excluded_counts": {},
+  "flag_count": 7,
+  "historical_cache_usage_derived_cost_usd": "0",
+  "historical_cached_usage": {},
+  "input_name": "fundo-pilot-20.json",
+  "input_sha256": "6a8866c7ade0f7b79c8b035b3db1b374222193c141bc586c51be7271d4a6ffe8",
+  "mode": "online",
+  "model": "gpt-6-luna",
+  "new_api_calls": 1,
+  "new_provider_usage": {
+    "input_tokens": 2797,
+    "output_tokens": 1000
+  },
+  "new_usage_derived_cost_usd": "0.0007797",
+  "review_status_counts": {
+    "changed": 7,
+    "kept": 13
+  },
+  "versions": {
+    "flag_policy": "all-valid-changes-v1",
+    "input_contract": "input-v1",
+    "pricing": "gpt-6-luna-standard-2026-10-08",
+    "prompt": "review-prompt-v3",
+    "response_schema": "review-schema-v2",
+    "revenue_policy": "revenue-v1",
+    "ruleset": "legacy-v1"
+  }
+}

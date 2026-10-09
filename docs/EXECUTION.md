@@ -1,0 +1,27 @@
+# Reviewer execution and cache policy — Ticket 05
+
+The main CLI will use `gpt-6-luna` with the OpenAI Responses API and structured output. [Official OpenAI model documentation](https://developers.openai.com/api/docs/models/gpt-6-luna) lists Responses and Structured Outputs support and standard short-context prices of **USD 0.10/M input tokens** and **USD 0.50/M output tokens** (checked 2026-10-08). The local account is more restrictive than the public model tier: the paid pilot received **10 RPM and 50 RPD** errors. The CLI therefore groups up to 80 independently labeled transactions into one provider request, still requiring one validated decision per transaction. It paces requests and stops on daily quota rather than pretending an outage is agreement. This batching is an operational project choice, not a different financial policy.
+
+From the repository root, run the main cohort online **only after a pilot and conservative cost estimate**:
+
+```bash
+PYTHONPATH=src uv run python -m fundo_reviewer.cli --mode online --input data/transactions/main_90_days.json --output-dir reports/main
+```
+
+`OPENAI_API_KEY` is read from the environment **only** in online mode. The command reuses validated batch-cache hits, fills misses, and stops if the append-only ledger's pre-call upper-bound reservation would exceed the **USD 8** operating ceiling (strictly below Fundo's USD 10 maximum). The ledger `cache/spend_ledger.jsonl` records reservations before calls and settlements from returned token usage; an unsettled call remains charged conservatively after interruption. Usage-derived standard-price cost is an **estimate of billing**, not a charge receipt. Cache hits incur no new call. If the daily account quota is reached, rerun later with the same command; completed batches remain in `cache/batch_reviews.jsonl`.
+
+Before the full run, the 2,000-transaction fixture was divided into **25 batches of 80**. Summing each batch's UTF-8-byte-based input upper bound plus 6,000 framing/schema tokens and the 16,000-token output cap gives **USD 0.2873897** of conservative reservations for all 25 calls at the published standard prices—far below the USD 8 ceiling. This is a **pre-call estimate**, not measured provider usage or a bill. Historical experimental calls remain in the append-only spend ledger and operating budget.
+
+Replay the exact cohort without a key or provider access:
+
+```bash
+env -u OPENAI_API_KEY PYTHONPATH=src uv run python -m fundo_reviewer.cli --mode offline --input data/transactions/main_90_days.json --output-dir reports/main
+```
+
+Offline mode never creates an OpenAI client. It verifies SHA-256 integrity and canonical request correspondence for each cache entry, then fails on a missing/corrupt batch instead of issuing a call or silently using legacy labels. The key hashes reviewer-visible transaction/legacy evidence, model, prompt/schema/flag/revenue/rules versions, and exact batch context; neither ground truth nor secrets enter it. A changed name, amount, legacy label, version, or batch grouping causes a miss. Validated proposals and raw provider output are retained. Degraded online responses remain visibly degraded if replayed; they are **never** cached as a valid `keep`.
+
+The CLI accepts any Ticket 01 JSON envelope with `--input path/to/new.json`, with **no** truth file. A new uncached input needs online review; strict offline correctly fails. It emits ordered `review_outcomes.json` and `run_manifest.json` with input hash, coverage, versions, statuses, cache/API counts, and token/cost data. At this stage it makes **no measured-accuracy claim**; credit and truth evaluation belong to Tickets 06–07.
+
+## Pilot observations (synthetic, not final quality)
+
+Twenty fixed development-business examples (`src/fundo_reviewer/pilot.py`) were tried with a weaker prompt/schema. The first `v1` structured run produced 14 valid keeps, 1 valid change and **5 rejected responses** (invented groups or >160-character reasons), with USD 0.0013787 usage-derived standard-price cost. After explicitly enumerating groups, bounding reasons and clarifying the Square/NSF/punctuation distinction, `v2` produced 4 valid changes and 7 valid keeps with **zero rejected responses in its first 11 completed calls** (USD 0.0009707); the 12th attempt hit the account's 50 RPD limit and was not interpreted as a model decision. The earlier weaker pilot stopped at a 10 RPM error after 14 settled calls (USD 0.0008552). A 20-item batch-format v2 pilot had 10 changes, 10 keeps, no degraded items and USD 0.000755 usage-derived cost. Three of those changes were wrong against *synthetic development truth*. The revised v3 prompt produced 7 changes, 13 keeps and no degraded items on the same 20-item batch for USD 0.0007797; its group/status matched synthetic truth on 19 of 20, compared with 12 of 20 for legacy. These are small, tuned, non-held-out observations, **not** final quality or production accuracy. Historical pilot artifacts are retained separately; the final full-run cache requires the current v3 prompt/schema.

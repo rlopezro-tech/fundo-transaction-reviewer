@@ -1,0 +1,335 @@
+{
+  "ledger_settled_usage_derived_cost_usd": "0.0022339",
+  "model": "gpt-6-luna",
+  "new_calls": 20,
+  "pilot_ids": [
+    "tx_biz_01_0050",
+    "tx_biz_02_0006",
+    "tx_biz_03_0006",
+    "tx_biz_04_0001",
+    "tx_biz_05_0071",
+    "tx_biz_06_0094",
+    "tx_biz_07_0083",
+    "tx_biz_08_0031",
+    "tx_biz_01_0116",
+    "tx_biz_02_0140",
+    "tx_biz_03_0086",
+    "tx_biz_04_0008",
+    "tx_biz_05_0006",
+    "tx_biz_06_0052",
+    "tx_biz_07_0131",
+    "tx_biz_08_0038",
+    "tx_biz_01_0033",
+    "tx_biz_02_0009",
+    "tx_biz_03_0106",
+    "tx_biz_04_0106"
+  ],
+  "records": [
+    {
+      "final_group": "Active advance",
+      "final_status": "business",
+      "flag": false,
+      "legacy_group": "Active advance",
+      "legacy_status": "business",
+      "reason": null,
+      "review_status": "invalid_response",
+      "transaction_id": "tx_biz_01_0050",
+      "usage": {
+        "input_tokens": 396,
+        "output_tokens": 74
+      },
+      "variant": "v1"
+    },
+    {
+      "final_group": "unmatched",
+      "final_status": "business",
+      "flag": false,
+      "legacy_group": "unmatched",
+      "legacy_status": "business",
+      "reason": "ACH credit descriptor suggests a business-related payment, but the counterparty and purpose are unclear; retain the legacy classification.",
+      "review_status": "kept",
+      "transaction_id": "tx_biz_02_0006",
+      "usage": {
+        "input_tokens": 338,
+        "output_tokens": 66
+      },
+      "variant": "v1"
+    },
+    {
+      "final_group": "unmatched",
+      "final_status": "business",
+      "flag": false,
+      "legacy_group": "unmatched",
+      "legacy_status": "business",
+      "reason": "Generic ACH credit description and no merchant or category; insufficient evidence to assign a specific group or change business status.",
+      "review_status": "kept",
+      "transaction_id": "tx_biz_03_0006",
+      "usage": {
+        "input_tokens": 329,
+        "output_tokens": 65
+      },
+      "variant": "v1"
+    },
+    {
+      "final_group": "unmatched",
+      "final_status": "business",
+      "flag": false,
+      "legacy_group": "unmatched",
+      "legacy_status": "business",
+      "reason": "“PAYROLL SERVICE” suggests a business payroll-related transaction, but the description alone does not establish a specific group.",
+      "review_status": "kept",
+      "transaction_id": "tx_biz_04_0001",
+      "usage": {
+        "input_tokens": 333,
+        "output_tokens": 66
+      },
+      "variant": "v1"
+    },
+    {
+      "final_group": "Not average monthly revenue",
+      "final_status": "business",
+      "flag": false,
+      "legacy_group": "Not average monthly revenue",
+      "legacy_status": "business",
+      "reason": "State tax refund; the existing group appropriately excludes refunds from average monthly revenue. No evidence supports changing business status.",
+      "review_status": "kept",
+      "transaction_id": "tx_biz_05_0071",
+      "usage": {
+        "input_tokens": 391,
+        "output_tokens": 67
+      },
+      "variant": "v1"
+    },
+    {
+      "final_group": "NSFs",
+      "final_status": "business",
+      "flag": false,
+      "legacy_group": "NSFs",
+      "legacy_status": "business",
+      "reason": "The bank-fee category and returned-item fee description support the existing NSF classification; no personal-use evidence.",
+      "review_status": "kept",
+      "transaction_id": "tx_biz_06_0094",
+      "usage": {
+        "input_tokens": 360,
+        "output_tokens": 64
+      },
+      "variant": "v1"
+    },
+    {
+      "final_group": "unmatched",
+      "final_status": "business",
+      "flag": false,
+      "legacy_group": "unmatched",
+      "legacy_status": "business",
+      "reason": "OD fee text alone does not establish a specific transaction group or personal purpose; retain the legacy business label.",
+      "review_status": "kept",
+      "transaction_id": "tx_biz_07_0083",
+      "usage": {
+        "input_tokens": 328,
+        "output_tokens": 64
+      },
+      "variant": "v1"
+    },
+    {
+      "final_group": "Internal transfer",
+      "final_status": "business",
+      "flag": true,
+      "legacy_group": "NSFs",
+      "legacy_status": "business",
+      "reason": "Description identifies an internal transfer from reserve; the higher-precedence NSF match appears to be a keyword collision, not evidence of a returned payment.",
+      "review_status": "changed",
+      "transaction_id": "tx_biz_08_0031",
+      "usage": {
+        "input_tokens": 389,
+        "output_tokens": 71
+      },
+      "variant": "v1"
+    },
+    {
+      "final_group": "unmatched",
+      "final_status": "business",
+      "flag": false,
+      "legacy_group": "unmatched",
+      "legacy_status": "business",
+      "reason": null,
+      "review_status": "invalid_response",
+      "transaction_id": "tx_biz_01_0116",
+      "usage": {
+        "input_tokens": 330,
+        "output_tokens": 64
+      },
+      "variant": "v1"
+    },
+    {
+      "final_group": "Active advance",
+      "final_status": "business",
+      "flag": false,
+      "legacy_group": "Active advance",
+      "legacy_status": "business",
+      "reason": "Square Capital funding disbursement is consistent with a business advance; text alone does not establish further details.",
+      "review_status": "kept",
+      "transaction_id": "tx_biz_02_0140",
+      "usage": {
+        "input_tokens": 422,
+        "output_tokens": 64
+      },
+      "variant": "v1"
+    },
+    {
+      "final_group": "Active advance",
+      "final_status": "business",
+      "flag": false,
+      "legacy_group": "Active advance",
+      "legacy_status": "business",
+      "reason": "Square Capital and Funder Advance Payment support the existing business advance label; text alone does not establish a specific legal event.",
+      "review_status": "kept",
+      "transaction_id": "tx_biz_03_0086",
+      "usage": {
+        "input_tokens": 411,
+        "output_tokens": 67
+      },
+      "variant": "v1"
+    },
+    {
+      "final_group": "Auto deposit",
+      "final_status": "business",
+      "flag": false,
+      "legacy_group": "Auto deposit",
+      "legacy_status": "business",
+      "reason": "Name-based legacy rule matches “auto deposit”; the client-payment wording supports a business transaction, though merchant details are unavailable.",
+      "review_status": "kept",
+      "transaction_id": "tx_biz_04_0008",
+      "usage": {
+        "input_tokens": 358,
+        "output_tokens": 67
+      },
+      "variant": "v1"
+    },
+    {
+      "final_group": "Revenue verification",
+      "final_status": "business",
+      "flag": false,
+      "legacy_group": "Revenue verification",
+      "legacy_status": "business",
+      "reason": "The existing business label matches the settlement-related description; the text alone does not establish more specific transaction details.",
+      "review_status": "kept",
+      "transaction_id": "tx_biz_05_0006",
+      "usage": {
+        "input_tokens": 360,
+        "output_tokens": 64
+      },
+      "variant": "v1"
+    },
+    {
+      "final_group": "High risk — gambling",
+      "final_status": "business",
+      "flag": false,
+      "legacy_group": "High risk — gambling",
+      "legacy_status": "business",
+      "reason": "The transaction name explicitly identifies casino gambling; no evidence supports changing the existing classification.",
+      "review_status": "kept",
+      "transaction_id": "tx_biz_06_0052",
+      "usage": {
+        "input_tokens": 363,
+        "output_tokens": 61
+      },
+      "variant": "v1"
+    },
+    {
+      "final_group": "High risk — bankruptcy",
+      "final_status": "business",
+      "flag": false,
+      "legacy_group": "High risk — bankruptcy",
+      "legacy_status": "business",
+      "reason": "The description suggests bankruptcy counsel, but does not verify a legal event; no stronger basis to change the legacy label.",
+      "review_status": "kept",
+      "transaction_id": "tx_biz_07_0131",
+      "usage": {
+        "input_tokens": 363,
+        "output_tokens": 68
+      },
+      "variant": "v1"
+    },
+    {
+      "final_group": "unmatched",
+      "final_status": "personal",
+      "flag": false,
+      "legacy_group": "unmatched",
+      "legacy_status": "personal",
+      "reason": "Description indicates an owner contribution from personal funds; no reliable evidence supports changing the legacy group or status.",
+      "review_status": "kept",
+      "transaction_id": "tx_biz_08_0038",
+      "usage": {
+        "input_tokens": 339,
+        "output_tokens": 63
+      },
+      "variant": "v1"
+    },
+    {
+      "final_group": "Active advance",
+      "final_status": "business",
+      "flag": false,
+      "legacy_group": "Active advance",
+      "legacy_status": "business",
+      "reason": null,
+      "review_status": "invalid_response",
+      "transaction_id": "tx_biz_01_0033",
+      "usage": {
+        "input_tokens": 356,
+        "output_tokens": 72
+      },
+      "variant": "v1"
+    },
+    {
+      "final_group": "NSFs",
+      "final_status": "business",
+      "flag": false,
+      "legacy_group": "NSFs",
+      "legacy_status": "business",
+      "reason": null,
+      "review_status": "invalid_response",
+      "transaction_id": "tx_biz_02_0009",
+      "usage": {
+        "input_tokens": 362,
+        "output_tokens": 65
+      },
+      "variant": "v1"
+    },
+    {
+      "final_group": "unmatched",
+      "final_status": "business",
+      "flag": false,
+      "legacy_group": "unmatched",
+      "legacy_status": "business",
+      "reason": "Description is an unverified customer note; no reliable merchant or category evidence supports changing the legacy label.",
+      "review_status": "kept",
+      "transaction_id": "tx_biz_03_0106",
+      "usage": {
+        "input_tokens": 343,
+        "output_tokens": 63
+      },
+      "variant": "v1"
+    },
+    {
+      "final_group": "NSFs",
+      "final_status": "business",
+      "flag": false,
+      "legacy_group": "NSFs",
+      "legacy_status": "business",
+      "reason": null,
+      "review_status": "invalid_response",
+      "transaction_id": "tx_biz_04_0106",
+      "usage": {
+        "input_tokens": 361,
+        "output_tokens": 56
+      },
+      "variant": "v1"
+    }
+  ],
+  "status_counts": {
+    "changed": 1,
+    "invalid_response": 5,
+    "kept": 14
+  },
+  "variant": "v1"
+}

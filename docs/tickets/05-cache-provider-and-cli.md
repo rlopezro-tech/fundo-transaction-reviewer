@@ -1,6 +1,6 @@
 # Ticket 05 — Provider integration, cache, budget, and CLI replay
 
-**Status:** Ready for implementation; no provider calls are made by writing this ticket.
+**Status:** Implementation committed; final paid full-cohort cache and no-key replay verification pending the account's 50 RPD reset. Do not treat this ticket as accepted until those gates pass.
 
 **Type:** Reproducible execution
 
