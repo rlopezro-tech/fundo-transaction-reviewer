@@ -1,6 +1,6 @@
 # Fundo Transaction Reviewer
 
-> Tickets 01–03 (input, synthetic fixtures, legacy labels/revenue) are implemented; the reviewer has not been implemented yet.
+> Tickets 01–04 are implemented, including a fake-provider-tested reviewer boundary. Live provider/cache/CLI execution is not implemented yet.
 
 ## Source of truth
 
@@ -13,6 +13,7 @@
 - [INPUT_CONTRACT.md](docs/INPUT_CONTRACT.md) — implemented Ticket 01 envelope and validation policy.
 - [SYNTHETIC_DATA.md](docs/SYNTHETIC_DATA.md) — Ticket 02 scenario inventory, counts, regeneration, and fixture hashes.
 - [LEGACY_POLICY.md](docs/LEGACY_POLICY.md) — Ticket 03 keyword baseline, precedence, revenue eligibility, and known errors.
+- [REVIEWER_BOUNDARY.md](docs/REVIEWER_BOUNDARY.md) — Ticket 04 prompt/schema, model-versus-code boundary, injection and failure policy.
 
 ## Setup and run
 

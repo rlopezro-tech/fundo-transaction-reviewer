@@ -26,11 +26,11 @@ Use this file to track **what must be built or written** and **how completion wi
 
 ## 3. LLM reviewer — build
 
-- [ ] Review **every** legacy-labeled transaction rather than relabeling the dataset without seeing the legacy result. **Evidence:** one review outcome per transaction.
-- [ ] For each doubted label, report the proposed group, business/personal flag, **code-derived revenue yes/no**, confidence, and a reason an underwriter can read in about five seconds. **Evidence:** schema and flag report tests.
-- [ ] Keep the boundary explicit: the LLM proposes semantic corrections; code validates allowed values and derives revenue. The LLM cannot change source amounts, dates, IDs, credit direction, features, or offer math. **Evidence:** validator tests.
-- [ ] Treat description fields as untrusted counterparty-authored data, not instructions; include an adversarial description case. **Evidence:** prompt-injection test and observed output.
-- [ ] Validate response schema, transaction ID, keep/change consistency, confidence range, and reason length. Invalid, refused, incomplete, or unavailable **online** responses retain the legacy label and record degraded status. **Evidence:** failure-path tests.
+- [x] Review **every** legacy-labeled transaction rather than relabeling the dataset without seeing the legacy result. **Evidence:** 2,000-record fake-provider test in `tests/test_reviewer.py`; online execution belongs to Ticket 05.
+- [x] For each doubted label, report the proposed group, business/personal flag, **code-derived revenue yes/no**, confidence, and a reason an underwriter can read in about five seconds. **Evidence:** `ReviewOutcome`, schema/flag tests; persisted report belongs to Ticket 05.
+- [x] Keep the boundary explicit: the LLM proposes semantic corrections; code validates allowed values and derives revenue. The LLM cannot change source amounts, dates, IDs, credit direction, features, or offer math. **Evidence:** [boundary note](REVIEWER_BOUNDARY.md), validator tests.
+- [x] Treat description fields as untrusted counterparty-authored data, not instructions; include an adversarial description case. **Evidence:** JSON prompt boundary and fake observed behavior in `tests/test_reviewer.py`; live behavior remains to be measured.
+- [x] Validate response schema, transaction ID, keep/change consistency, confidence range, and reason length. Invalid, refused, incomplete, or unavailable **online** responses retain the legacy label and record degraded status. **Evidence:** failure-path tests.
 - [ ] Choose a model/prompt based on observed results, not only price; explain the choice and at least one unsuccessful attempt in `SOLUTION.md`. **Evidence:** experiment notes and measured comparison.
 
 ## 4. Reviewer evaluation — build and report

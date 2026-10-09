@@ -1,6 +1,6 @@
 # Ticket 04 — LLM label reviewer and safety boundary
 
-**Status:** Ready for implementation; this ticket does not make model calls.
+**Status:** Implemented and fake-provider verified; no paid model call or quality claim yet.
 
 **Type:** Review logic
 
@@ -30,13 +30,13 @@ Build the reviewer that inspects **each existing legacy label** and either keeps
 
 ## Acceptance criteria
 
-- [ ] A fake-provider run produces exactly one review outcome per legacy-labeled transaction; no transaction is silently skipped or independently relabeled without its legacy result.
-- [ ] Each flagged change has a valid proposed group, business/personal flag, code-derived revenue yes/no, confidence, and reason short enough for a quick underwriter review.
-- [ ] The model cannot change source transaction fields, revenue arithmetic, feature definitions, or offer logic; tests prove attempts are rejected.
-- [ ] Truth-only fields never appear in prompts, proposals, or model-facing context.
-- [ ] An instruction embedded in a bank description remains data rather than controlling the review; the test documents the observed behavior rather than assuming the prompt alone guarantees safety.
-- [ ] Invalid/refused/incomplete/failed **online** reviews retain legacy labels with explicit degraded status; a valid `keep` result remains distinguishable.
-- [ ] Prompt, schema, and flag-policy versions are available for Ticket 05 cache keys and Ticket 08 decision replay.
+- [x] A fake provider returns exactly one outcome for all 2,000 legacy-labeled main transactions; ID mismatches/duplicates fail. **Evidence:** `tests/test_reviewer.py`.
+- [x] Valid changes carry group/status, code-derived revenue, confidence and ≤160-character reason; confidence 0 still flags. **Evidence:** `ReviewOutcome`, tests.
+- [x] Schema rejects source edits/extra fields and code alone recomputes revenue from original signed amount. Feature/offer logic is absent here. **Evidence:** `reviewer.py`, invalid-proposal tests.
+- [x] Request is an explicit allowlist and provider receives a sanitized transaction without raw/truth fields; proposal schema rejects extras. **Evidence:** injection/truth-boundary tests.
+- [x] Instruction-like text is JSON data, not system text; the fake observed `keep`, while real-model safety remains to be measured. **Evidence:** [boundary note](../REVIEWER_BOUNDARY.md), test.
+- [x] Refused/incomplete/invalid/failed online results visibly degrade and retain legacy, distinct from valid `keep`. **Evidence:** failure tests.
+- [x] Prompt/schema/flag-policy version constants are exposed for cache/replay. **Evidence:** `reviewer.py`.
 
 ## Out of scope
 
