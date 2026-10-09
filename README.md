@@ -1,6 +1,6 @@
 # Fundo Transaction Reviewer
 
-> Ticket 01 input validation and Ticket 02 synthetic fixtures are implemented; the reviewer has not been implemented yet.
+> Tickets 01–03 (input, synthetic fixtures, legacy labels/revenue) are implemented; the reviewer has not been implemented yet.
 
 ## Source of truth
 
@@ -12,6 +12,7 @@
 - [FINANCIAL_GLOSSARY.md](docs/FINANCIAL_GLOSSARY.md) — plain-English financial glossary for developers.
 - [INPUT_CONTRACT.md](docs/INPUT_CONTRACT.md) — implemented Ticket 01 envelope and validation policy.
 - [SYNTHETIC_DATA.md](docs/SYNTHETIC_DATA.md) — Ticket 02 scenario inventory, counts, regeneration, and fixture hashes.
+- [LEGACY_POLICY.md](docs/LEGACY_POLICY.md) — Ticket 03 keyword baseline, precedence, revenue eligibility, and known errors.
 
 ## Setup and run
 
@@ -36,6 +37,12 @@ This produces separate 90-day transaction/truth files (10 businesses, 2,000
 transactions) and 61-day files (1 business, 120 transactions) under `data/`.
 No Plaid API, Sandbox credentials, or LLM key is used. The future reviewer must
 read only `data/transactions/`, never `data/ground_truth/`.
+
+The Ticket 03 baseline labels every accepted record without an API key. Its
+group/status/revenue rules and deliberate failure cases are in
+[`docs/LEGACY_POLICY.md`](docs/LEGACY_POLICY.md); run
+`uv run --group dev pytest tests/test_legacy.py` to verify them. A CLI and
+saved pipeline reports are still later tickets.
 
 ## Reproduce from cache
 

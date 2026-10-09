@@ -1,6 +1,6 @@
 # Ticket 03 — Legacy keyword labels and revenue eligibility
 
-**Status:** Ready for implementation; writing this ticket does not implement the engine.
+**Status:** Implemented and verified. This is the deliberately imperfect `legacy-v1` baseline, not a reviewer or accuracy report.
 
 **Type:** Deterministic labeling
 
@@ -31,14 +31,14 @@ Build a small, **deliberately imperfect** keyword engine that assigns one legacy
 
 ## Acceptance criteria
 
-- [ ] All 13 named groups are representable, and every normalized transaction gets exactly one winning group or `unmatched` plus one business/personal flag.
-- [ ] The ruleset has a version; output records include that version, winning group, business/personal flag, derived revenue, matched rule IDs, and enough trace to explain precedence.
-- [ ] Tests show the same input and ruleset always produce the same labels, regardless of input ordering or incidental map iteration order.
-- [ ] Collision tests prove the documented precedence is applied; no-match tests produce `unmatched` without inventing a Fundo category.
-- [ ] Punctuation and `SQUARE INC` versus `SQUARE CAPITAL` cases expose and document at least one baseline error without corrupting the independent ground truth.
-- [ ] Revenue tests prove that positive Plaid amounts, personal credits, internal transfers, and funder disbursements cannot be eligible revenue under the chosen exclusion policy; ordinary eligible business credits can be.
-- [ ] The exclusion treatment of `Auto deposit` and `Revenue verification` is explicitly documented and tested.
-- [ ] No Plaid API call, LLM call, feature calculation, or offer calculation is required for this ticket.
+- [x] All 13 groups are representable; `label_transactions()` assigns one group or `unmatched` and one status to all 2,000 main records. **Evidence:** `tests/test_legacy.py`.
+- [x] `LegacyLabel` carries `legacy-v1`, group, status, derived revenue, matched rule IDs, field/keyword/rank trace, and personal-marker IDs. **Evidence:** `src/fundo_reviewer/legacy.py`.
+- [x] Ordering is stable across reversed transaction input and reversed rule tuple; fixed precedence is independent of map iteration. **Evidence:** deterministic/collision tests.
+- [x] Collision and no-match tests verify explicit precedence and `unmatched` behavior. **Evidence:** `tests/test_legacy.py`.
+- [x] `SQUARE INC` versus `SQUARE CAPITAL`, `UCC 1`, `OD-FEE`, and the `nsf`/`transfer` collision expose known v1 errors without modifying truth. **Evidence:** [policy note](../LEGACY_POLICY.md), tests.
+- [x] One `revenue-v1` function rejects positive amounts, personal credits, transfer/funder groups, and allows eligible business credits. **Evidence:** `src/fundo_reviewer/revenue.py`, tests.
+- [x] `Auto deposit` and `Revenue verification` are non-excluding by name; this is documented and tested. **Evidence:** [policy note](../LEGACY_POLICY.md), tests.
+- [x] The implementation uses no Plaid API, LLM, feature or offer calculation.
 
 ## Out of scope
 
