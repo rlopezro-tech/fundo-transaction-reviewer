@@ -194,6 +194,12 @@ def test_alternative_model_has_distinct_price_budget_and_cache_key(tmp_path):
     assert SpendLedger(tmp_path / "mixed.jsonl").settled_usd == ledger.settled_usd
 
 
+def test_local_ollama_cache_has_zero_api_cost_and_stable_pricing_version():
+    model = "ollama:qwen3.5:9b-q4_K_M@sha256-example"
+    assert pricing_version(model) == "ollama-local-no-api-cost-v1"
+    assert usage_derived_cost({"input_tokens": 10_000, "output_tokens": 5_000}, model) == Decimal(0)
+
+
 def test_alternative_model_batch_replays_without_key_at_its_own_price(tmp_path, monkeypatch):
     path = tmp_path / "alternative.jsonl"
     ledger = tmp_path / "ledger.jsonl"

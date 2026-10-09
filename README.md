@@ -44,6 +44,26 @@ and current limitations. If you export the key instead, omit `--env-file .env`.
 
 Fast local tests run with `uv run --group dev pytest -q`; they require no API key.
 
+## Local-model diagnostic pilot
+
+The repository also includes a **20-transaction local-only diagnostic** using
+Ollama and Qwen3.5 9B Q4. It does not use `OPENAI_API_KEY` or incur OpenAI API
+charges. Install/start Ollama and pull the model once, then run:
+
+```bash
+ollama serve
+ollama pull qwen3.5:9b-q4_K_M
+PYTHONPATH=src uv run python -m fundo_reviewer.local_pilot
+```
+
+The pilot response cache and truth-based diagnostic are in
+`cache/local_qwen35_9b_pilot.jsonl` and `reports/local_qwen35_9b_pilot.json`.
+On the fixed development sample, this local model matched legacy at 12/20,
+produced no flags, and had one invalid response; this is **not** evidence of
+improvement and is not the 2,000-transaction main run. The selected main model
+remains `gpt-6-luna` unless a separately evaluated alternative is explicitly
+chosen.
+
 Regenerate the entirely synthetic Ticket 02 fixtures and verify their exact bytes:
 
 ```bash

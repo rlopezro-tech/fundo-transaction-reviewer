@@ -43,6 +43,10 @@ class BudgetExceeded(FatalReviewError):
 
 
 def pricing_version(model: str) -> str:
+    if model.startswith("ollama:"):
+        # Local inference is not billed by the OpenAI API, but still needs a
+        # stable cache pricing/version field for replay integrity.
+        return "ollama-local-no-api-cost-v1"
     try:
         return MODEL_PRICES[model][2]
     except KeyError as exc:
@@ -218,6 +222,8 @@ class BatchReviewCache:
 def usage_derived_cost(usage: dict[str, int] | None, model: str = DEFAULT_PRICED_MODEL) -> Decimal:
     """Standard-tier price estimate from token counts, without cache discount."""
     pricing_version(model)
+    if model.startswith("ollama:"):
+        return Decimal(0)
     if not usage:
         return Decimal(0)
     input_tokens = usage.get("input_tokens", 0)
