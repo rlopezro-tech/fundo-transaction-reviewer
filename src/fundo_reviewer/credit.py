@@ -131,7 +131,7 @@ def _decimal(value: Decimal | None) -> str | None:
     return str(value) if value is not None else None
 
 
-def _feature_record(features: CreditFeatures) -> dict:
+def feature_record(features: CreditFeatures) -> dict:
     offer = calculate_offer(features)
     return {
         "transaction_count": features.transaction_count,
@@ -189,8 +189,8 @@ def _business_record(coverage: BusinessCoverage, legacy: CreditFeatures, reviewe
             "is_complete_90_days": coverage.is_complete_90_days,
             "not_directly_comparable_with_90_day_training": not coverage.is_complete_90_days,
         },
-        "legacy": _feature_record(legacy),
-        "reviewed": _feature_record(reviewed),
+        "legacy": feature_record(legacy),
+        "reviewed": feature_record(reviewed),
         "reviewed_minus_legacy": {
             "eligible_revenue_total_usd": _delta(reviewed.eligible_revenue_total, legacy.eligible_revenue_total),
             "revenue_to_deposits_ratio": _delta(reviewed.revenue_to_deposits, legacy.revenue_to_deposits),

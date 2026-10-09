@@ -1,6 +1,6 @@
 # Ticket 07 — Reviewer evaluation and mislabel sensitivity
 
-**Status:** Ready for implementation; no quality or impact claim is measured by writing this ticket.
+**Status:** Evaluation/sensitivity code and seeded simulation implemented; final paid-cohort quality report pending end-to-end review cache.
 
 **Type:** Measurement and error analysis
 

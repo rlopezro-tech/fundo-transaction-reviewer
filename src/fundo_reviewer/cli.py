@@ -205,6 +205,8 @@ def run_pipeline(
     credit_report = build_credit_report(normalized, legacy, outcomes)
     credit_path = output_dir / "credit_report.json"
     _write_json(credit_path, credit_report)
+    outcomes_path = output_dir / "review_outcomes.json"
+    _write_json(outcomes_path, [_outcome_record(item) for item in outcomes])
     manifest = {
         "input_name": input_path.name,
         "input_sha256": input_sha256,
@@ -243,8 +245,8 @@ def run_pipeline(
         "historical_cache_usage_derived_cost_usd": str(historical_cost),
         "accuracy": "not_measured_without_separate_truth_evaluation",
         "credit_report_sha256": hashlib.sha256(credit_path.read_bytes()).hexdigest(),
+        "review_outcomes_sha256": hashlib.sha256(outcomes_path.read_bytes()).hexdigest(),
     }
-    _write_json(output_dir / "review_outcomes.json", [_outcome_record(item) for item in outcomes])
     _write_json(output_dir / "run_manifest.json", manifest)
     return manifest
 

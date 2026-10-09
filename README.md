@@ -1,6 +1,6 @@
 # Fundo Transaction Reviewer
 
-> Tickets 01–04 are implemented. Ticket 05's provider/cache/CLI and Ticket 06's credit/offer calculation are implemented, but the full paid cache and no-key 2,000-record replay are **pending**. Tickets 07–08 and final validation remain in progress.
+> Tickets 01–04 are implemented. Tickets 05–07 have provider/cache/CLI, credit/offer, and evaluation/sensitivity code, but the full paid cache, measured quality report, and no-key 2,000-record replay are **pending**. Ticket 08 and final validation remain in progress.
 
 ## Source of truth
 
@@ -16,6 +16,7 @@
 - [REVIEWER_BOUNDARY.md](docs/REVIEWER_BOUNDARY.md) — Ticket 04 prompt/schema, model-versus-code boundary, injection and failure policy.
 - [EXECUTION.md](docs/EXECUTION.md) — Ticket 05 model, pilot, cache, budget and execution assumptions.
 - [CREDIT_POLICY.md](docs/CREDIT_POLICY.md) — Ticket 06 feature denominators, coverage, and illustrative offer policy.
+- [EVALUATION.md](docs/EVALUATION.md) — Ticket 07 strict synthetic-truth join and seeded sensitivity method.
 
 ## Setup and run
 
@@ -74,3 +75,8 @@ The CLI emits ordered `review_outcomes.json`, `credit_report.json`, and `run_man
 usage and labels the cost as usage-derived estimate, not a billing receipt.
 The credit report shows legacy and reviewed features/illustrative offers with
 their deltas; it does not represent a real Fundo funding decision.
+
+Run the separate synthetic sensitivity/evaluation command from
+[`docs/EVALUATION.md`](docs/EVALUATION.md). The committed sensitivity artifact
+is a **simulation**, not measured reviewer quality; the latter waits for the
+full reviewed cohort.

@@ -43,7 +43,7 @@ Use this file to track **what must be built or written** and **how completion wi
 
 - [ ] Compute, per business for both legacy and reviewed labels: revenue/deposits, NSF count, overdraft count, high-risk debit share, average monthly revenue, and daily payments to other funders. **Evidence:** before/after feature table and tests.
 - [ ] Apply the same offer rule to both feature sets: `offer = 1.2 × average monthly revenue − 20 × other funders' daily payments`. Set the offer to **zero only when NSF count > 5**. **Evidence:** offer table and tests at NSF 5 and 6.
-- [ ] Show seeded 2%, 5%, and 10% mislabel scenarios and how each moves relevant features and offers; distinguish high-impact errors from inconsequential ones. **Evidence:** sensitivity report with method and seed.
+- [x] Show seeded 2%, 5%, and 10% mislabel scenarios and how each moves relevant features and offers; distinguish high-impact errors from inconsequential ones. **Evidence:** `reports/evaluation/sensitivity_report.json`, [method](EVALUATION.md), `tests/test_evaluation.py`.
 - [ ] Explain the different **direction and dollar effect** of false revenue and false active-advance labels, including false positives and false negatives. **Evidence:** short analysis with examples in `SOLUTION.md`.
 - [ ] Answer in one short paragraph why zero observed NSF fees at a no-fee bank is an incomplete risk signal and how to mitigate it. **Evidence:** `SOLUTION.md`.
 - [ ] Answer in one short paragraph what breaks when a 90-day-trained risk model receives 61 days, and how to detect/handle the shift. **Evidence:** `SOLUTION.md`.
