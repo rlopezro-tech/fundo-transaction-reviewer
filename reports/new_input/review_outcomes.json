@@ -1,0 +1,80 @@
+[
+  {
+    "error": null,
+    "final": {
+      "group": "unmatched",
+      "revenue_eligible": true,
+      "status": "business"
+    },
+    "flag": false,
+    "legacy": {
+      "group": "unmatched",
+      "matched_rule_ids": [],
+      "personal_rule_ids": [],
+      "revenue_eligible": true,
+      "status": "business"
+    },
+    "proposal": {
+      "confidence": 0.91,
+      "decision": "keep",
+      "group": "unmatched",
+      "reason": "Customer ACH credit may be business income, but text alone does not establish a specific deposit type.",
+      "status": "business",
+      "transaction_id": "tx_start"
+    },
+    "review_status": "kept",
+    "transaction_id": "tx_start"
+  },
+  {
+    "error": null,
+    "final": {
+      "group": "unmatched",
+      "revenue_eligible": false,
+      "status": "business"
+    },
+    "flag": false,
+    "legacy": {
+      "group": "unmatched",
+      "matched_rule_ids": [],
+      "personal_rule_ids": [],
+      "revenue_eligible": false,
+      "status": "business"
+    },
+    "proposal": {
+      "confidence": 0.96,
+      "decision": "keep",
+      "group": "unmatched",
+      "reason": "Generic ACH debit gives no basis for a more specific group or personal status.",
+      "status": "business",
+      "transaction_id": "tx_end"
+    },
+    "review_status": "kept",
+    "transaction_id": "tx_end"
+  },
+  {
+    "error": null,
+    "final": {
+      "group": "unmatched",
+      "revenue_eligible": false,
+      "status": "business"
+    },
+    "flag": false,
+    "legacy": {
+      "group": "unmatched",
+      "matched_rule_ids": [],
+      "personal_rule_ids": [],
+      "revenue_eligible": false,
+      "status": "business"
+    },
+    "proposal": {
+      "confidence": 0.97,
+      "decision": "keep",
+      "group": "unmatched",
+      "reason": "Generic card purchase text does not identify a specific group or personal transaction.",
+      "status": "business",
+      "transaction_id": "tx_posted"
+    },
+    "review_status": "kept",
+    "transaction_id": "tx_posted"
+  }
+]

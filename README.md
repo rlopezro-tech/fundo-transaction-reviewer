@@ -1,6 +1,6 @@
 # Fundo Transaction Reviewer
 
-> Tickets 01–04 are implemented. Tickets 05–07 have provider/cache/CLI, credit/offer, and evaluation/sensitivity code, but the full paid cache, measured quality report, and no-key 2,000-record replay are **pending**. The current API project returned `credit_balance_exhausted` on an alternate-model pilot; a funded key/project is required for live completion. Ticket 08 and final validation remain in progress.
+> Tickets 01–04 are implemented. Tickets 05–07 have provider/cache/CLI, credit/offer, and evaluation/sensitivity code, but the full paid cache, measured quality report, and no-key 2,000-record replay are **pending**. A current `gpt-6-luna` small-input call succeeded on 2026-10-09; the first main-cohort batch then hit the account's 50-requests/day limit. No main-cohort response is cached yet. Ticket 08 and final validation remain in progress.
 
 ## Source of truth
 
@@ -23,18 +23,24 @@
 
 The project uses Python 3.12 and `uv`. Dependencies are declared in
 `pyproject.toml` and pinned in `uv.lock`. Install with `uv sync --group dev`.
-For online cache filling, set `OPENAI_API_KEY` in your environment; never commit
-it. The implementation-stage pipeline command is:
+For online cache filling, put `OPENAI_API_KEY=...` in a local, gitignored `.env`
+file, or export it in your shell; never commit it. `uv run --env-file .env`
+loads that file for one command. The selected `gpt-6-luna` is the least-cost
+model in OpenAI's current flagship family at the published standard short-context
+prices; it was already the code default, so no model change or cache invalidation
+is needed. The implementation-stage pipeline command is:
 
 ```bash
-PYTHONPATH=src uv run python -m fundo_reviewer.cli --mode online --input data/transactions/main_90_days.json --output-dir reports/main
+PYTHONPATH=src uv run --env-file .env python -m fundo_reviewer.cli --mode online --model gpt-6-luna --input data/transactions/main_90_days.json --output-dir reports/main
 ```
 
 This command will call the paid model for uncached batches and is **not yet a
 completed demonstration**. It may stop at the account's daily request limit;
-rerunning resumes from validated cached batches. A conservative pre-call spend
-guard stops before the USD 8 operating ceiling. See [EXECUTION.md](docs/EXECUTION.md)
-for the measured pilot, pricing assumptions and current limitations.
+rerunning resumes from validated cached batches. On 2026-10-09 it stopped before
+the first main-cohort response, so the main cache is still empty. A conservative
+pre-call spend guard stops before the USD 8 operating ceiling. See
+[EXECUTION.md](docs/EXECUTION.md) for the measured pilot, pricing assumptions
+and current limitations. If you export the key instead, omit `--env-file .env`.
 
 Fast local tests run with `uv run --group dev pytest -q`; they require no API key.
 
@@ -82,7 +88,7 @@ included sample as a shape example, or replace its path with a new file. The
 new file needs online mode until its exact responses have been cached:
 
 ```bash
-PYTHONPATH=src uv run python -m fundo_reviewer.cli --mode online --input tests/fixtures/input_90_days.json --output-dir reports/new_input --cache cache/new_input.jsonl
+PYTHONPATH=src uv run --env-file .env python -m fundo_reviewer.cli --mode online --model gpt-6-luna --input tests/fixtures/input_90_days.json --output-dir reports/new_input --cache cache/new_input.jsonl
 ```
 
 This path emits flags, features and illustrative offers, **not measured

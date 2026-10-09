@@ -1,0 +1,51 @@
+{
+  "accepted_transactions": 3,
+  "accuracy": "not_measured_without_separate_truth_evaluation",
+  "as_of": "2026-10-08",
+  "batch_size": 5,
+  "cache_batch_hits": 0,
+  "cache_hits": 0,
+  "coverage": [
+    {
+      "business_id": "biz_001",
+      "days": 90,
+      "end": "2026-10-08",
+      "is_complete_90_days": true,
+      "start": "2026-07-11"
+    }
+  ],
+  "credit_report_sha256": "a7bef8505709d3016d4141fc8c0b0d9e989c16faa70b26586ac6921af21e6705",
+  "degraded_count": 0,
+  "excluded_counts": {
+    "out_of_window": 1,
+    "pending": 1
+  },
+  "flag_count": 0,
+  "historical_cache_usage_derived_cost_usd": "0",
+  "historical_cached_usage": {},
+  "input_name": "input_90_days.json",
+  "input_sha256": "7d10323ff710deaac8f386d4afba90858e4feec7de552ac0d1627bcb0850df71",
+  "mode": "online",
+  "model": "gpt-6-luna",
+  "new_api_calls": 1,
+  "new_provider_usage": {
+    "input_tokens": 818,
+    "output_tokens": 147
+  },
+  "new_usage_derived_cost_usd": "0.0001553",
+  "review_outcomes_sha256": "cff4d80ef33a589dcb455def0c51836f795d9a552ce973562c3cb90f33098e31",
+  "review_status_counts": {
+    "kept": 3
+  },
+  "versions": {
+    "credit_features": "credit-features-v1",
+    "flag_policy": "all-valid-changes-v1",
+    "illustrative_offer": "illustrative-offer-v1",
+    "input_contract": "input-v1",
+    "pricing": "gpt-6-luna-standard-2026-10-08",
+    "prompt": "review-prompt-v3",
+    "response_schema": "review-schema-v3",
+    "revenue_policy": "revenue-v1",
+    "ruleset": "legacy-v1"
+  }
+}
