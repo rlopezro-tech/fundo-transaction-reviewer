@@ -47,4 +47,4 @@ One UTF-8 JSON object requires these top-level keys:
 uv run --group dev pytest tests/test_data.py
 ```
 
-`load_input("tests/fixtures/input_90_days.json")` returns a `NormalizedInput` object with accepted transactions, account/business coverage, and exclusions. [The 90-day fixture](../tests/fixtures/input_90_days.json) is also a copyable example of a new input. [The separate 61-day fixture](../tests/fixtures/input_61_days.json) tests coverage shift. A CLI, full synthetic dataset, legacy labels, reviewer and reports belong to later tickets; Ticket 01 deliberately implements none of them.
+`load_input("tests/fixtures/input_90_days.json")` returns a `NormalizedInput` object with accepted transactions, account/business coverage, and exclusions. [The 90-day fixture](../tests/fixtures/input_90_days.json) is also a copyable example of a new input. [The separate 61-day fixture](../tests/fixtures/input_61_days.json) tests coverage shift. Ticket 02 now supplies the [full synthetic dataset](SYNTHETIC_DATA.md); the CLI, legacy labels, reviewer, and reports belong to later tickets.

@@ -1,6 +1,6 @@
 # Ticket 02 — Synthetic dataset and independent ground truth
 
-**Status:** Ready for implementation; no dataset or generator is created by writing this ticket.
+**Status:** Implemented and verified. The dataset/generator are synthetic; reviewer and evaluation measurements remain later tickets.
 
 **Type:** Data foundation
 
@@ -31,14 +31,14 @@ Create a deterministic, entirely **synthetic** evaluation dataset that follows t
 
 ## Acceptance criteria
 
-- [ ] The committed main dataset has about 10 businesses, approximately 90 days of explicit coverage per business, and a couple thousand transactions; the exact counts are reported.
-- [ ] Re-running the generator with the documented seed/version produces the same ordered files or hashes.
-- [ ] Every generated transaction passes Ticket 01 validation, has a unique stable ID, and has exactly one matching truth record in the separate truth file.
-- [ ] Truth comes from scenario intent, not from the legacy engine or reviewer; transaction files, review requests, and cache keys contain no truth-only fields.
-- [ ] The scenario inventory and tests cover all 13 named groups plus unmatched/ordinary activity, business and personal activity, processor-versus-funder ambiguity, punctuation misses, hard negatives, and an instruction-like description.
-- [ ] The no-fee-bank scenario does not equate zero observed NSF fees with verified zero incidents.
-- [ ] A separate 61-day fixture exposes its actual coverage and is not silently treated as a 90-day sample.
-- [ ] No real customer data, Plaid API call, or Sandbox credential is needed to generate or validate the fixtures.
+- [x] The main dataset has 10 businesses × 200 transactions = 2,000; every business has 90 inclusive coverage days. See [scenario inventory and counts](../SYNTHETIC_DATA.md).
+- [x] Seed/version/order and all four SHA-256 values are documented; `tests/test_synthetic.py` checks byte-identical regeneration.
+- [x] All 2,000 main and 120 short-cohort transactions pass Ticket 01 validation, with unique IDs and one truth record each.
+- [x] Truth is authored from scenario intent, independent of the not-yet-built legacy engine/reviewer. Transaction artifacts contain no truth-only fields. No review requests/cache keys exist yet; Tickets 04–05 must preserve and test this boundary when they are built.
+- [x] Inventory and tests cover all 13 groups, unmatched, both statuses, Square contrast, punctuation misses, hard negatives, and instruction-like text.
+- [x] `biz_10` has zero observed NSF fees but metadata says fee observability is false and unobserved failures are unknown.
+- [x] A separate 61-day/120-transaction fixture is labeled `short_61_days` and validates as incomplete 90-day coverage.
+- [x] The generator uses only standard-library synthetic templates plus Ticket 01 validation, no customer records, Plaid API or Sandbox credentials.
 
 ## Out of scope
 

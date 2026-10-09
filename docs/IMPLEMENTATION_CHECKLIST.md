@@ -15,14 +15,14 @@ Use this file to track **what must be built or written** and **how completion wi
 
 ## 2. Data and legacy labels — build
 
-- [ ] Generate a deterministic, synthetic dataset of about 10 businesses, roughly 90 days each, and a couple thousand Plaid-shaped transactions. Use **no real customer data**. **Evidence:** committed seed/generator and dataset summary.
-- [ ] Include normal and funder-relevant adversarial cases: noisy descriptions; processor revenue versus funder loan (`SQUARE INC` / `SQUARE CAPITAL`); punctuation-sensitive keyword misses; internal transfers; personal credits; hard negatives; and a bank with no NSF fees. **Evidence:** scenario inventory and fixture tests.
-- [ ] Keep a **separate, ID-keyed ground-truth label** derived from scenario intent, not copied from the legacy engine. Never send it to the reviewer. **Evidence:** generation test and prompt/cache inspection.
+- [x] Generate a deterministic, synthetic dataset of 10 businesses, 90 days each, and 2,000 Plaid-shaped transactions. Use **no real customer data**. **Evidence:** `src/fundo_reviewer/synthetic.py`, [dataset summary/hashes](SYNTHETIC_DATA.md), `tests/test_synthetic.py`.
+- [x] Include normal and funder-relevant adversarial cases: noisy descriptions; processor revenue versus funder loan (`SQUARE INC` / `SQUARE CAPITAL`); punctuation-sensitive keyword misses; internal transfers; personal credits; hard negatives; and a bank with no NSF fees. **Evidence:** [scenario inventory](SYNTHETIC_DATA.md), `tests/test_synthetic.py`.
+- [x] Keep a **separate, ID-keyed ground-truth label** derived from scenario intent, not copied from the legacy engine. **Evidence:** `data/ground_truth/`, ID-alignment and truth-isolation tests. Reviewer prompt/cache inspection remains for Tickets 04–05, when those artifacts exist.
 - [x] Validate Plaid Transactions sign convention: positive `amount` is money out; negative is money in. Validate required IDs, dates, amounts, and business/account association. **Evidence:** `src/fundo_reviewer/data.py`, `tests/test_data.py`.
 - [ ] Label every transaction with a versioned, deliberately simple keyword engine; log matched rules and apply explicit precedence when groups collide. **Evidence:** deterministic label output and tests.
 - [ ] Support all 13 groups: Not average monthly revenue; NSFs; Overdraft; Internal transfer; UCC; Active advance; Auto deposit; Revenue verification; High risk — gambling; High risk — bankruptcy; High risk — debt settlement payments; High risk — garnishment; High risk — other. Also assign business/personal. **Evidence:** taxonomy coverage test.
 - [ ] Derive revenue in code **only** for an eligible business credit after the exclusion rule; do not equate every deposit with sales. **Evidence:** eligibility tests.
-- [ ] Keep the main evaluation dataset at approximately 90 days; add a **separate 61-day fixture/scenario** for coverage-shift analysis. **Evidence:** window tests.
+- [x] Keep the main evaluation dataset at 90 days; add a **separate 61-day fixture/scenario** for coverage-shift analysis. **Evidence:** `data/transactions/short_61_days.json`, `tests/test_synthetic.py`.
 
 ## 3. LLM reviewer — build
 

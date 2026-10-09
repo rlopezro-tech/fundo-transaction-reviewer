@@ -1,0 +1,1337 @@
+{
+  "as_of": "2026-10-08",
+  "business_metadata": {
+    "biz_61": {
+      "evaluation_split": "development",
+      "nsf_fee_observable": true,
+      "unobserved_payment_failures": "unknown"
+    }
+  },
+  "cohort": "short_61_days",
+  "generator_version": "synthetic-v1",
+  "labels": {
+    "tx_biz_61_0001": {
+      "ambiguity_note": "Bank text does not establish an active garnishment order.",
+      "ambiguous": true,
+      "group": "High risk — garnishment",
+      "hard_negative": false,
+      "rationale": "Synthetic garnishment-related debit; legal order is not verified.",
+      "revenue_eligible": false,
+      "scenario_id": "garnishment",
+      "status": "business"
+    },
+    "tx_biz_61_0002": {
+      "ambiguous": false,
+      "group": "unmatched",
+      "hard_negative": false,
+      "rationale": "Routine synthetic operating expense.",
+      "revenue_eligible": false,
+      "scenario_id": "ordinary_expense",
+      "status": "business"
+    },
+    "tx_biz_61_0003": {
+      "alternative_label": {
+        "group": "Not average monthly revenue",
+        "status": "business"
+      },
+      "ambiguous": false,
+      "group": "Revenue verification",
+      "hard_negative": false,
+      "rationale": "Synthetic processor settlement for sales.",
+      "revenue_eligible": true,
+      "scenario_id": "revenue_verification",
+      "status": "business"
+    },
+    "tx_biz_61_0004": {
+      "alternative_label": {
+        "group": "Active advance",
+        "status": "business"
+      },
+      "ambiguous": false,
+      "group": "Revenue verification",
+      "hard_negative": true,
+      "rationale": "Synthetic merchant processor proceeds, not a capital advance.",
+      "revenue_eligible": true,
+      "scenario_id": "processor_square",
+      "status": "business"
+    },
+    "tx_biz_61_0005": {
+      "alternative_label": {
+        "group": "Internal transfer",
+        "status": "business"
+      },
+      "ambiguous": false,
+      "group": "Revenue verification",
+      "hard_negative": false,
+      "rationale": "Synthetic card/customer settlement despite noisy bank text.",
+      "revenue_eligible": true,
+      "scenario_id": "processor_noisy",
+      "status": "business"
+    },
+    "tx_biz_61_0006": {
+      "alternative_label": {
+        "group": "Internal transfer",
+        "status": "business"
+      },
+      "ambiguous": false,
+      "group": "Revenue verification",
+      "hard_negative": false,
+      "rationale": "Synthetic card/customer settlement despite noisy bank text.",
+      "revenue_eligible": true,
+      "scenario_id": "processor_noisy",
+      "status": "business"
+    },
+    "tx_biz_61_0007": {
+      "alternative_label": {
+        "group": "Internal transfer",
+        "status": "business"
+      },
+      "ambiguous": false,
+      "group": "Revenue verification",
+      "hard_negative": false,
+      "rationale": "Synthetic card/customer settlement despite noisy bank text.",
+      "revenue_eligible": true,
+      "scenario_id": "processor_noisy",
+      "status": "business"
+    },
+    "tx_biz_61_0008": {
+      "ambiguous": false,
+      "group": "Internal transfer",
+      "hard_negative": false,
+      "rationale": "Own-account cash movement, not an expense sale or funder repayment.",
+      "revenue_eligible": false,
+      "scenario_id": "internal_out",
+      "status": "business"
+    },
+    "tx_biz_61_0009": {
+      "ambiguous": false,
+      "group": "unmatched",
+      "hard_negative": false,
+      "rationale": "Routine synthetic operating expense.",
+      "revenue_eligible": false,
+      "scenario_id": "ordinary_expense",
+      "status": "business"
+    },
+    "tx_biz_61_0010": {
+      "ambiguous": false,
+      "group": "unmatched",
+      "hard_negative": false,
+      "rationale": "Routine synthetic operating expense.",
+      "revenue_eligible": false,
+      "scenario_id": "ordinary_expense",
+      "status": "business"
+    },
+    "tx_biz_61_0011": {
+      "ambiguous": false,
+      "group": "unmatched",
+      "hard_negative": false,
+      "rationale": "Routine synthetic operating expense.",
+      "revenue_eligible": false,
+      "scenario_id": "ordinary_expense",
+      "status": "business"
+    },
+    "tx_biz_61_0012": {
+      "alternative_label": {
+        "group": "Internal transfer",
+        "status": "business"
+      },
+      "ambiguous": false,
+      "group": "Revenue verification",
+      "hard_negative": false,
+      "rationale": "Synthetic card/customer settlement despite noisy bank text.",
+      "revenue_eligible": true,
+      "scenario_id": "processor_noisy",
+      "status": "business"
+    },
+    "tx_biz_61_0013": {
+      "alternative_label": {
+        "group": "Not average monthly revenue",
+        "status": "business"
+      },
+      "ambiguous": false,
+      "group": "unmatched",
+      "hard_negative": false,
+      "rationale": "Synthetic customer payment for business sales.",
+      "revenue_eligible": true,
+      "scenario_id": "customer_sale",
+      "status": "business"
+    },
+    "tx_biz_61_0014": {
+      "alternative_label": {
+        "group": "Not average monthly revenue",
+        "status": "business"
+      },
+      "ambiguous": false,
+      "group": "unmatched",
+      "hard_negative": false,
+      "rationale": "Synthetic customer payment for business sales.",
+      "revenue_eligible": true,
+      "scenario_id": "customer_sale",
+      "status": "business"
+    },
+    "tx_biz_61_0015": {
+      "alternative_label": {
+        "group": "unmatched",
+        "status": "business"
+      },
+      "ambiguous": false,
+      "group": "Internal transfer",
+      "hard_negative": false,
+      "rationale": "Own-account cash movement, not external revenue.",
+      "revenue_eligible": false,
+      "scenario_id": "internal_in",
+      "status": "business"
+    },
+    "tx_biz_61_0016": {
+      "alternative_label": {
+        "group": "Active advance",
+        "status": "business"
+      },
+      "ambiguous": false,
+      "group": "Revenue verification",
+      "hard_negative": true,
+      "rationale": "Synthetic merchant processor proceeds, not a capital advance.",
+      "revenue_eligible": true,
+      "scenario_id": "processor_square",
+      "status": "business"
+    },
+    "tx_biz_61_0017": {
+      "ambiguous": false,
+      "group": "unmatched",
+      "hard_negative": false,
+      "rationale": "Routine synthetic operating expense.",
+      "revenue_eligible": false,
+      "scenario_id": "ordinary_expense",
+      "status": "business"
+    },
+    "tx_biz_61_0018": {
+      "ambiguous": false,
+      "group": "unmatched",
+      "hard_negative": false,
+      "rationale": "Routine synthetic operating expense.",
+      "revenue_eligible": false,
+      "scenario_id": "ordinary_expense",
+      "status": "business"
+    },
+    "tx_biz_61_0019": {
+      "ambiguous": false,
+      "group": "unmatched",
+      "hard_negative": false,
+      "rationale": "Routine synthetic operating expense.",
+      "revenue_eligible": false,
+      "scenario_id": "ordinary_expense",
+      "status": "business"
+    },
+    "tx_biz_61_0020": {
+      "alternative_label": {
+        "group": "Not average monthly revenue",
+        "status": "business"
+      },
+      "ambiguous": false,
+      "group": "unmatched",
+      "hard_negative": false,
+      "rationale": "Synthetic customer payment for business sales.",
+      "revenue_eligible": true,
+      "scenario_id": "customer_sale",
+      "status": "business"
+    },
+    "tx_biz_61_0021": {
+      "ambiguous": false,
+      "group": "unmatched",
+      "hard_negative": false,
+      "rationale": "Routine synthetic operating expense.",
+      "revenue_eligible": false,
+      "scenario_id": "ordinary_expense",
+      "status": "business"
+    },
+    "tx_biz_61_0022": {
+      "ambiguous": false,
+      "group": "unmatched",
+      "hard_negative": false,
+      "rationale": "Routine synthetic operating expense.",
+      "revenue_eligible": false,
+      "scenario_id": "ordinary_expense",
+      "status": "business"
+    },
+    "tx_biz_61_0023": {
+      "ambiguous": false,
+      "group": "unmatched",
+      "hard_negative": false,
+      "rationale": "Routine synthetic operating expense.",
+      "revenue_eligible": false,
+      "scenario_id": "ordinary_expense",
+      "status": "business"
+    },
+    "tx_biz_61_0024": {
+      "alternative_label": {
+        "group": "Not average monthly revenue",
+        "status": "business"
+      },
+      "ambiguous": false,
+      "group": "unmatched",
+      "hard_negative": false,
+      "rationale": "Synthetic customer payment for business sales.",
+      "revenue_eligible": true,
+      "scenario_id": "customer_sale",
+      "status": "business"
+    },
+    "tx_biz_61_0025": {
+      "ambiguous": false,
+      "group": "Overdraft",
+      "hard_negative": false,
+      "rationale": "Observed overdraft fee on the synthetic account.",
+      "revenue_eligible": false,
+      "scenario_id": "overdraft_fee",
+      "status": "business"
+    },
+    "tx_biz_61_0026": {
+      "ambiguous": false,
+      "group": "unmatched",
+      "hard_negative": false,
+      "rationale": "Synthetic customer payment; embedded instruction is untrusted data.",
+      "revenue_eligible": true,
+      "scenario_id": "instruction_text",
+      "status": "business"
+    },
+    "tx_biz_61_0027": {
+      "ambiguous": false,
+      "group": "unmatched",
+      "hard_negative": false,
+      "rationale": "Routine synthetic operating expense.",
+      "revenue_eligible": false,
+      "scenario_id": "ordinary_expense",
+      "status": "business"
+    },
+    "tx_biz_61_0028": {
+      "alternative_label": {
+        "group": "Not average monthly revenue",
+        "status": "business"
+      },
+      "ambiguous": false,
+      "group": "unmatched",
+      "hard_negative": false,
+      "rationale": "Synthetic customer payment for business sales.",
+      "revenue_eligible": true,
+      "scenario_id": "customer_sale",
+      "status": "business"
+    },
+    "tx_biz_61_0029": {
+      "alternative_label": {
+        "group": "Active advance",
+        "status": "business"
+      },
+      "ambiguous": false,
+      "group": "Revenue verification",
+      "hard_negative": true,
+      "rationale": "Synthetic merchant processor proceeds, not a capital advance.",
+      "revenue_eligible": true,
+      "scenario_id": "processor_square",
+      "status": "business"
+    },
+    "tx_biz_61_0030": {
+      "alternative_label": {
+        "group": "Internal transfer",
+        "status": "business"
+      },
+      "ambiguous": false,
+      "group": "Revenue verification",
+      "hard_negative": false,
+      "rationale": "Synthetic card/customer settlement despite noisy bank text.",
+      "revenue_eligible": true,
+      "scenario_id": "processor_noisy",
+      "status": "business"
+    },
+    "tx_biz_61_0031": {
+      "alternative_label": {
+        "group": "Internal transfer",
+        "status": "business"
+      },
+      "ambiguous": false,
+      "group": "Revenue verification",
+      "hard_negative": false,
+      "rationale": "Synthetic card/customer settlement despite noisy bank text.",
+      "revenue_eligible": true,
+      "scenario_id": "processor_noisy",
+      "status": "business"
+    },
+    "tx_biz_61_0032": {
+      "ambiguous": false,
+      "group": "unmatched",
+      "hard_negative": false,
+      "rationale": "Routine synthetic operating expense.",
+      "revenue_eligible": false,
+      "scenario_id": "ordinary_expense",
+      "status": "business"
+    },
+    "tx_biz_61_0033": {
+      "ambiguous": false,
+      "group": "unmatched",
+      "hard_negative": false,
+      "rationale": "Routine synthetic operating expense.",
+      "revenue_eligible": false,
+      "scenario_id": "ordinary_expense",
+      "status": "business"
+    },
+    "tx_biz_61_0034": {
+      "ambiguous": false,
+      "group": "unmatched",
+      "hard_negative": false,
+      "rationale": "Routine synthetic operating expense.",
+      "revenue_eligible": false,
+      "scenario_id": "ordinary_expense",
+      "status": "business"
+    },
+    "tx_biz_61_0035": {
+      "ambiguous": false,
+      "group": "unmatched",
+      "hard_negative": false,
+      "rationale": "Routine synthetic operating expense.",
+      "revenue_eligible": false,
+      "scenario_id": "ordinary_expense",
+      "status": "business"
+    },
+    "tx_biz_61_0036": {
+      "ambiguous": false,
+      "group": "unmatched",
+      "hard_negative": false,
+      "rationale": "Routine synthetic operating expense.",
+      "revenue_eligible": false,
+      "scenario_id": "ordinary_expense",
+      "status": "business"
+    },
+    "tx_biz_61_0037": {
+      "ambiguous": false,
+      "group": "unmatched",
+      "hard_negative": false,
+      "rationale": "Routine synthetic operating expense.",
+      "revenue_eligible": false,
+      "scenario_id": "ordinary_expense",
+      "status": "business"
+    },
+    "tx_biz_61_0038": {
+      "ambiguous": false,
+      "group": "unmatched",
+      "hard_negative": false,
+      "rationale": "Routine synthetic operating expense.",
+      "revenue_eligible": false,
+      "scenario_id": "ordinary_expense",
+      "status": "business"
+    },
+    "tx_biz_61_0039": {
+      "alternative_label": {
+        "group": "Internal transfer",
+        "status": "business"
+      },
+      "ambiguous": false,
+      "group": "Revenue verification",
+      "hard_negative": false,
+      "rationale": "Synthetic card/customer settlement despite noisy bank text.",
+      "revenue_eligible": true,
+      "scenario_id": "processor_noisy",
+      "status": "business"
+    },
+    "tx_biz_61_0040": {
+      "ambiguous": false,
+      "group": "unmatched",
+      "hard_negative": false,
+      "rationale": "Routine synthetic operating expense.",
+      "revenue_eligible": false,
+      "scenario_id": "ordinary_expense",
+      "status": "business"
+    },
+    "tx_biz_61_0041": {
+      "alternative_label": {
+        "group": "Not average monthly revenue",
+        "status": "business"
+      },
+      "ambiguous": false,
+      "group": "unmatched",
+      "hard_negative": false,
+      "rationale": "Synthetic customer payment for business sales.",
+      "revenue_eligible": true,
+      "scenario_id": "customer_sale",
+      "status": "business"
+    },
+    "tx_biz_61_0042": {
+      "ambiguous": false,
+      "group": "unmatched",
+      "hard_negative": true,
+      "rationale": "Synthetic merchant initials NSF; this is a uniform purchase, not a bank fee.",
+      "revenue_eligible": false,
+      "scenario_id": "nsf_name_collision",
+      "status": "business"
+    },
+    "tx_biz_61_0043": {
+      "ambiguous": false,
+      "group": "High risk — gambling",
+      "hard_negative": false,
+      "rationale": "Synthetic gambling-related debit, not evidence about a real business.",
+      "revenue_eligible": false,
+      "scenario_id": "gambling",
+      "status": "business"
+    },
+    "tx_biz_61_0044": {
+      "alternative_label": {
+        "group": "unmatched",
+        "status": "business"
+      },
+      "ambiguous": false,
+      "group": "Not average monthly revenue",
+      "hard_negative": false,
+      "rationale": "Tax refund is an inflow, not operating sales.",
+      "revenue_eligible": false,
+      "scenario_id": "tax_refund",
+      "status": "business"
+    },
+    "tx_biz_61_0045": {
+      "alternative_label": {
+        "group": "Active advance",
+        "status": "business"
+      },
+      "ambiguous": false,
+      "group": "Auto deposit",
+      "hard_negative": false,
+      "rationale": "Synthetic customer payment deposited automatically; eligible sales.",
+      "revenue_eligible": true,
+      "scenario_id": "auto_deposit",
+      "status": "business"
+    },
+    "tx_biz_61_0046": {
+      "ambiguous": false,
+      "group": "unmatched",
+      "hard_negative": true,
+      "rationale": "Ordinary equipment repair; the word capital does not make it an advance.",
+      "revenue_eligible": false,
+      "scenario_id": "capital_equipment",
+      "status": "business"
+    },
+    "tx_biz_61_0047": {
+      "alternative_label": {
+        "group": "Not average monthly revenue",
+        "status": "business"
+      },
+      "ambiguous": false,
+      "group": "unmatched",
+      "hard_negative": false,
+      "rationale": "Synthetic customer payment for business sales.",
+      "revenue_eligible": true,
+      "scenario_id": "customer_sale",
+      "status": "business"
+    },
+    "tx_biz_61_0048": {
+      "ambiguity_note": "Bank text cannot establish an actual bankruptcy filing or its status.",
+      "ambiguous": true,
+      "group": "High risk — bankruptcy",
+      "hard_negative": false,
+      "rationale": "Synthetic payment for bankruptcy counsel; not proof of a court filing.",
+      "revenue_eligible": false,
+      "scenario_id": "bankruptcy",
+      "status": "business"
+    },
+    "tx_biz_61_0049": {
+      "alternative_label": {
+        "group": "Internal transfer",
+        "status": "business"
+      },
+      "ambiguous": false,
+      "group": "Revenue verification",
+      "hard_negative": false,
+      "rationale": "Synthetic card/customer settlement despite noisy bank text.",
+      "revenue_eligible": true,
+      "scenario_id": "processor_noisy",
+      "status": "business"
+    },
+    "tx_biz_61_0050": {
+      "ambiguous": false,
+      "group": "unmatched",
+      "hard_negative": false,
+      "rationale": "Routine synthetic operating expense.",
+      "revenue_eligible": false,
+      "scenario_id": "ordinary_expense",
+      "status": "business"
+    },
+    "tx_biz_61_0051": {
+      "ambiguous": false,
+      "group": "unmatched",
+      "hard_negative": false,
+      "rationale": "Routine synthetic operating expense.",
+      "revenue_eligible": false,
+      "scenario_id": "ordinary_expense",
+      "status": "business"
+    },
+    "tx_biz_61_0052": {
+      "ambiguous": false,
+      "group": "unmatched",
+      "hard_negative": false,
+      "rationale": "Routine synthetic operating expense.",
+      "revenue_eligible": false,
+      "scenario_id": "ordinary_expense",
+      "status": "business"
+    },
+    "tx_biz_61_0053": {
+      "ambiguous": false,
+      "group": "unmatched",
+      "hard_negative": false,
+      "rationale": "Routine synthetic operating expense.",
+      "revenue_eligible": false,
+      "scenario_id": "ordinary_expense",
+      "status": "business"
+    },
+    "tx_biz_61_0054": {
+      "alternative_label": {
+        "group": "Active advance",
+        "status": "business"
+      },
+      "ambiguous": false,
+      "group": "Revenue verification",
+      "hard_negative": true,
+      "rationale": "Synthetic merchant processor proceeds, not a capital advance.",
+      "revenue_eligible": true,
+      "scenario_id": "processor_square",
+      "status": "business"
+    },
+    "tx_biz_61_0055": {
+      "ambiguous": false,
+      "group": "unmatched",
+      "hard_negative": false,
+      "rationale": "Routine synthetic operating expense.",
+      "revenue_eligible": false,
+      "scenario_id": "ordinary_expense",
+      "status": "business"
+    },
+    "tx_biz_61_0056": {
+      "alternative_label": {
+        "group": "Active advance",
+        "status": "business"
+      },
+      "ambiguous": false,
+      "group": "Revenue verification",
+      "hard_negative": true,
+      "rationale": "Synthetic merchant processor proceeds, not a capital advance.",
+      "revenue_eligible": true,
+      "scenario_id": "processor_square",
+      "status": "business"
+    },
+    "tx_biz_61_0057": {
+      "alternative_label": {
+        "group": "Internal transfer",
+        "status": "business"
+      },
+      "ambiguous": false,
+      "group": "Revenue verification",
+      "hard_negative": false,
+      "rationale": "Synthetic card/customer settlement despite noisy bank text.",
+      "revenue_eligible": true,
+      "scenario_id": "processor_noisy",
+      "status": "business"
+    },
+    "tx_biz_61_0058": {
+      "ambiguous": false,
+      "group": "unmatched",
+      "hard_negative": false,
+      "rationale": "Routine synthetic operating expense.",
+      "revenue_eligible": false,
+      "scenario_id": "ordinary_expense",
+      "status": "business"
+    },
+    "tx_biz_61_0059": {
+      "ambiguous": false,
+      "group": "unmatched",
+      "hard_negative": false,
+      "rationale": "Routine synthetic operating expense.",
+      "revenue_eligible": false,
+      "scenario_id": "ordinary_expense",
+      "status": "business"
+    },
+    "tx_biz_61_0060": {
+      "alternative_label": {
+        "group": "Revenue verification",
+        "status": "business"
+      },
+      "ambiguous": false,
+      "group": "Not average monthly revenue",
+      "hard_negative": false,
+      "rationale": "Insurance proceeds are not ordinary sales.",
+      "revenue_eligible": false,
+      "scenario_id": "insurance_payout",
+      "status": "business"
+    },
+    "tx_biz_61_0061": {
+      "ambiguous": false,
+      "group": "unmatched",
+      "hard_negative": false,
+      "rationale": "Routine synthetic operating expense.",
+      "revenue_eligible": false,
+      "scenario_id": "ordinary_expense",
+      "status": "business"
+    },
+    "tx_biz_61_0062": {
+      "ambiguous": false,
+      "group": "unmatched",
+      "hard_negative": false,
+      "rationale": "Routine synthetic operating expense.",
+      "revenue_eligible": false,
+      "scenario_id": "ordinary_expense",
+      "status": "business"
+    },
+    "tx_biz_61_0063": {
+      "alternative_label": {
+        "group": "Active advance",
+        "status": "business"
+      },
+      "ambiguous": false,
+      "group": "Revenue verification",
+      "hard_negative": true,
+      "rationale": "Synthetic merchant processor proceeds, not a capital advance.",
+      "revenue_eligible": true,
+      "scenario_id": "processor_square",
+      "status": "business"
+    },
+    "tx_biz_61_0064": {
+      "ambiguous": false,
+      "group": "unmatched",
+      "hard_negative": false,
+      "rationale": "Routine synthetic operating expense.",
+      "revenue_eligible": false,
+      "scenario_id": "ordinary_expense",
+      "status": "business"
+    },
+    "tx_biz_61_0065": {
+      "alternative_label": {
+        "group": "Active advance",
+        "status": "business"
+      },
+      "ambiguous": false,
+      "group": "Revenue verification",
+      "hard_negative": true,
+      "rationale": "Synthetic merchant processor proceeds, not a capital advance.",
+      "revenue_eligible": true,
+      "scenario_id": "processor_square",
+      "status": "business"
+    },
+    "tx_biz_61_0066": {
+      "alternative_label": {
+        "group": "Active advance",
+        "status": "business"
+      },
+      "ambiguous": false,
+      "group": "Revenue verification",
+      "hard_negative": true,
+      "rationale": "Synthetic merchant processor proceeds, not a capital advance.",
+      "revenue_eligible": true,
+      "scenario_id": "processor_square",
+      "status": "business"
+    },
+    "tx_biz_61_0067": {
+      "ambiguous": false,
+      "group": "unmatched",
+      "hard_negative": false,
+      "rationale": "Routine synthetic operating expense.",
+      "revenue_eligible": false,
+      "scenario_id": "ordinary_expense",
+      "status": "business"
+    },
+    "tx_biz_61_0068": {
+      "ambiguous": false,
+      "group": "unmatched",
+      "hard_negative": false,
+      "rationale": "Routine synthetic operating expense.",
+      "revenue_eligible": false,
+      "scenario_id": "ordinary_expense",
+      "status": "business"
+    },
+    "tx_biz_61_0069": {
+      "ambiguous": false,
+      "group": "NSFs",
+      "hard_negative": false,
+      "rationale": "Observed fee for a synthetic returned payment; not a count of all failed attempts.",
+      "revenue_eligible": false,
+      "scenario_id": "nsf_fee",
+      "status": "business"
+    },
+    "tx_biz_61_0070": {
+      "alternative_label": {
+        "group": "Internal transfer",
+        "status": "business"
+      },
+      "ambiguity_note": "The counterparty and sales purpose cannot be established from this description alone.",
+      "ambiguous": true,
+      "group": "unmatched",
+      "hard_negative": false,
+      "rationale": "Scenario author intends a customer receipt, but bank text does not prove its source.",
+      "revenue_eligible": true,
+      "scenario_id": "opaque_receipt",
+      "status": "business"
+    },
+    "tx_biz_61_0071": {
+      "ambiguous": false,
+      "group": "unmatched",
+      "hard_negative": false,
+      "rationale": "Personal owner withdrawal, not a business operating debit.",
+      "revenue_eligible": false,
+      "scenario_id": "personal_out",
+      "status": "personal"
+    },
+    "tx_biz_61_0072": {
+      "alternative_label": {
+        "group": "Internal transfer",
+        "status": "business"
+      },
+      "ambiguous": false,
+      "group": "Revenue verification",
+      "hard_negative": false,
+      "rationale": "Synthetic card/customer settlement despite noisy bank text.",
+      "revenue_eligible": true,
+      "scenario_id": "processor_noisy",
+      "status": "business"
+    },
+    "tx_biz_61_0073": {
+      "alternative_label": {
+        "group": "Not average monthly revenue",
+        "status": "business"
+      },
+      "ambiguous": false,
+      "group": "unmatched",
+      "hard_negative": false,
+      "rationale": "Synthetic customer payment for business sales.",
+      "revenue_eligible": true,
+      "scenario_id": "customer_sale",
+      "status": "business"
+    },
+    "tx_biz_61_0074": {
+      "alternative_label": {
+        "group": "Not average monthly revenue",
+        "status": "business"
+      },
+      "ambiguous": false,
+      "group": "unmatched",
+      "hard_negative": false,
+      "rationale": "Synthetic customer payment for business sales.",
+      "revenue_eligible": true,
+      "scenario_id": "customer_sale",
+      "status": "business"
+    },
+    "tx_biz_61_0075": {
+      "ambiguous": false,
+      "group": "unmatched",
+      "hard_negative": false,
+      "rationale": "Routine synthetic operating expense.",
+      "revenue_eligible": false,
+      "scenario_id": "ordinary_expense",
+      "status": "business"
+    },
+    "tx_biz_61_0076": {
+      "ambiguous": false,
+      "group": "unmatched",
+      "hard_negative": false,
+      "rationale": "Routine synthetic operating expense.",
+      "revenue_eligible": false,
+      "scenario_id": "ordinary_expense",
+      "status": "business"
+    },
+    "tx_biz_61_0077": {
+      "ambiguous": false,
+      "group": "unmatched",
+      "hard_negative": false,
+      "rationale": "Routine synthetic operating expense.",
+      "revenue_eligible": false,
+      "scenario_id": "ordinary_expense",
+      "status": "business"
+    },
+    "tx_biz_61_0078": {
+      "ambiguous": false,
+      "group": "unmatched",
+      "hard_negative": false,
+      "rationale": "Routine synthetic operating expense.",
+      "revenue_eligible": false,
+      "scenario_id": "ordinary_expense",
+      "status": "business"
+    },
+    "tx_biz_61_0079": {
+      "alternative_label": {
+        "group": "Active advance",
+        "status": "business"
+      },
+      "ambiguous": false,
+      "group": "Revenue verification",
+      "hard_negative": true,
+      "rationale": "Synthetic merchant processor proceeds, not a capital advance.",
+      "revenue_eligible": true,
+      "scenario_id": "processor_square",
+      "status": "business"
+    },
+    "tx_biz_61_0080": {
+      "ambiguity_note": "The fee text alone cannot verify a filed or active UCC lien.",
+      "ambiguous": true,
+      "group": "UCC",
+      "hard_negative": false,
+      "rationale": "Synthetic filing-service payment with a punctuation-sensitive keyword miss.",
+      "revenue_eligible": false,
+      "scenario_id": "ucc_punctuation",
+      "status": "business"
+    },
+    "tx_biz_61_0081": {
+      "ambiguous": false,
+      "group": "unmatched",
+      "hard_negative": false,
+      "rationale": "Routine synthetic operating expense.",
+      "revenue_eligible": false,
+      "scenario_id": "ordinary_expense",
+      "status": "business"
+    },
+    "tx_biz_61_0082": {
+      "alternative_label": {
+        "group": "Active advance",
+        "status": "business"
+      },
+      "ambiguous": false,
+      "group": "Revenue verification",
+      "hard_negative": true,
+      "rationale": "Synthetic merchant processor proceeds, not a capital advance.",
+      "revenue_eligible": true,
+      "scenario_id": "processor_square",
+      "status": "business"
+    },
+    "tx_biz_61_0083": {
+      "alternative_label": {
+        "group": "Not average monthly revenue",
+        "status": "business"
+      },
+      "ambiguous": false,
+      "group": "unmatched",
+      "hard_negative": false,
+      "rationale": "Synthetic customer payment for business sales.",
+      "revenue_eligible": true,
+      "scenario_id": "customer_sale",
+      "status": "business"
+    },
+    "tx_biz_61_0084": {
+      "ambiguous": false,
+      "group": "unmatched",
+      "hard_negative": false,
+      "rationale": "Routine synthetic operating expense.",
+      "revenue_eligible": false,
+      "scenario_id": "ordinary_expense",
+      "status": "business"
+    },
+    "tx_biz_61_0085": {
+      "ambiguous": false,
+      "group": "unmatched",
+      "hard_negative": false,
+      "rationale": "Routine synthetic operating expense.",
+      "revenue_eligible": false,
+      "scenario_id": "ordinary_expense",
+      "status": "business"
+    },
+    "tx_biz_61_0086": {
+      "alternative_label": {
+        "group": "Active advance",
+        "status": "business"
+      },
+      "ambiguous": false,
+      "group": "Revenue verification",
+      "hard_negative": true,
+      "rationale": "Synthetic merchant processor proceeds, not a capital advance.",
+      "revenue_eligible": true,
+      "scenario_id": "processor_square",
+      "status": "business"
+    },
+    "tx_biz_61_0087": {
+      "ambiguous": false,
+      "group": "unmatched",
+      "hard_negative": false,
+      "rationale": "Routine synthetic operating expense.",
+      "revenue_eligible": false,
+      "scenario_id": "ordinary_expense",
+      "status": "business"
+    },
+    "tx_biz_61_0088": {
+      "ambiguity_note": "The fee text alone cannot verify a filed or active UCC lien.",
+      "ambiguous": true,
+      "group": "UCC",
+      "hard_negative": false,
+      "rationale": "Synthetic filing-service payment; no verified live lien is implied.",
+      "revenue_eligible": false,
+      "scenario_id": "ucc_filing",
+      "status": "business"
+    },
+    "tx_biz_61_0089": {
+      "alternative_label": {
+        "group": "Not average monthly revenue",
+        "status": "business"
+      },
+      "ambiguous": false,
+      "group": "unmatched",
+      "hard_negative": false,
+      "rationale": "Synthetic customer payment for business sales.",
+      "revenue_eligible": true,
+      "scenario_id": "customer_sale",
+      "status": "business"
+    },
+    "tx_biz_61_0090": {
+      "alternative_label": {
+        "group": "unmatched",
+        "status": "business"
+      },
+      "ambiguous": false,
+      "group": "Active advance",
+      "hard_negative": false,
+      "rationale": "Synthetic business debit repaying an advance.",
+      "revenue_eligible": false,
+      "scenario_id": "advance_repayment",
+      "status": "business"
+    },
+    "tx_biz_61_0091": {
+      "alternative_label": {
+        "group": "Revenue verification",
+        "status": "business"
+      },
+      "ambiguous": false,
+      "group": "Active advance",
+      "hard_negative": false,
+      "rationale": "Synthetic funder principal inflow: neither revenue nor a repayment.",
+      "revenue_eligible": false,
+      "scenario_id": "advance_disbursement",
+      "status": "business"
+    },
+    "tx_biz_61_0092": {
+      "alternative_label": {
+        "group": "Not average monthly revenue",
+        "status": "business"
+      },
+      "ambiguous": false,
+      "group": "unmatched",
+      "hard_negative": false,
+      "rationale": "Synthetic customer payment for business sales.",
+      "revenue_eligible": true,
+      "scenario_id": "customer_sale",
+      "status": "business"
+    },
+    "tx_biz_61_0093": {
+      "alternative_label": {
+        "group": "Active advance",
+        "status": "business"
+      },
+      "ambiguous": false,
+      "group": "Revenue verification",
+      "hard_negative": true,
+      "rationale": "Synthetic merchant processor proceeds, not a capital advance.",
+      "revenue_eligible": true,
+      "scenario_id": "processor_square",
+      "status": "business"
+    },
+    "tx_biz_61_0094": {
+      "alternative_label": {
+        "group": "Internal transfer",
+        "status": "business"
+      },
+      "ambiguous": false,
+      "group": "Revenue verification",
+      "hard_negative": false,
+      "rationale": "Synthetic card/customer settlement despite noisy bank text.",
+      "revenue_eligible": true,
+      "scenario_id": "processor_noisy",
+      "status": "business"
+    },
+    "tx_biz_61_0095": {
+      "ambiguous": false,
+      "group": "Overdraft",
+      "hard_negative": false,
+      "rationale": "Synthetic overdraft fee whose punctuation can miss a literal keyword.",
+      "revenue_eligible": false,
+      "scenario_id": "overdraft_punctuation",
+      "status": "business"
+    },
+    "tx_biz_61_0096": {
+      "alternative_label": {
+        "group": "Not average monthly revenue",
+        "status": "business"
+      },
+      "ambiguous": false,
+      "group": "unmatched",
+      "hard_negative": false,
+      "rationale": "Synthetic customer payment for business sales.",
+      "revenue_eligible": true,
+      "scenario_id": "customer_sale",
+      "status": "business"
+    },
+    "tx_biz_61_0097": {
+      "ambiguous": false,
+      "group": "unmatched",
+      "hard_negative": false,
+      "rationale": "Routine synthetic operating expense.",
+      "revenue_eligible": false,
+      "scenario_id": "ordinary_expense",
+      "status": "business"
+    },
+    "tx_biz_61_0098": {
+      "ambiguous": false,
+      "group": "High risk — other",
+      "hard_negative": false,
+      "rationale": "Synthetic high-risk merchant debit under the approved broad category.",
+      "revenue_eligible": false,
+      "scenario_id": "other_high_risk",
+      "status": "business"
+    },
+    "tx_biz_61_0099": {
+      "alternative_label": {
+        "group": "Not average monthly revenue",
+        "status": "business"
+      },
+      "ambiguous": false,
+      "group": "unmatched",
+      "hard_negative": false,
+      "rationale": "Synthetic customer payment for business sales.",
+      "revenue_eligible": true,
+      "scenario_id": "customer_sale",
+      "status": "business"
+    },
+    "tx_biz_61_0100": {
+      "ambiguous": false,
+      "group": "unmatched",
+      "hard_negative": false,
+      "rationale": "Routine synthetic operating expense.",
+      "revenue_eligible": false,
+      "scenario_id": "ordinary_expense",
+      "status": "business"
+    },
+    "tx_biz_61_0101": {
+      "alternative_label": {
+        "group": "Internal transfer",
+        "status": "business"
+      },
+      "ambiguous": false,
+      "group": "Revenue verification",
+      "hard_negative": false,
+      "rationale": "Synthetic card/customer settlement despite noisy bank text.",
+      "revenue_eligible": true,
+      "scenario_id": "processor_noisy",
+      "status": "business"
+    },
+    "tx_biz_61_0102": {
+      "alternative_label": {
+        "group": "Internal transfer",
+        "status": "business"
+      },
+      "ambiguous": false,
+      "group": "Revenue verification",
+      "hard_negative": false,
+      "rationale": "Synthetic card/customer settlement despite noisy bank text.",
+      "revenue_eligible": true,
+      "scenario_id": "processor_noisy",
+      "status": "business"
+    },
+    "tx_biz_61_0103": {
+      "alternative_label": {
+        "group": "Internal transfer",
+        "status": "business"
+      },
+      "ambiguous": false,
+      "group": "Revenue verification",
+      "hard_negative": false,
+      "rationale": "Synthetic card/customer settlement despite noisy bank text.",
+      "revenue_eligible": true,
+      "scenario_id": "processor_noisy",
+      "status": "business"
+    },
+    "tx_biz_61_0104": {
+      "alternative_label": {
+        "group": "Not average monthly revenue",
+        "status": "business"
+      },
+      "ambiguous": false,
+      "group": "unmatched",
+      "hard_negative": false,
+      "rationale": "Synthetic customer payment for business sales.",
+      "revenue_eligible": true,
+      "scenario_id": "customer_sale",
+      "status": "business"
+    },
+    "tx_biz_61_0105": {
+      "alternative_label": {
+        "group": "Internal transfer",
+        "status": "business"
+      },
+      "ambiguous": false,
+      "group": "Revenue verification",
+      "hard_negative": false,
+      "rationale": "Synthetic card/customer settlement despite noisy bank text.",
+      "revenue_eligible": true,
+      "scenario_id": "processor_noisy",
+      "status": "business"
+    },
+    "tx_biz_61_0106": {
+      "alternative_label": {
+        "group": "unmatched",
+        "status": "business"
+      },
+      "ambiguous": false,
+      "group": "unmatched",
+      "hard_negative": false,
+      "rationale": "Owner's personal funds entering the business account, not sales.",
+      "revenue_eligible": false,
+      "scenario_id": "personal_in",
+      "status": "personal"
+    },
+    "tx_biz_61_0107": {
+      "ambiguous": false,
+      "group": "unmatched",
+      "hard_negative": false,
+      "rationale": "Routine synthetic operating expense.",
+      "revenue_eligible": false,
+      "scenario_id": "ordinary_expense",
+      "status": "business"
+    },
+    "tx_biz_61_0108": {
+      "alternative_label": {
+        "group": "Not average monthly revenue",
+        "status": "business"
+      },
+      "ambiguous": false,
+      "group": "unmatched",
+      "hard_negative": false,
+      "rationale": "Synthetic customer payment for business sales.",
+      "revenue_eligible": true,
+      "scenario_id": "customer_sale",
+      "status": "business"
+    },
+    "tx_biz_61_0109": {
+      "alternative_label": {
+        "group": "Not average monthly revenue",
+        "status": "business"
+      },
+      "ambiguous": false,
+      "group": "unmatched",
+      "hard_negative": false,
+      "rationale": "Synthetic customer payment for business sales.",
+      "revenue_eligible": true,
+      "scenario_id": "customer_sale",
+      "status": "business"
+    },
+    "tx_biz_61_0110": {
+      "ambiguous": false,
+      "group": "unmatched",
+      "hard_negative": false,
+      "rationale": "Routine synthetic operating expense.",
+      "revenue_eligible": false,
+      "scenario_id": "ordinary_expense",
+      "status": "business"
+    },
+    "tx_biz_61_0111": {
+      "alternative_label": {
+        "group": "Not average monthly revenue",
+        "status": "business"
+      },
+      "ambiguous": false,
+      "group": "unmatched",
+      "hard_negative": false,
+      "rationale": "Synthetic customer payment for business sales.",
+      "revenue_eligible": true,
+      "scenario_id": "customer_sale",
+      "status": "business"
+    },
+    "tx_biz_61_0112": {
+      "alternative_label": {
+        "group": "Active advance",
+        "status": "business"
+      },
+      "ambiguous": false,
+      "group": "Revenue verification",
+      "hard_negative": true,
+      "rationale": "Synthetic merchant processor proceeds, not a capital advance.",
+      "revenue_eligible": true,
+      "scenario_id": "processor_square",
+      "status": "business"
+    },
+    "tx_biz_61_0113": {
+      "ambiguous": false,
+      "group": "unmatched",
+      "hard_negative": false,
+      "rationale": "Routine synthetic operating expense.",
+      "revenue_eligible": false,
+      "scenario_id": "ordinary_expense",
+      "status": "business"
+    },
+    "tx_biz_61_0114": {
+      "alternative_label": {
+        "group": "Not average monthly revenue",
+        "status": "business"
+      },
+      "ambiguous": false,
+      "group": "unmatched",
+      "hard_negative": false,
+      "rationale": "Synthetic customer payment for business sales.",
+      "revenue_eligible": true,
+      "scenario_id": "customer_sale",
+      "status": "business"
+    },
+    "tx_biz_61_0115": {
+      "ambiguous": false,
+      "group": "unmatched",
+      "hard_negative": false,
+      "rationale": "Routine synthetic operating expense.",
+      "revenue_eligible": false,
+      "scenario_id": "ordinary_expense",
+      "status": "business"
+    },
+    "tx_biz_61_0116": {
+      "ambiguous": false,
+      "group": "unmatched",
+      "hard_negative": false,
+      "rationale": "Routine synthetic operating expense.",
+      "revenue_eligible": false,
+      "scenario_id": "ordinary_expense",
+      "status": "business"
+    },
+    "tx_biz_61_0117": {
+      "alternative_label": {
+        "group": "Not average monthly revenue",
+        "status": "business"
+      },
+      "ambiguous": false,
+      "group": "unmatched",
+      "hard_negative": false,
+      "rationale": "Synthetic customer payment for business sales.",
+      "revenue_eligible": true,
+      "scenario_id": "customer_sale",
+      "status": "business"
+    },
+    "tx_biz_61_0118": {
+      "alternative_label": {
+        "group": "Active advance",
+        "status": "business"
+      },
+      "ambiguous": false,
+      "group": "Revenue verification",
+      "hard_negative": true,
+      "rationale": "Synthetic merchant processor proceeds, not a capital advance.",
+      "revenue_eligible": true,
+      "scenario_id": "processor_square",
+      "status": "business"
+    },
+    "tx_biz_61_0119": {
+      "alternative_label": {
+        "group": "Active advance",
+        "status": "business"
+      },
+      "ambiguous": false,
+      "group": "Revenue verification",
+      "hard_negative": true,
+      "rationale": "Synthetic merchant processor proceeds, not a capital advance.",
+      "revenue_eligible": true,
+      "scenario_id": "processor_square",
+      "status": "business"
+    },
+    "tx_biz_61_0120": {
+      "ambiguity_note": "The description cannot verify a binding settlement agreement.",
+      "ambiguous": true,
+      "group": "High risk — debt settlement payments",
+      "hard_negative": false,
+      "rationale": "Synthetic debt-settlement-service debit; obligation details are not verified.",
+      "revenue_eligible": false,
+      "scenario_id": "debt_settlement",
+      "status": "business"
+    }
+  },
+  "seed": 20261069
+}

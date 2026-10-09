@@ -1,6 +1,6 @@
 # Fundo Transaction Reviewer
 
-> Ticket 01 input validation is implemented; the reviewer has not been implemented yet.
+> Ticket 01 input validation and Ticket 02 synthetic fixtures are implemented; the reviewer has not been implemented yet.
 
 ## Source of truth
 
@@ -11,6 +11,7 @@
 - [IMPLEMENTATION_CHECKLIST.md](docs/IMPLEMENTATION_CHECKLIST.md) — v1 implementation and evidence checklist.
 - [FINANCIAL_GLOSSARY.md](docs/FINANCIAL_GLOSSARY.md) — plain-English financial glossary for developers.
 - [INPUT_CONTRACT.md](docs/INPUT_CONTRACT.md) — implemented Ticket 01 envelope and validation policy.
+- [SYNTHETIC_DATA.md](docs/SYNTHETIC_DATA.md) — Ticket 02 scenario inventory, counts, regeneration, and fixture hashes.
 
 ## Setup and run
 
@@ -22,6 +23,19 @@ needed for new LLM calls.
 
 Ticket 01 data-contract tests can already be run with
 `uv run --group dev pytest tests/test_data.py`. They require no API key.
+
+Regenerate the entirely synthetic Ticket 02 fixtures and verify their exact bytes:
+
+```bash
+PYTHONPATH=src uv run python -m fundo_reviewer.synthetic --output-root data
+uv run --group dev pytest -q
+git diff --exit-code -- data/transactions data/ground_truth
+```
+
+This produces separate 90-day transaction/truth files (10 businesses, 2,000
+transactions) and 61-day files (1 business, 120 transactions) under `data/`.
+No Plaid API, Sandbox credentials, or LLM key is used. The future reviewer must
+read only `data/transactions/`, never `data/ground_truth/`.
 
 ## Reproduce from cache
 
