@@ -1,6 +1,6 @@
 # Ticket 06 — Credit features and illustrative offer
 
-**Status:** Ready for implementation; no feature or offer result is measured by writing this ticket.
+**Status:** Implemented and locally tested; final paid-cohort reviewed artifact is deferred to the end-to-end validation phase.
 
 **Type:** Deterministic credit arithmetic
 

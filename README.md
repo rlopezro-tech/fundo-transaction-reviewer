@@ -1,6 +1,6 @@
 # Fundo Transaction Reviewer
 
-> Tickets 01–04 are implemented. Ticket 05's provider/cache/CLI implementation is in place, but the full paid cache and no-key 2,000-record replay are **pending**. Tickets 06–08 and final validation remain in progress.
+> Tickets 01–04 are implemented. Ticket 05's provider/cache/CLI and Ticket 06's credit/offer calculation are implemented, but the full paid cache and no-key 2,000-record replay are **pending**. Tickets 07–08 and final validation remain in progress.
 
 ## Source of truth
 
@@ -15,6 +15,7 @@
 - [LEGACY_POLICY.md](docs/LEGACY_POLICY.md) — Ticket 03 keyword baseline, precedence, revenue eligibility, and known errors.
 - [REVIEWER_BOUNDARY.md](docs/REVIEWER_BOUNDARY.md) — Ticket 04 prompt/schema, model-versus-code boundary, injection and failure policy.
 - [EXECUTION.md](docs/EXECUTION.md) — Ticket 05 model, pilot, cache, budget and execution assumptions.
+- [CREDIT_POLICY.md](docs/CREDIT_POLICY.md) — Ticket 06 feature denominators, coverage, and illustrative offer policy.
 
 ## Setup and run
 
@@ -68,7 +69,8 @@ online mode unless its exact requests were already cached.
 
 ## Outputs
 
-Ticket 05 emits ordered `review_outcomes.json` and `run_manifest.json` in
+The CLI emits ordered `review_outcomes.json`, `credit_report.json`, and `run_manifest.json` in
 `--output-dir`. The manifest separates new API usage from historical cache
 usage and labels the cost as usage-derived estimate, not a billing receipt.
-Credit features and offer impact are added in Ticket 06.
+The credit report shows legacy and reviewed features/illustrative offers with
+their deltas; it does not represent a real Fundo funding decision.

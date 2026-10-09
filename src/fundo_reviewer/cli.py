@@ -14,6 +14,7 @@ from fundo_reviewer.cache import (
     batch_identity,
     usage_derived_cost,
 )
+from fundo_reviewer.credit import FEATURE_POLICY_VERSION, OFFER_POLICY_VERSION, build_credit_report
 from fundo_reviewer.data import load_input
 from fundo_reviewer.legacy import RULESET_VERSION, label_transactions
 from fundo_reviewer.provider import (
@@ -201,6 +202,9 @@ def run_pipeline(
             outcomes.append(outcome)
     input_sha256 = hashlib.sha256(input_path.read_bytes()).hexdigest()
     status_counts = dict(sorted(Counter(item.review_status for item in outcomes).items()))
+    credit_report = build_credit_report(normalized, legacy, outcomes)
+    credit_path = output_dir / "credit_report.json"
+    _write_json(credit_path, credit_report)
     manifest = {
         "input_name": input_path.name,
         "input_sha256": input_sha256,
@@ -223,6 +227,8 @@ def run_pipeline(
             "response_schema": SCHEMA_VERSION,
             "flag_policy": FLAG_POLICY_VERSION,
             "pricing": PRICING_VERSION,
+            "credit_features": FEATURE_POLICY_VERSION,
+            "illustrative_offer": OFFER_POLICY_VERSION,
         },
         "review_status_counts": status_counts,
         "flag_count": sum(item.flag for item in outcomes),
@@ -236,6 +242,7 @@ def run_pipeline(
         "new_usage_derived_cost_usd": str(usage_derived_cost(dict(new_usage))),
         "historical_cache_usage_derived_cost_usd": str(historical_cost),
         "accuracy": "not_measured_without_separate_truth_evaluation",
+        "credit_report_sha256": hashlib.sha256(credit_path.read_bytes()).hexdigest(),
     }
     _write_json(output_dir / "review_outcomes.json", [_outcome_record(item) for item in outcomes])
     _write_json(output_dir / "run_manifest.json", manifest)
