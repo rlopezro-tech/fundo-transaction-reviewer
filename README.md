@@ -1,6 +1,6 @@
 # Fundo Transaction Reviewer
 
-> Tickets 01–04 are implemented. Tickets 05–07 have provider/cache/CLI, credit/offer, and evaluation/sensitivity code, but the full paid cache, measured quality report, and no-key 2,000-record replay are **pending**. A current `gpt-6-luna` small-input call succeeded on 2026-10-09; the first main-cohort batch then hit the account's 50-requests/day limit. No main-cohort response is cached yet. Ticket 08 and final validation remain in progress.
+> Tickets 01–04 are implemented. Tickets 05–07 have provider/cache/CLI, credit/offer, and evaluation/sensitivity code, but the full paid cache, measured quality report, and no-key 2,000-record replay are **pending**. On 2026-10-09, `gpt-6-luna` completed and cached 10 of 25 main-cohort batches (800/2,000 rows; 799 valid, 1 invalid) before hitting the organization's 100k TPM limit. The run can resume from cache after the quota resets; final reports and evaluation are still pending. Ticket 08 and final validation remain in progress.
 
 ## Source of truth
 
@@ -34,11 +34,12 @@ is needed. The implementation-stage pipeline command is:
 PYTHONPATH=src uv run --env-file .env python -m fundo_reviewer.cli --mode online --model gpt-6-luna --input data/transactions/main_90_days.json --output-dir reports/main
 ```
 
-This command will call the paid model for uncached batches and is **not yet a
-completed demonstration**. It may stop at the account's daily request limit;
-rerunning resumes from validated cached batches. On 2026-10-09 it stopped before
-the first OpenAI main-cohort response. The OpenAI default cache is still empty.
-A conservative pre-call spend guard stops before the USD 8 operating ceiling.
+This command calls the paid model for uncached batches and is **not yet a
+completed demonstration**. It may stop at an account rate limit; rerunning
+resumes from validated cached batches. On 2026-10-09 it cached 10 batches
+(800/2,000 rows) before a 100k TPM limit stopped the run. The cache is partial;
+the final report is not yet available. A conservative pre-call spend guard stops
+before the USD 8 operating ceiling.
 See [EXECUTION.md](docs/EXECUTION.md) for the alternative-provider experiment,
 measured pilot, pricing assumptions and current limitations. If you export the
 key instead, omit `--env-file .env`.

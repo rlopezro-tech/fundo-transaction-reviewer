@@ -178,20 +178,29 @@ class OpenRouterProvider(OpenAIProvider):
                 if self._last_call_at is not None:
                     time.sleep(max(0.0, 7.0 - (time.monotonic() - self._last_call_at)))
                 self._last_call_at = time.monotonic()
-                response = self.client.chat.completions.create(
-                    model=self.model,
-                    messages=[
-                        {"role": "system", "content": system_prompt},
-                        {"role": "user", "content": user_prompt},
-                    ],
-                    response_format={
+                if self.model in {
+                    "google/gemma-4-26b-a4b-it:free",
+                    "meta-llama/llama-3.3-70b-instruct:free",
+                }:
+                    # These free endpoints support JSON mode but not
+                    # constrained JSON Schema decoding.
+                    response_format = {"type": "json_object"}
+                else:
+                    response_format = {
                         "type": "json_schema",
                         "json_schema": {
                             "name": "transaction_review_batch" if text_format is BatchProviderShape else "transaction_review",
                             "strict": True,
                             "schema": text_format.model_json_schema(),
                         },
-                    },
+                    }
+                response = self.client.chat.completions.create(
+                    model=self.model,
+                    messages=[
+                        {"role": "system", "content": system_prompt},
+                        {"role": "user", "content": user_prompt},
+                    ],
+                    response_format=response_format,
                     max_tokens=max_output_tokens,
                     extra_body={
                         "provider": {"require_parameters": True},

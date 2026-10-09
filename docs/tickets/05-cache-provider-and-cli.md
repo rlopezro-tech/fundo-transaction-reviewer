@@ -1,6 +1,6 @@
 # Ticket 05 — Provider integration, cache, budget, and CLI replay
 
-**Status:** Implementation committed; final paid full-cohort cache and no-key replay verification blocked by exhausted API credits (alternate model pilot returned `credit_balance_exhausted`). Do not treat this ticket as accepted until those gates pass.
+**Status:** Implementation committed; partial paid cache now contains 800/2,000 `gpt-6-luna` rows (799 valid, one invalid), but the full-cohort cache and no-key replay remain blocked by the organization's 100k TPM limit. Do not treat this ticket as accepted until the remaining 1,200 rows and replay gates pass.
 
 **Type:** Reproducible execution
 
