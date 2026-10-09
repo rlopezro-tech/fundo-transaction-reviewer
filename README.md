@@ -1,6 +1,6 @@
 # Fundo Transaction Reviewer
 
-> Tickets 01–04 are implemented. Tickets 05–07 have provider/cache/CLI, credit/offer, and evaluation/sensitivity code, but the full paid cache, measured quality report, and no-key 2,000-record replay are **pending**. On 2026-10-09, `gpt-6-luna` completed and cached 10 of 25 main-cohort batches (800/2,000 rows; 799 valid, 1 invalid) before hitting the organization's 100k TPM limit. The run can resume from cache after the quota resets; final reports and evaluation are still pending. Ticket 08 and final validation remain in progress.
+> Tickets 01–04 are implemented. Tickets 05–07 have provider/cache/CLI, credit/offer, and evaluation/sensitivity code, but the full paid cache, measured quality report, and no-key 2,000-record replay are **pending**. On 2026-10-09, `gpt-6-luna` completed and cached 10 of 25 main-cohort batches (800/2,000 rows; 799 valid, 1 invalid). Retries with both `OPENAI_API_KEY_TEMP` and `OPENAI_API_KEY` then hit organization-level 100k TPM limits; no additional cases were reviewed. The run can resume from cache after the quota resets; final reports and evaluation are still pending. Ticket 08 and final validation remain in progress.
 
 ## Source of truth
 
