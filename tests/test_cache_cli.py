@@ -3,6 +3,9 @@
 import hashlib
 import json
 import logging
+import os
+import subprocess
+import sys
 from dataclasses import replace
 from decimal import Decimal
 from pathlib import Path
@@ -50,6 +53,24 @@ def test_cli_model_choices_come_from_registered_catalog():
     assert "openrouter/openai/gpt-oss-20b" in model_action.choices
     with pytest.raises(SystemExit):
         parser.parse_args(["--model", "not-a-registered-model"])
+
+
+def test_cli_reports_offline_cache_miss_without_traceback(tmp_path):
+    environment = os.environ.copy()
+    environment["PYTHONPATH"] = str(ROOT / "src")
+    result = subprocess.run(
+        [
+            sys.executable, "-m", "fundo_reviewer.cli", "--mode", "offline",
+            "--input", str(SMALL), "--cache", str(tmp_path / "missing.jsonl"),
+            "--output-dir", str(tmp_path / "output"),
+        ],
+        cwd=ROOT, env=environment, capture_output=True, text=True,
+    )
+    assert result.returncode == 1
+    assert result.stdout == ""
+    assert "offline replay stopped: no cached response for batch 1/1 (3 rows)" in result.stderr
+    assert "error: batch cache miss" in result.stderr
+    assert "Traceback" not in result.stderr
 
 
 class FakeProvider:

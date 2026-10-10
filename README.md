@@ -13,6 +13,7 @@ uv sync --locked --group dev
 ```
 
 This example returns 3 cache hits and 0 API calls. It writes `review_outcomes.json`, `credit_report.json`, and `run_manifest.json` under `/tmp/fundo-offline-replay/`; those files match the committed example under `reports/new_input/` byte for byte.
+Expected input, cache, and budget errors exit nonzero with a concise message on stderr instead of a Python traceback.
 
 ## Run tests
 

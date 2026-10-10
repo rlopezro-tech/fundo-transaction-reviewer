@@ -306,8 +306,15 @@ def _build_parser() -> argparse.ArgumentParser:
 
 def main() -> None:
     logging.basicConfig(level=logging.INFO, format="%(levelname)s %(name)s: %(message)s")
-    args = _build_parser().parse_args()
-    result = run_pipeline(args.input, args.output_dir, args.mode, args.cache, args.spend_ledger, args.model, batch_size=args.batch_size)
+    parser = _build_parser()
+    args = parser.parse_args()
+    try:
+        result = run_pipeline(
+            args.input, args.output_dir, args.mode, args.cache, args.spend_ledger,
+            args.model, batch_size=args.batch_size,
+        )
+    except (CacheMiss, ValueError, RuntimeError, OSError) as exc:
+        parser.exit(1, f"{parser.prog}: error: {exc}\n")
     print(json.dumps({key: result[key] for key in ("accepted_transactions", "review_status_counts", "flag_count", "degraded_count", "cache_hits", "new_api_calls", "new_usage_derived_cost_usd")}, sort_keys=True))
 
 
