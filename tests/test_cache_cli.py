@@ -237,7 +237,7 @@ def test_online_fill_then_no_key_offline_replay_is_byte_identical(tmp_path, monk
     assert manifest["accuracy"] == "not_measured_without_separate_truth_evaluation"
     assert ledger_path.exists() and cache_path.exists()
     monkeypatch.delenv("OPENAI_API_KEY", raising=False)
-    monkeypatch.setattr("fundo_reviewer.cli.OpenAIProvider", lambda *args: pytest.fail("offline loaded provider"))
+    monkeypatch.setattr("fundo_reviewer.cli.create_provider", lambda *args: pytest.fail("offline loaded provider"))
     replay = run_pipeline(SMALL, first_offline, "offline", cache_path, ledger_path)
     run_pipeline(SMALL, second_offline, "offline", cache_path, ledger_path)
     assert replay["cache_hits"] == provider.calls and replay["new_api_calls"] == 0
@@ -289,7 +289,7 @@ def test_batch_review_replays_all_ids_without_key_and_detects_corruption(tmp_pat
     assert online["degraded_count"] == 0
     assert len(BatchReviewCache(path).entries) == fake.calls
     monkeypatch.delenv("OPENAI_API_KEY", raising=False)
-    monkeypatch.setattr("fundo_reviewer.cli.OpenAIProvider", lambda *args: pytest.fail("offline loaded provider"))
+    monkeypatch.setattr("fundo_reviewer.cli.create_provider", lambda *args: pytest.fail("offline loaded provider"))
     offline = run_pipeline(SMALL, tmp_path / "offline", "offline", path, ledger, batch_size=2)
     assert offline["cache_hits"] == online["accepted_transactions"]
     assert offline["cache_batch_hits"] == fake.calls

@@ -18,7 +18,7 @@ from fundo_reviewer.credit import FEATURE_POLICY_VERSION, OFFER_POLICY_VERSION, 
 from fundo_reviewer.data import load_input
 from fundo_reviewer.legacy import RULESET_VERSION, label_transactions
 from fundo_reviewer.provider import (
-    DEFAULT_MODEL, BudgetedBatchProvider, BudgetedProvider, OpenAIProvider, OpenRouterProvider, build_batch_request,
+    DEFAULT_MODEL, BudgetedBatchProvider, BudgetedProvider, build_batch_request, create_provider,
 )
 from fundo_reviewer.revenue import REVENUE_POLICY_VERSION
 from fundo_reviewer.reviewer import (
@@ -67,9 +67,7 @@ def _run_batched(normalized, labels, *, mode, cache_path, ledger_path, model, pr
     cache = BatchReviewCache(cache_path)
     budgeted = None
     if mode == "online":
-        live = provider if provider is not None else (
-            OpenRouterProvider(model) if model.startswith("openrouter/") else OpenAIProvider(model)
-        )
+        live = provider if provider is not None else create_provider(model)
         if not hasattr(live, "review_batch"):
             raise TypeError("batch mode requires provider.review_batch")
         budgeted = BudgetedBatchProvider(live, SpendLedger(ledger_path), model)
@@ -178,9 +176,7 @@ def run_pipeline(
         budgeted: BudgetedProvider | None = None
         if mode == "online":
             # Lazy key/provider access. Offline imports no SDK client or key.
-            live_provider = provider if provider is not None else (
-                OpenRouterProvider(model) if model.startswith("openrouter/") else OpenAIProvider(model)
-            )
+            live_provider = provider if provider is not None else create_provider(model)
             budgeted = BudgetedProvider(live_provider, SpendLedger(ledger_path), model)
         outcomes = []
         cache_hits = 0

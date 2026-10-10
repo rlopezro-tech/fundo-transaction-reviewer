@@ -45,15 +45,16 @@ transaction JSON → validate/window → keyword baseline → cached/provider re
 | --- | --- |
 | `data.py`, `synthetic.py` | Plaid-shaped validation and deterministic synthetic fixtures |
 | `legacy.py`, `revenue.py` | Keyword labels and code-derived revenue eligibility |
-| `reviewer.py`, `provider.py` | Prompt/schema validation, provider access, and degraded fallback |
-| `cache.py` | Integrity-checked replay cache and conservative spend ledger |
+| `reviewer.py`, `provider.py` | Prompt/schema validation, adapter factory, provider access, and degraded fallback |
+| `model_catalog.py` | Approved model IDs, provider routing, API-key environment names, and versioned prices |
+| `cache.py` | Integrity-checked replay cache and conservative spend ledger; pricing is read from the catalog |
 | `credit.py` | Per-business feature and illustrative offer calculations |
 | `cli.py` | Online cache fill or offline cache replay |
 | `evaluation.py` | Separate truth-based quality and seeded sensitivity reports |
 | `pilot.py` | Historical OpenAI prompt experiments; not the production/main CLI |
-| `local_pilot.py` | Separate Ollama diagnostic path; it bypasses the main provider factory |
+| `local_pilot.py` | Separate Ollama diagnostic path; Ollama is not currently a hosted-review adapter |
 
-Provider selection is currently coupled to `cli.py` through model-name prefix checks; OpenAI and OpenRouter adapters live in `provider.py`, while Ollama is implemented separately in `local_pilot.py`. Cost metadata lives in `cache.py`. This is a known provider-extension seam, not a plug-in registry.
+The CLI and OpenAI prompt pilot both use `provider.create_provider()`, which routes using `model_catalog.py` rather than parsing model-name prefixes. Pricing and API-key environment names are catalog metadata, so adding a model for an existing provider does not require edits to CLI/cache routing. A genuinely new hosted provider still needs an adapter and a factory mapping; provider-specific protocol behavior remains in its adapter. Ollama remains a diagnostic-only path and cannot be selected for the main review pipeline.
 
 ## Current delivery limitation
 

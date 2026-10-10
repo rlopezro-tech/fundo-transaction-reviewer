@@ -13,11 +13,11 @@ from typing import Any
 from pydantic import BaseModel, ConfigDict
 
 from fundo_reviewer.cache import BATCH_MAX_OUTPUT_TOKENS, MAX_OUTPUT_TOKENS, SpendLedger, batch_identity
+from fundo_reviewer.model_catalog import DEFAULT_MODEL, model_spec
 from fundo_reviewer.revenue import GROUPS, UNMATCHED
 from fundo_reviewer.reviewer import FatalReviewError, ProviderReply, ReviewProvider, ReviewRequest
 
 
-DEFAULT_MODEL = "gpt-6-luna"
 GroupEnum = Enum("GroupEnum", {f"GROUP_{index:02d}": group for index, group in enumerate((*GROUPS, UNMATCHED))}, type=str)
 
 
@@ -67,9 +67,12 @@ def build_batch_request(requests: tuple[ReviewRequest, ...]) -> BatchReviewReque
 
 class OpenAIProvider:
     def __init__(self, model: str = DEFAULT_MODEL):
-        api_key = os.environ.get("OPENAI_API_KEY")
+        spec = model_spec(model)
+        if spec.provider != "openai":
+            raise ValueError(f"{model!r} is not an OpenAI model")
+        api_key = os.environ.get(spec.api_key_env or "")
         if not api_key:
-            raise RuntimeError("OPENAI_API_KEY is required for online review")
+            raise RuntimeError(f"{spec.api_key_env} is required for online review")
         from openai import OpenAI
 
         self.model = model
@@ -164,9 +167,12 @@ class OpenRouterProvider(OpenAIProvider):
     """OpenRouter's OpenAI-compatible Chat Completions API."""
 
     def __init__(self, model: str = "openrouter/free"):
-        api_key = os.environ.get("OPENROUTER_API_KEY")
+        spec = model_spec(model)
+        if spec.provider != "openrouter":
+            raise ValueError(f"{model!r} is not an OpenRouter model")
+        api_key = os.environ.get(spec.api_key_env or "")
         if not api_key:
-            raise RuntimeError("OPENROUTER_API_KEY is required for OpenRouter online review")
+            raise RuntimeError(f"{spec.api_key_env} is required for online review")
         from openai import OpenAI
 
         self.model = model if model == "openrouter/free" else model.removeprefix("openrouter/")
@@ -267,6 +273,16 @@ class OpenRouterProvider(OpenAIProvider):
             parsed=parsed,
             raw_response=raw, usage=usage,
         )
+
+
+def create_provider(model: str) -> ReviewProvider:
+    """Build the registered hosted provider adapter for a model ID."""
+    spec = model_spec(model)
+    if spec.provider == "openai":
+        return OpenAIProvider(model)
+    if spec.provider == "openrouter":
+        return OpenRouterProvider(model)
+    raise ValueError(f"provider {spec.provider!r} has no hosted review adapter")
 
 
 class BudgetedProvider:

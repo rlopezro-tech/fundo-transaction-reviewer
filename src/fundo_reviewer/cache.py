@@ -12,6 +12,7 @@ from pathlib import Path
 from typing import Any
 
 from fundo_reviewer.revenue import REVENUE_POLICY_VERSION
+from fundo_reviewer.model_catalog import DEFAULT_MODEL, model_spec, registered_models
 from fundo_reviewer.reviewer import (
     FLAG_POLICY_VERSION, PROMPT_VERSION, SCHEMA_VERSION,
     FatalReviewError, ProviderReply, ReviewOutcome, ReviewRequest,
@@ -19,15 +20,11 @@ from fundo_reviewer.reviewer import (
 
 
 CACHE_VERSION = "review-cache-v1"
-DEFAULT_PRICED_MODEL = "gpt-6-luna"
+DEFAULT_PRICED_MODEL = DEFAULT_MODEL
+# Compatibility view; the catalog is the single source of truth.
 MODEL_PRICES = {
-    "gpt-6-luna": (Decimal("0.10"), Decimal("0.50"), "gpt-6-luna-standard-2026-10-08"),
-    "gpt-5.6-luna": (Decimal("0.20"), Decimal("1.20"), "gpt-5.6-luna-standard-2026-10-09"),
-    "openrouter/free": (Decimal("0"), Decimal("0"), "openrouter-free-model-router-2026-10-09"),
-    "openrouter/openai/gpt-oss-20b:free": (Decimal("0"), Decimal("0"), "openrouter-gpt-oss-20b-free-2026-10-09"),
-    "openrouter/google/gemma-4-26b-a4b-it:free": (Decimal("0"), Decimal("0"), "openrouter-gemma-4-26b-a4b-it-free-2026-10-09"),
-    "openrouter/meta-llama/llama-3.3-70b-instruct:free": (Decimal("0"), Decimal("0"), "openrouter-llama-3.3-70b-free-2026-10-09"),
-    "openrouter/openai/gpt-oss-20b": (Decimal("0.02"), Decimal("0.10"), "openrouter-gpt-oss-20b-standard-2026-10-09"),
+    spec.model: (spec.input_usd_per_million, spec.output_usd_per_million, spec.pricing_version)
+    for spec in registered_models()
 }
 OPERATING_CEILING_USD = Decimal("8.00")
 HARD_LIMIT_USD = Decimal("10.00")
@@ -48,13 +45,9 @@ class BudgetExceeded(FatalReviewError):
 
 
 def pricing_version(model: str) -> str:
-    if model.startswith("ollama:"):
-        # Local inference is not billed by the OpenAI API, but still needs a
-        # stable cache pricing/version field for replay integrity.
-        return "ollama-local-no-api-cost-v1"
     try:
-        return MODEL_PRICES[model][2]
-    except KeyError as exc:
+        return model_spec(model).pricing_version
+    except ValueError as exc:
         raise BudgetExceeded(f"no approved price/budget guard for model {model!r}") from exc
 
 
@@ -227,7 +220,8 @@ class BatchReviewCache:
 def usage_derived_cost(usage: dict[str, int] | None, model: str = DEFAULT_PRICED_MODEL) -> Decimal:
     """Standard-tier price estimate from token counts, without cache discount."""
     pricing_version(model)
-    if model.startswith("ollama:"):
+    spec = model_spec(model)
+    if spec.provider == "ollama":
         return Decimal(0)
     if not usage:
         return Decimal(0)
@@ -236,9 +230,8 @@ def usage_derived_cost(usage: dict[str, int] | None, model: str = DEFAULT_PRICED
     if (not isinstance(input_tokens, int) or not isinstance(output_tokens, int)
             or input_tokens < 0 or output_tokens < 0):
         raise ValueError("provider usage token counts must be nonnegative integers")
-    input_rate, output_rate, _ = MODEL_PRICES[model]
-    return (Decimal(input_tokens) * input_rate
-            + Decimal(output_tokens) * output_rate) / Decimal(1_000_000)
+    return (Decimal(input_tokens) * spec.input_usd_per_million
+            + Decimal(output_tokens) * spec.output_usd_per_million) / Decimal(1_000_000)
 
 
 @dataclass(frozen=True)
