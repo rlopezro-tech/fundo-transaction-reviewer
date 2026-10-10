@@ -15,7 +15,7 @@ from decimal import Decimal
 from pathlib import Path
 from typing import Any, Mapping
 
-from fundo_reviewer.artifacts import write_json_atomic
+from fundo_reviewer.artifacts import artifact_set_lock, write_json_atomic
 from fundo_reviewer.credit import (
     FEATURE_POLICY_VERSION, OFFER_POLICY_VERSION, CreditLabel, calculate_offer,
     compute_features, feature_record,
@@ -514,9 +514,10 @@ def run_evaluation(input_path: Path, truth_path: Path, review_dir: Path | None, 
         result["transactions_evaluated"] = quality["counts"]["transactions"]
         result["aggregate_absolute_amr_error_usd"] = quality["aggregate_absolute_amr_error_usd"]
     # Validate and calculate every requested output before changing the destination.
-    _write(output_dir / "sensitivity_report.json", sensitivity)
-    if quality is not None:
-        _write(output_dir / "quality_report.json", quality)
+    with artifact_set_lock(output_dir):
+        _write(output_dir / "sensitivity_report.json", sensitivity)
+        if quality is not None:
+            _write(output_dir / "quality_report.json", quality)
     return result
 
 

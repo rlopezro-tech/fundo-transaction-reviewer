@@ -11,7 +11,7 @@ from contextlib import ExitStack
 from pathlib import Path
 from typing import Any
 
-from fundo_reviewer.artifacts import write_json_atomic
+from fundo_reviewer.artifacts import artifact_set_lock, write_json_atomic
 from fundo_reviewer.cache import (
     BatchReviewCache, CacheCorrupt, CacheMiss, ReviewCache, SpendLedger,
     batch_identity, pricing_version, request_identity,
@@ -66,6 +66,18 @@ def _outcome_record(outcome: ReviewOutcome) -> dict[str, Any]:
 
 def _write_json(path: Path, value: Any) -> None:
     write_json_atomic(path, value)
+
+
+def _write_run_artifacts(output_dir: Path, credit_report: dict[str, Any], outcomes: list[dict[str, Any]], manifest: dict[str, Any]) -> None:
+    """Replace the reports and their hash manifest without interleaving local writers."""
+    with artifact_set_lock(output_dir):
+        credit_path = output_dir / "credit_report.json"
+        outcomes_path = output_dir / "review_outcomes.json"
+        _write_json(credit_path, credit_report)
+        _write_json(outcomes_path, outcomes)
+        manifest["credit_report_sha256"] = hashlib.sha256(credit_path.read_bytes()).hexdigest()
+        manifest["review_outcomes_sha256"] = hashlib.sha256(outcomes_path.read_bytes()).hexdigest()
+        _write_json(output_dir / "run_manifest.json", manifest)
 
 
 def _run_batched(normalized, labels, *, mode, cache_path, ledger_path, model, provider, batch_size):
@@ -282,10 +294,6 @@ def run_pipeline(
     status_counts = dict(sorted(Counter(item.review_status for item in outcomes).items()))
     selected_model = model_spec(model)
     credit_report = build_credit_report(normalized, legacy, outcomes)
-    credit_path = output_dir / "credit_report.json"
-    _write_json(credit_path, credit_report)
-    outcomes_path = output_dir / "review_outcomes.json"
-    _write_json(outcomes_path, [_outcome_record(item) for item in outcomes])
     manifest = {
         "input_name": input_path.name,
         "input_sha256": input_sha256,
@@ -329,10 +337,8 @@ def run_pipeline(
         "new_usage_derived_cost_usd": str(usage_derived_cost(dict(new_usage), model)),
         "historical_cache_usage_derived_cost_usd": str(historical_cost),
         "accuracy": "not_measured_without_separate_truth_evaluation",
-        "credit_report_sha256": hashlib.sha256(credit_path.read_bytes()).hexdigest(),
-        "review_outcomes_sha256": hashlib.sha256(outcomes_path.read_bytes()).hexdigest(),
     }
-    _write_json(output_dir / "run_manifest.json", manifest)
+    _write_run_artifacts(output_dir, credit_report, [_outcome_record(item) for item in outcomes], manifest)
     return manifest
 
 

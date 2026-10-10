@@ -1,8 +1,30 @@
 import json
+import multiprocessing
+import queue
 
 import pytest
 
-from fundo_reviewer.artifacts import write_bytes_atomic, write_json_atomic
+from fundo_reviewer.artifacts import artifact_set_lock, write_bytes_atomic, write_json_atomic
+
+
+def _artifact_lock_waiter(directory, events):
+    events.put("waiting")
+    with artifact_set_lock(directory):
+        events.put("acquired")
+
+
+def test_artifact_set_lock_serializes_process_writers(tmp_path):
+    context = multiprocessing.get_context("spawn")
+    events = context.Queue()
+    with artifact_set_lock(tmp_path):
+        process = context.Process(target=_artifact_lock_waiter, args=(tmp_path, events))
+        process.start()
+        assert events.get(timeout=10) == "waiting"
+        with pytest.raises(queue.Empty):
+            events.get(timeout=0.2)
+    process.join(timeout=10)
+    assert process.exitcode == 0
+    assert events.get(timeout=10) == "acquired"
 
 
 def test_atomic_json_write_replaces_destination_with_formatted_utf8(tmp_path):
