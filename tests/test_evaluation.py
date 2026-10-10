@@ -102,6 +102,8 @@ def test_full_synthetic_evaluation_accounts_for_every_id_and_detects_tampering(t
     assert quality["counts"]["hard_negative_false_flags"] == 0
     assert quality["counts"]["true_corrections"] == 0
     assert quality["counts"]["missed_mistakes"] > 0
+    assert quality["review_quality_by_scope"]["model_reviewed"]["counts"]["transactions"] == 2000
+    assert quality["review_quality_by_scope"]["degraded_fallback"]["counts"]["transactions"] == 0
     assert quality["representative_examples"]
     assert "ground_truth" not in cache.read_text()
     assert "scenario_id" not in cache.read_text()
@@ -119,6 +121,22 @@ def test_full_synthetic_evaluation_accounts_for_every_id_and_detects_tampering(t
     manifest_path.write_text(json.dumps(manifest))
     with pytest.raises(ValueError, match="duplicate review outcome"):
         run_evaluation(MAIN, TRUTH, review_dir, tmp_path / "duplicate")
+
+
+def test_checked_in_partial_run_partitions_model_and_fallback_metrics(tmp_path):
+    run_evaluation(MAIN, TRUTH, ROOT / "reports" / "main", tmp_path / "partial-evaluation")
+    quality = json.loads((tmp_path / "partial-evaluation" / "quality_report.json").read_text())
+    scopes = quality["review_quality_by_scope"]
+    model = scopes["model_reviewed"]
+    fallback = scopes["degraded_fallback"]
+    assert model["counts"]["transactions"] + fallback["counts"]["transactions"] == 2000
+    assert sum(model["review_status_counts"].values()) == model["counts"]["transactions"]
+    assert sum(fallback["review_status_counts"].values()) == fallback["counts"]["transactions"]
+    assert fallback["counts"]["reviewed_group_status_correct"] == fallback["counts"]["legacy_group_status_correct"]
+    for business in quality["businesses"]:
+        covered = sum(scopes[scope]["by_business"][business["business_id"]]["transactions"]
+                      for scope in ("model_reviewed", "degraded_fallback"))
+        assert covered == business["label_counts"]["transactions"]
 
 
 def test_sensitivity_only_never_claims_review_accuracy(tmp_path):

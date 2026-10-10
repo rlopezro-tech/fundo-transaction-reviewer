@@ -1415,7 +1415,7 @@
     "transactions": 2000,
     "true_corrections": 135
   },
-  "evaluation_version": "synthetic-evaluation-v1",
+  "evaluation_version": "synthetic-evaluation-v2",
   "feature_policy_version": "credit-features-v1",
   "input_sha256": "c5d09a0703be1c8a30f785752c91f547256ed870ddd045d33b9896252d434230",
   "limitations": [
@@ -1860,5 +1860,187 @@
     }
   ],
   "review_manifest_input_sha256": "c5d09a0703be1c8a30f785752c91f547256ed870ddd045d33b9896252d434230",
+  "review_quality_by_scope": {
+    "degraded_fallback": {
+      "by_business": {
+        "biz_01": {
+          "flags": 0,
+          "legacy_group_status_correct": 37,
+          "reviewed_group_status_correct": 37,
+          "transactions": 40
+        },
+        "biz_02": {
+          "flags": 0,
+          "legacy_group_status_correct": 29,
+          "reviewed_group_status_correct": 29,
+          "transactions": 40
+        },
+        "biz_03": {
+          "flags": 0,
+          "legacy_group_status_correct": 1,
+          "reviewed_group_status_correct": 1,
+          "transactions": 1
+        },
+        "biz_04": {
+          "flags": 0,
+          "legacy_group_status_correct": 56,
+          "reviewed_group_status_correct": 56,
+          "transactions": 80
+        },
+        "biz_05": {
+          "flags": 0,
+          "legacy_group_status_correct": 28,
+          "reviewed_group_status_correct": 28,
+          "transactions": 40
+        },
+        "biz_06": {
+          "flags": 0,
+          "legacy_group_status_correct": 136,
+          "reviewed_group_status_correct": 136,
+          "transactions": 200
+        },
+        "biz_07": {
+          "flags": 0,
+          "legacy_group_status_correct": 136,
+          "reviewed_group_status_correct": 136,
+          "transactions": 200
+        },
+        "biz_08": {
+          "flags": 0,
+          "legacy_group_status_correct": 136,
+          "reviewed_group_status_correct": 136,
+          "transactions": 200
+        },
+        "biz_09": {
+          "flags": 0,
+          "legacy_group_status_correct": 136,
+          "reviewed_group_status_correct": 136,
+          "transactions": 200
+        },
+        "biz_10": {
+          "flags": 0,
+          "legacy_group_status_correct": 136,
+          "reviewed_group_status_correct": 136,
+          "transactions": 200
+        }
+      },
+      "counts": {
+        "changed_but_still_wrong": 0,
+        "false_changes": 0,
+        "flags": 0,
+        "hard_negative_false_flags": 0,
+        "hard_negatives": 163,
+        "legacy_group_status_correct": 831,
+        "missed_mistakes": 370,
+        "reviewed_group_status_correct": 831,
+        "transactions": 1201,
+        "true_corrections": 0
+      },
+      "legacy_joint_accuracy": {
+        "correct": 831,
+        "rate": "0.6919",
+        "total": 1201
+      },
+      "review_status_counts": {
+        "invalid_response": 1,
+        "provider_failure": 1200
+      },
+      "reviewed_joint_accuracy": {
+        "correct": 831,
+        "rate": "0.6919",
+        "total": 1201
+      }
+    },
+    "model_reviewed": {
+      "by_business": {
+        "biz_01": {
+          "flags": 43,
+          "legacy_group_status_correct": 101,
+          "reviewed_group_status_correct": 130,
+          "transactions": 160
+        },
+        "biz_02": {
+          "flags": 41,
+          "legacy_group_status_correct": 109,
+          "reviewed_group_status_correct": 136,
+          "transactions": 160
+        },
+        "biz_03": {
+          "flags": 48,
+          "legacy_group_status_correct": 135,
+          "reviewed_group_status_correct": 168,
+          "transactions": 199
+        },
+        "biz_04": {
+          "flags": 31,
+          "legacy_group_status_correct": 80,
+          "reviewed_group_status_correct": 99,
+          "transactions": 120
+        },
+        "biz_05": {
+          "flags": 33,
+          "legacy_group_status_correct": 108,
+          "reviewed_group_status_correct": 135,
+          "transactions": 160
+        },
+        "biz_06": {
+          "flags": 0,
+          "legacy_group_status_correct": 0,
+          "reviewed_group_status_correct": 0,
+          "transactions": 0
+        },
+        "biz_07": {
+          "flags": 0,
+          "legacy_group_status_correct": 0,
+          "reviewed_group_status_correct": 0,
+          "transactions": 0
+        },
+        "biz_08": {
+          "flags": 0,
+          "legacy_group_status_correct": 0,
+          "reviewed_group_status_correct": 0,
+          "transactions": 0
+        },
+        "biz_09": {
+          "flags": 0,
+          "legacy_group_status_correct": 0,
+          "reviewed_group_status_correct": 0,
+          "transactions": 0
+        },
+        "biz_10": {
+          "flags": 0,
+          "legacy_group_status_correct": 0,
+          "reviewed_group_status_correct": 0,
+          "transactions": 0
+        }
+      },
+      "counts": {
+        "changed_but_still_wrong": 61,
+        "false_changes": 0,
+        "flags": 196,
+        "hard_negative_false_flags": 3,
+        "hard_negatives": 115,
+        "legacy_group_status_correct": 533,
+        "missed_mistakes": 70,
+        "reviewed_group_status_correct": 668,
+        "transactions": 799,
+        "true_corrections": 135
+      },
+      "legacy_joint_accuracy": {
+        "correct": 533,
+        "rate": "0.6671",
+        "total": 799
+      },
+      "review_status_counts": {
+        "changed": 196,
+        "kept": 603
+      },
+      "reviewed_joint_accuracy": {
+        "correct": 668,
+        "rate": "0.8360",
+        "total": 799
+      }
+    }
+  },
   "truth_sha256": "ab0ab78968383da65f9acd4df12970bbc3945a086ff8d33ce741740264d859d5"
 }

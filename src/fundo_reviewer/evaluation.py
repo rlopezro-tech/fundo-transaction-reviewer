@@ -24,7 +24,7 @@ from fundo_reviewer.revenue import ALLOWED_GROUPS, is_revenue_eligible
 from fundo_reviewer.reviewer import build_request, validate_proposal
 
 
-EVALUATION_VERSION = "synthetic-evaluation-v1"
+EVALUATION_VERSION = "synthetic-evaluation-v2"
 SENSITIVITY_VERSION = "valid-alternative-sensitivity-v1"
 SENSITIVITY_SEED = 20261009
 RATES = (2, 5, 10)
@@ -246,6 +246,60 @@ def _quality_report(
                 "truth_correction_marginal_effect": _marginal_effect(normalized, legacy, tid, truth[tid]),
             })
     businesses = []
+    review_quality_by_scope = {}
+    scopes = {
+        "model_reviewed": {"kept", "changed"},
+        "degraded_fallback": {"invalid_response", "refused", "incomplete", "provider_failure"},
+    }
+    for scope, accepted_statuses in scopes.items():
+        ids = [tid for tid, record in reviewed_records.items() if record["review_status"] in accepted_statuses]
+        scope_counts = Counter()
+        per_business_scope = {
+            coverage.business_id: Counter({
+                "transactions": 0, "flags": 0,
+                "legacy_group_status_correct": 0,
+                "reviewed_group_status_correct": 0,
+            })
+            for coverage in normalized.business_coverage
+        }
+        for tid in ids:
+            record = reviewed_records[tid]
+            l, r, t = legacy[tid], reviewed[tid], truth[tid]
+            baseline_correct = (l.group, l.status) == (t.group, t.status)
+            final_correct = (r.group, r.status) == (t.group, t.status)
+            scope_counts["legacy_group_status_correct"] += baseline_correct
+            scope_counts["reviewed_group_status_correct"] += final_correct
+            scope_counts["flags"] += record["flag"]
+            scope_counts["true_corrections"] += not baseline_correct and final_correct
+            scope_counts["changed_but_still_wrong"] += not baseline_correct and not final_correct and record["flag"]
+            scope_counts["false_changes"] += baseline_correct and not final_correct and record["flag"]
+            scope_counts["missed_mistakes"] += not baseline_correct and not final_correct and not record["flag"]
+            scope_counts["hard_negatives"] += truth_records[tid]["hard_negative"]
+            scope_counts["hard_negative_false_flags"] += (
+                truth_records[tid]["hard_negative"] and record["flag"] and not final_correct
+            )
+            transaction = transaction_by_id[tid]
+            per_business_scope[transaction.business_id]["transactions"] += 1
+            per_business_scope[transaction.business_id]["flags"] += record["flag"]
+            per_business_scope[transaction.business_id]["legacy_group_status_correct"] += baseline_correct
+            per_business_scope[transaction.business_id]["reviewed_group_status_correct"] += final_correct
+        total = len(ids)
+        scope_counts["transactions"] = total
+        review_quality_by_scope[scope] = {
+            "review_status_counts": dict(sorted(Counter(
+                reviewed_records[tid]["review_status"] for tid in ids
+            ).items())),
+            "counts": dict(sorted(scope_counts.items())),
+            "legacy_joint_accuracy": {
+                "correct": scope_counts["legacy_group_status_correct"], "total": total,
+                "rate": str((Decimal(scope_counts["legacy_group_status_correct"]) / total).quantize(Decimal("0.0001"))) if total else None,
+            },
+            "reviewed_joint_accuracy": {
+                "correct": scope_counts["reviewed_group_status_correct"], "total": total,
+                "rate": str((Decimal(scope_counts["reviewed_group_status_correct"]) / total).quantize(Decimal("0.0001"))) if total else None,
+            },
+            "by_business": {bid: dict(sorted(values.items())) for bid, values in sorted(per_business_scope.items())},
+        }
     for coverage in normalized.business_coverage:
         bid = coverage.business_id
         t, l, r = truth_features[bid], legacy_features[bid], reviewed_features[bid]
@@ -277,6 +331,7 @@ def _quality_report(
         "truth_sha256": hashlib.sha256(truth_path.read_bytes()).hexdigest(),
         "review_manifest_input_sha256": manifest["input_sha256"],
         "counts": dict(sorted(counts.items())),
+        "review_quality_by_scope": review_quality_by_scope,
         "businesses": businesses,
         "representative_examples": examples,
         "aggregate_absolute_amr_error_usd": {

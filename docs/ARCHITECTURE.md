@@ -50,7 +50,7 @@ transaction JSON → validate/window → keyword baseline → cached/provider re
 | `cache.py` | Integrity-checked replay cache and conservative spend ledger; pricing is read from the catalog |
 | `credit.py` | Per-business feature and illustrative offer calculations |
 | `cli.py` | Online cache fill or offline cache replay |
-| `evaluation.py` | Separate truth-based quality and seeded sensitivity reports |
+| `evaluation.py` | Separate truth-based quality by model/fallback scope and seeded sensitivity reports |
 | `pilot.py` | Historical OpenAI prompt experiments; not the production/main CLI |
 | `local_pilot.py` | Separate Ollama diagnostic path; Ollama is not currently a hosted-review adapter |
 

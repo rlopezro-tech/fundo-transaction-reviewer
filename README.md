@@ -35,7 +35,7 @@ To regenerate the existing full result artifacts from the available outcome snap
 PYTHONPATH=src uv run python -m fundo_reviewer.evaluation --review-dir reports/main --output-dir reports/evaluation
 ```
 
-The evaluator includes provider-failure fallbacks in full-cohort denominators, so read the scope caveat in [SOLUTION.md](SOLUTION.md). The `reports/evaluation/sensitivity_report.json` is a separate simulation, not model accuracy.
+The quality report separates valid model-reviewed rows from degraded legacy fallbacks (including per-business coverage); whole-cohort credit-feature results still include the fallback labels. Read the scope caveat in [SOLUTION.md](SOLUTION.md). The `reports/evaluation/sensitivity_report.json` is a separate simulation, not model accuracy.
 
 ## Project files
 
