@@ -77,6 +77,16 @@ def _digest(value: Any) -> str:
     return hashlib.sha256(_canonical(value).encode("utf-8")).hexdigest()
 
 
+def _append_jsonl_unlocked(path: Path, record: dict[str, Any]) -> None:
+    """Append one integrity-protected record; caller must hold the sidecar lock."""
+    path.parent.mkdir(parents=True, exist_ok=True)
+    line = _canonical({**record, "integrity_sha256": _digest(record)}) + "\n"
+    with path.open("a", encoding="utf-8", newline="\n") as stream:
+        stream.write(line)
+        stream.flush()
+        os.fsync(stream.fileno())
+
+
 def _read_jsonl(path: Path) -> list[str]:
     """Read append-only records and discard only an unterminated final fragment."""
     contents = path.read_bytes()
@@ -184,21 +194,12 @@ class ReviewCache:
             "pricing_version": pricing_version(model),
             "usage_derived_cost_usd": str(cost_usd),
         }
-        integrity = _digest(entry)
         with _exclusive_jsonl_lock(self.path):
             self._reload()
             if key in self.entries:
                 raise ValueError(f"duplicate cache key {key}")
-            self._append_unlocked(entry, integrity)
-
-    def _append_unlocked(self, entry: dict[str, Any], integrity: str) -> None:
-        self.path.parent.mkdir(parents=True, exist_ok=True)
-        with self.path.open("a", encoding="utf-8") as stream:
-            stream.write(_canonical({**entry, "integrity_sha256": integrity}) + "\n")
-            stream.flush()
-            os.fsync(stream.fileno())
-        self.entries[entry["key"]] = entry
-
+            _append_jsonl_unlocked(self.path, entry)
+            self.entries[key] = entry
 
 def batch_identity(requests: tuple[ReviewRequest, ...], model: str, system_prompt: str, user_prompt: str) -> dict[str, Any]:
     return {
@@ -273,11 +274,7 @@ class BatchReviewCache:
             self._reload()
             if key in self.entries:
                 raise ValueError(f"duplicate batch cache key {key}")
-            self.path.parent.mkdir(parents=True, exist_ok=True)
-            with self.path.open("a", encoding="utf-8") as stream:
-                stream.write(_canonical({**entry, "integrity_sha256": _digest(entry)}) + "\n")
-                stream.flush()
-                os.fsync(stream.fileno())
+            _append_jsonl_unlocked(self.path, entry)
             self.entries[key] = entry
 
 
@@ -370,11 +367,7 @@ class SpendLedger:
             return self._balances()[0]
 
     def _append_unlocked(self, event: dict[str, Any]) -> None:
-        self.path.parent.mkdir(parents=True, exist_ok=True)
-        with self.path.open("a", encoding="utf-8") as stream:
-            stream.write(_canonical({**event, "integrity_sha256": _digest(event)}) + "\n")
-            stream.flush()
-            os.fsync(stream.fileno())
+        _append_jsonl_unlocked(self.path, event)
         self.events.append(event)
 
     def reserve(self, request: ReviewRequest, model: str, max_output_tokens: int = MAX_OUTPUT_TOKENS) -> Reservation:
