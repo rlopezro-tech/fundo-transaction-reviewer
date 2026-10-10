@@ -40,11 +40,11 @@ def run_pilot(variant: str, model: str = DEFAULT_MODEL) -> dict:
         raise ValueError("pilot variant must be weak or current")
     normalized = load_input(Path("data/transactions/main_90_days.json"))
     transactions = {item.transaction_id: item for item in normalized.transactions}
-    cache_path = Path("cache/pilot_weak.jsonl" if variant == "weak" else "cache/pilot_current.jsonl")
+    cache_path = Path(f"cache/experiments/openai/pilots/pilot_{variant}.jsonl")
     cache = ReviewCache(cache_path)
     ledger = SpendLedger(Path("cache/spend_ledger.jsonl"))
     provider = BudgetedProvider(OpenAIProvider(model), ledger, model)
-    attempts_path = Path(f"reports/pilot_{variant}_attempts.jsonl")
+    attempts_path = Path(f"reports/experiments/openai/pilots/pilot_{variant}_attempts.jsonl")
     attempts_path.parent.mkdir(parents=True, exist_ok=True)
     records = []
     counts = Counter()
@@ -100,7 +100,7 @@ def run_pilot(variant: str, model: str = DEFAULT_MODEL) -> dict:
         "ledger_settled_usage_derived_cost_usd": str(ledger.settled_usd),
         "records": records,
     }
-    output = Path(f"reports/pilot_{variant}.json")
+    output = Path(f"reports/experiments/openai/pilots/pilot_{variant}.json")
     output.parent.mkdir(parents=True, exist_ok=True)
     output.write_text(json.dumps(result, ensure_ascii=False, sort_keys=True, indent=2) + "\n")
     return result

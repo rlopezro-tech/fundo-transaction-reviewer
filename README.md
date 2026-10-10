@@ -37,6 +37,9 @@ The evaluator includes provider-failure fallbacks in full-cohort denominators, s
 
 ## Project files
 
+- [`data/`](data/README.md) — input transactions and isolated evaluation truth.
+- [`cache/`](cache/README.md) — active response cache, spend ledger, and archived experiments.
+- [`reports/`](reports/README.md) — selected outputs and clearly separated experiments.
 - [`SOLUTION.md`](SOLUTION.md) — measured results, limitations, challenge answers, production plan, and tools used.
 - [`docs/CHALLENGE.md`](docs/CHALLENGE.md) — challenge brief and final completion status.
 - [`docs/ACCEPTANCE.md`](docs/ACCEPTANCE.md) — requirement-by-requirement status and remaining gates.

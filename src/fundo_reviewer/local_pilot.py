@@ -132,8 +132,8 @@ def _evaluate(outcomes: list[ReviewOutcome], truth: dict[str, dict]) -> dict:
 def run_pilot(model: str = DEFAULT_MODEL, cache_path: Path | None = None, output_path: Path | None = None) -> dict:
     transactions_path = ROOT / "data/transactions/main_90_days.json"
     truth_path = ROOT / "data/ground_truth/main_90_days.json"
-    cache_path = cache_path or ROOT / "cache/local_qwen35_9b_pilot.jsonl"
-    output_path = output_path or ROOT / "reports/local_qwen35_9b_pilot.json"
+    cache_path = cache_path or ROOT / "cache/experiments/local/qwen35_9b_pilot.jsonl"
+    output_path = output_path or ROOT / "reports/experiments/local/qwen35_9b_pilot.json"
 
     normalized = load_input(transactions_path)
     transactions = {item.transaction_id: item for item in normalized.transactions}
