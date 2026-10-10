@@ -49,7 +49,7 @@ transaction JSON → validate/window → keyword baseline → cached/provider re
 | `model_catalog.py` | Approved model IDs, provider routing, API-key environment names, versioned prices, and model API/JSON capabilities |
 | `cache.py` | Integrity-checked replay cache and conservative spend ledger; pricing is read from the catalog |
 | `credit.py` | Per-business feature and illustrative offer calculations |
-| `cli.py` | Online cache fill or offline cache replay |
+| `cli.py` | Online cache fill or offline cache replay; default output is `reports/main/` |
 | `evaluation.py` | Separate truth-based quality by model/fallback scope and seeded sensitivity reports |
 | `pilot.py` | Historical OpenAI prompt experiments; not the production/main CLI |
 | `local_pilot.py` | Separate Ollama diagnostic path; Ollama is not currently a hosted-review adapter |

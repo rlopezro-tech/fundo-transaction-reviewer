@@ -16,7 +16,7 @@ from fundo_reviewer.cache import (
     BatchReviewCache, BudgetExceeded, CacheCorrupt, CacheMiss, ReviewCache, SpendLedger,
     batch_identity, pricing_version, request_key, usage_derived_cost,
 )
-from fundo_reviewer.cli import run_pipeline
+from fundo_reviewer.cli import _build_parser, run_pipeline
 from fundo_reviewer.data import load_input
 from fundo_reviewer.legacy import label_transaction
 from fundo_reviewer.provider import (
@@ -33,6 +33,13 @@ SMALL = ROOT / "tests" / "fixtures" / "input_90_days.json"
 def _request():
     transaction = load_input(SMALL).transactions[0]
     return build_request(transaction, label_transaction(transaction))
+
+
+def test_cli_defaults_outputs_to_main_report_folder():
+    args = _build_parser().parse_args([])
+    assert args.input == Path("data/transactions/main_90_days.json")
+    assert args.output_dir == Path("reports/main")
+    assert args.mode == "offline"
 
 
 class FakeProvider:

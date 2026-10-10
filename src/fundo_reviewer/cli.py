@@ -266,16 +266,20 @@ def run_pipeline(
     return manifest
 
 
-def main() -> None:
+def _build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="Review Plaid-shaped input with cache-only or online execution")
     parser.add_argument("--input", type=Path, default=Path("data/transactions/main_90_days.json"))
-    parser.add_argument("--output-dir", type=Path, default=Path("reports"))
+    parser.add_argument("--output-dir", type=Path, default=Path("reports/main"))
     parser.add_argument("--mode", choices=("offline", "online"), default="offline")
     parser.add_argument("--cache", type=Path, default=Path("cache/batch_reviews.jsonl"))
     parser.add_argument("--spend-ledger", type=Path, default=Path("cache/spend_ledger.jsonl"))
     parser.add_argument("--model", default=DEFAULT_MODEL)
     parser.add_argument("--batch-size", type=int, default=80)
-    args = parser.parse_args()
+    return parser
+
+
+def main() -> None:
+    args = _build_parser().parse_args()
     result = run_pipeline(args.input, args.output_dir, args.mode, args.cache, args.spend_ledger, args.model, batch_size=args.batch_size)
     print(json.dumps({key: result[key] for key in ("accepted_transactions", "review_status_counts", "flag_count", "degraded_count", "cache_hits", "new_api_calls", "new_usage_derived_cost_usd")}, sort_keys=True))
 
