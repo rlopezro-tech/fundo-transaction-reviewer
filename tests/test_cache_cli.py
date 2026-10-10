@@ -400,6 +400,32 @@ def test_manifest_hashes_exact_input_snapshot_used_for_review(tmp_path):
     assert hashlib.sha256(source.read_bytes()).hexdigest() != manifest["input_sha256"]
 
 
+def test_batch_progress_logs_exclude_transaction_text_credentials_and_provider_errors(tmp_path, caplog, monkeypatch):
+    source = tmp_path / "input.json"
+    payload = json.loads(SMALL.read_text(encoding="utf-8"))
+    payload["transactions"][0]["name"] = "PRIVATE-TRANSACTION-DESCRIPTION-7f91"
+    source.write_text(json.dumps(payload), encoding="utf-8")
+    monkeypatch.setenv("OPENAI_API_KEY", "CREDENTIAL-SENTINEL-a13d")
+
+    class FailingBatchProvider:
+        def review_batch(self, _batch):
+            raise RuntimeError("PRIVATE-PROVIDER-ERROR-4c82")
+
+    with caplog.at_level(logging.INFO, logger="fundo_reviewer.cli"):
+        run_pipeline(
+            source, tmp_path / "reports", "online", tmp_path / "cache.jsonl",
+            tmp_path / "spend.jsonl", provider=FailingBatchProvider(), batch_size=80,
+        )
+
+    assert "batch 1/1 complete source=provider rows=3 status=provider_failure:3" in caplog.text
+    for secret in (
+        "PRIVATE-TRANSACTION-DESCRIPTION-7f91",
+        "CREDENTIAL-SENTINEL-a13d",
+        "PRIVATE-PROVIDER-ERROR-4c82",
+    ):
+        assert secret not in caplog.text
+
+
 def test_uncached_strict_offline_new_input_fails_and_online_failure_degrades(tmp_path):
     cache_path = tmp_path / "cache.jsonl"
     ledger_path = tmp_path / "spend.jsonl"
