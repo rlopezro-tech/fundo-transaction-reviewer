@@ -26,14 +26,24 @@ ROOT = Path(__file__).resolve().parents[1]
 
 def _transaction(name="ACH CREDIT CUSTOMER", amount="-100.00"):
     return NormalizedTransaction(
-        transaction_id="tx_test", business_id="biz_test", account_id="acct_test",
-        date=date(2026, 10, 8), amount=Decimal(amount), name=name,
-        merchant_name=None, category=None, personal_finance_category=None,
-        pending=False, pending_transaction_id=None, raw={"name": name, "amount": amount},
+        transaction_id="tx_test",
+        business_id="biz_test",
+        account_id="acct_test",
+        date=date(2026, 10, 8),
+        amount=Decimal(amount),
+        name=name,
+        merchant_name=None,
+        category=None,
+        personal_finance_category=None,
+        pending=False,
+        pending_transaction_id=None,
+        raw={"name": name, "amount": amount},
     )
 
 
-def _proposal(request, *, decision="keep", group=None, status=None, confidence=0.9, reason="Label supported"):
+def _proposal(
+    request, *, decision="keep", group=None, status=None, confidence=0.9, reason="Label supported"
+):
     return {
         "transaction_id": request.transaction.transaction_id,
         "decision": decision,
@@ -56,17 +66,26 @@ class FakeProvider:
 
 def test_versions_and_fake_provider_reviews_every_existing_legacy_label():
     assert (PROMPT_VERSION, SCHEMA_VERSION, FLAG_POLICY_VERSION) == (
-        "review-prompt-v3", "review-schema-v3", "all-valid-changes-v1"
+        "review-prompt-v3",
+        "review-schema-v3",
+        "all-valid-changes-v1",
     )
     normalized = load_input(ROOT / "data" / "transactions" / "main_90_days.json")
     labels = label_transactions(normalized.transactions)
     provider = FakeProvider(lambda request: ProviderReply("completed", _proposal(request)))
     outcomes = review_all(normalized.transactions, labels, provider)
     assert len(outcomes) == len(provider.calls) == len(labels) == 2000
-    assert {outcome.transaction_id for outcome in outcomes} == {label.transaction_id for label in labels}
-    assert all(outcome.review_status == "kept" and not outcome.flag and not outcome.degraded for outcome in outcomes)
+    assert {outcome.transaction_id for outcome in outcomes} == {
+        label.transaction_id for label in labels
+    }
+    assert all(
+        outcome.review_status == "kept" and not outcome.flag and not outcome.degraded
+        for outcome in outcomes
+    )
     assert all(outcome.legacy.transaction_id == outcome.transaction_id for outcome in outcomes)
-    assert outcomes == review_all(tuple(reversed(normalized.transactions)), tuple(reversed(labels)), provider)
+    assert outcomes == review_all(
+        tuple(reversed(normalized.transactions)), tuple(reversed(labels)), provider
+    )
     with pytest.raises(ValueError, match="identical unique IDs"):
         review_all(normalized.transactions[:2], labels[:1], provider)
     with pytest.raises(ValueError, match="identical unique IDs"):
@@ -78,17 +97,31 @@ def test_valid_change_applies_only_semantic_labels_and_recomputes_revenue():
     legacy = label_transaction(transaction)
     assert legacy.group == "Active advance" and not legacy.revenue_eligible
     request = build_request(transaction, legacy)
-    provider = FakeProvider(lambda request: ProviderReply(
-        "completed", _proposal(request, decision="change", group="Revenue verification",
-                                confidence=0.0, reason="Processor sale, not loan"),
-        raw_response={"provider": "synthetic fake"}, usage={"input_tokens": 12, "output_tokens": 15},
-    ))
+    provider = FakeProvider(
+        lambda request: ProviderReply(
+            "completed",
+            _proposal(
+                request,
+                decision="change",
+                group="Revenue verification",
+                confidence=0.0,
+                reason="Processor sale, not loan",
+            ),
+            raw_response={"provider": "synthetic fake"},
+            usage={"input_tokens": 12, "output_tokens": 15},
+        )
+    )
     outcome = review_one(request, provider)
     assert outcome.review_status == "changed" and outcome.flag and not outcome.degraded
-    assert outcome.proposal == ReviewProposal.model_validate(_proposal(
-        request, decision="change", group="Revenue verification", confidence=0.0,
-        reason="Processor sale, not loan",
-    ))
+    assert outcome.proposal == ReviewProposal.model_validate(
+        _proposal(
+            request,
+            decision="change",
+            group="Revenue verification",
+            confidence=0.0,
+            reason="Processor sale, not loan",
+        )
+    )
     assert outcome.final_group == "Revenue verification" and outcome.final_status == "business"
     assert outcome.final_revenue_eligible
     assert transaction.amount == Decimal("-300.55") and transaction.date == date(2026, 10, 8)
@@ -100,22 +133,37 @@ def test_valid_change_applies_only_semantic_labels_and_recomputes_revenue():
 def test_personal_change_makes_customer_credit_nonrevenue_and_confidence_one_allowed():
     transaction = _transaction()
     request = build_request(transaction, label_transaction(transaction))
-    provider = FakeProvider(lambda request: ProviderReply(
-        "completed", _proposal(request, decision="change", status="personal", confidence=1.0),
-    ))
+    provider = FakeProvider(
+        lambda request: ProviderReply(
+            "completed",
+            _proposal(request, decision="change", status="personal", confidence=1.0),
+        )
+    )
     outcome = review_one(request, provider)
     assert outcome.flag and outcome.final_status == "personal"
     assert outcome.final_group == request.legacy.group
     assert not outcome.final_revenue_eligible
 
 
-@pytest.mark.parametrize("edit", [
-    {"transaction_id": "wrong"}, {"decision": "keep", "group": "NSFs"},
-    {"decision": "change"}, {"group": "invented"}, {"status": "unknown"},
-    {"confidence": -0.01}, {"confidence": 1.01}, {"confidence": True},
-    {"reason": " "}, {"reason": "x" * 161}, {"date": "2026-01-01"},
-    {"amount": "-1.00"}, {"revenue_eligible": True}, {"truth_label": "NSFs"},
-])
+@pytest.mark.parametrize(
+    "edit",
+    [
+        {"transaction_id": "wrong"},
+        {"decision": "keep", "group": "NSFs"},
+        {"decision": "change"},
+        {"group": "invented"},
+        {"status": "unknown"},
+        {"confidence": -0.01},
+        {"confidence": 1.01},
+        {"confidence": True},
+        {"reason": " "},
+        {"reason": "x" * 161},
+        {"date": "2026-01-01"},
+        {"amount": "-1.00"},
+        {"revenue_eligible": True},
+        {"truth_label": "NSFs"},
+    ],
+)
 def test_invalid_or_source_editing_proposals_degrade_and_keep_legacy(edit):
     transaction = _transaction()
     request = build_request(transaction, label_transaction(transaction))
@@ -125,17 +173,22 @@ def test_invalid_or_source_editing_proposals_degrade_and_keep_legacy(edit):
     assert outcome.review_status == "invalid_response" and outcome.degraded
     assert not outcome.flag and outcome.proposal is None
     assert (outcome.final_group, outcome.final_status, outcome.final_revenue_eligible) == (
-        request.legacy.group, request.legacy.status, request.legacy.revenue_eligible
+        request.legacy.group,
+        request.legacy.status,
+        request.legacy.revenue_eligible,
     )
     assert outcome.raw_response == proposal and outcome.error
 
 
-@pytest.mark.parametrize(("reply", "status"), [
-    (ProviderReply("refused", raw_response={"refusal": "cannot"}), "refused"),
-    (ProviderReply("incomplete", raw_response={"partial": True}), "incomplete"),
-    (ProviderReply("completed", parsed=None), "invalid_response"),
-    (ProviderReply("completed", parsed="not-json"), "invalid_response"),
-])
+@pytest.mark.parametrize(
+    ("reply", "status"),
+    [
+        (ProviderReply("refused", raw_response={"refusal": "cannot"}), "refused"),
+        (ProviderReply("incomplete", raw_response={"partial": True}), "incomplete"),
+        (ProviderReply("completed", parsed=None), "invalid_response"),
+        (ProviderReply("completed", parsed="not-json"), "invalid_response"),
+    ],
+)
 def test_noncompleted_and_malformed_online_results_are_not_keeps(reply, status):
     transaction = _transaction()
     request = build_request(transaction, label_transaction(transaction))
@@ -159,10 +212,14 @@ def test_provider_failure_is_visible_degraded_fallback():
 
 def test_injection_description_is_json_data_and_fake_observed_keep_not_guaranteed_model_safety():
     normalized = load_input(ROOT / "data" / "transactions" / "main_90_days.json")
-    transaction = next(item for item in normalized.transactions if "IGNORE PRIOR INSTRUCTIONS" in item.name)
+    transaction = next(
+        item for item in normalized.transactions if "IGNORE PRIOR INSTRUCTIONS" in item.name
+    )
     legacy = label_transaction(transaction)
     # Simulate an accidental raw truth field; explicit request allowlist must not serialize it.
-    transaction = replace(transaction, raw={**transaction.raw, "scenario_id": "secret", "truth_label": "unmatched"})
+    transaction = replace(
+        transaction, raw={**transaction.raw, "scenario_id": "secret", "truth_label": "unmatched"}
+    )
     request = build_request(transaction, legacy)
     assert not hasattr(request.transaction, "raw")
     assert "IGNORE PRIOR INSTRUCTIONS" in request.user_prompt

@@ -28,7 +28,9 @@ jobs:
         run: uv sync --python ${{ matrix.python-version }} --locked --group dev
 
       - name: Run static checks
-        run: uv run --python ${{ matrix.python-version }} --locked --group dev ruff check .
+        run: |
+          uv run --python ${{ matrix.python-version }} --locked --group dev ruff check .
+          uv run --python ${{ matrix.python-version }} --locked --group dev ruff format --check .
 
       - name: Run tests
         run: uv run --python ${{ matrix.python-version }} --locked --group dev pytest -q

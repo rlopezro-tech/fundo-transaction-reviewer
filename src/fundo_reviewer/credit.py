@@ -13,10 +13,15 @@ from fundo_reviewer.reviewer import ReviewOutcome
 
 FEATURE_POLICY_VERSION = "credit-features-v1"
 OFFER_POLICY_VERSION = "illustrative-offer-v1"
-HIGH_RISK_GROUPS = frozenset({
-    "High risk — gambling", "High risk — bankruptcy", "High risk — debt settlement payments",
-    "High risk — garnishment", "High risk — other",
-})
+HIGH_RISK_GROUPS = frozenset(
+    {
+        "High risk — gambling",
+        "High risk — bankruptcy",
+        "High risk — debt settlement payments",
+        "High risk — garnishment",
+        "High risk — other",
+    }
+)
 OFFER_AMR_MULTIPLIER = Decimal("1.2")
 OFFER_FUNDER_PAYMENT_MULTIPLIER = Decimal("20")
 NSF_ZERO_CUTOFF = 5
@@ -57,7 +62,9 @@ class OfferResult:
     nsf_cutoff_applied: bool
 
 
-def _aligned_labels(transactions: tuple[NormalizedTransaction, ...], labels: Mapping[str, CreditLabel]) -> None:
+def _aligned_labels(
+    transactions: tuple[NormalizedTransaction, ...], labels: Mapping[str, CreditLabel]
+) -> None:
     expected = {item.transaction_id for item in transactions}
     if len(expected) != len(transactions) or set(labels) != expected:
         raise ValueError("credit labels must cover exactly the accepted transaction IDs")
@@ -70,7 +77,9 @@ def _aligned_labels(transactions: tuple[NormalizedTransaction, ...], labels: Map
         is_revenue_eligible(Decimal("-1"), group=label.group, status=label.status)
 
 
-def compute_features(normalized: NormalizedInput, labels: Mapping[str, CreditLabel]) -> dict[str, CreditFeatures]:
+def compute_features(
+    normalized: NormalizedInput, labels: Mapping[str, CreditLabel]
+) -> dict[str, CreditFeatures]:
     """Same accepted transactions and coverage for legacy, reviewed, and truth."""
     _aligned_labels(normalized.transactions, labels)
     by_business: dict[str, list[NormalizedTransaction]] = {
@@ -83,20 +92,36 @@ def compute_features(normalized: NormalizedInput, labels: Mapping[str, CreditLab
         transactions = by_business[coverage.business_id]
         deposits = sum((-item.amount for item in transactions if item.amount < 0), Decimal(0))
         debits = sum((item.amount for item in transactions if item.amount > 0), Decimal(0))
-        revenue = sum((
-            -item.amount for item in transactions
-            if is_revenue_eligible(item.amount, group=labels[item.transaction_id].group,
-                                   status=labels[item.transaction_id].status)
-        ), Decimal(0))
-        high_risk_debits = sum((
-            item.amount for item in transactions
-            if item.amount > 0 and labels[item.transaction_id].group in HIGH_RISK_GROUPS
-        ), Decimal(0))
-        funder_repayments = sum((
-            item.amount for item in transactions
-            if item.amount > 0 and labels[item.transaction_id].group == "Active advance"
-            and labels[item.transaction_id].status == "business"
-        ), Decimal(0))
+        revenue = sum(
+            (
+                -item.amount
+                for item in transactions
+                if is_revenue_eligible(
+                    item.amount,
+                    group=labels[item.transaction_id].group,
+                    status=labels[item.transaction_id].status,
+                )
+            ),
+            Decimal(0),
+        )
+        high_risk_debits = sum(
+            (
+                item.amount
+                for item in transactions
+                if item.amount > 0 and labels[item.transaction_id].group in HIGH_RISK_GROUPS
+            ),
+            Decimal(0),
+        )
+        funder_repayments = sum(
+            (
+                item.amount
+                for item in transactions
+                if item.amount > 0
+                and labels[item.transaction_id].group == "Active advance"
+                and labels[item.transaction_id].status == "business"
+            ),
+            Decimal(0),
+        )
         days = Decimal(coverage.days)
         result[coverage.business_id] = CreditFeatures(
             business_id=coverage.business_id,
@@ -107,7 +132,9 @@ def compute_features(normalized: NormalizedInput, labels: Mapping[str, CreditLab
             revenue_to_deposits=revenue / deposits if deposits else None,
             average_monthly_revenue=revenue * Decimal(30) / days,
             nsf_count=sum(labels[item.transaction_id].group == "NSFs" for item in transactions),
-            overdraft_count=sum(labels[item.transaction_id].group == "Overdraft" for item in transactions),
+            overdraft_count=sum(
+                labels[item.transaction_id].group == "Overdraft" for item in transactions
+            ),
             debit_total=debits,
             high_risk_debit_total=high_risk_debits,
             high_risk_debit_share=high_risk_debits / debits if debits else None,
@@ -118,12 +145,16 @@ def compute_features(normalized: NormalizedInput, labels: Mapping[str, CreditLab
 
 
 def calculate_offer(features: CreditFeatures) -> OfferResult:
-    raw = (OFFER_AMR_MULTIPLIER * features.average_monthly_revenue
-           - OFFER_FUNDER_PAYMENT_MULTIPLIER * features.other_funder_daily_payments)
+    raw = (
+        OFFER_AMR_MULTIPLIER * features.average_monthly_revenue
+        - OFFER_FUNDER_PAYMENT_MULTIPLIER * features.other_funder_daily_payments
+    )
     cutoff = features.nsf_count > NSF_ZERO_CUTOFF
     after_cutoff = Decimal(0) if cutoff else raw
     floored = max(after_cutoff, Decimal(0))
-    return OfferResult(raw, after_cutoff, floored, floored.quantize(CENT, rounding=ROUND_HALF_UP), cutoff)
+    return OfferResult(
+        raw, after_cutoff, floored, floored.quantize(CENT, rounding=ROUND_HALF_UP), cutoff
+    )
 
 
 def _decimal(value: Decimal | None) -> str | None:
@@ -140,7 +171,9 @@ def feature_record(features: CreditFeatures) -> dict:
             "numerator_usd": _decimal(features.eligible_revenue_total),
             "denominator_usd": _decimal(features.deposit_total),
             "ratio": _decimal(features.revenue_to_deposits),
-            "undefined_reason": None if features.revenue_to_deposits is not None else "zero_deposits",
+            "undefined_reason": None
+            if features.revenue_to_deposits is not None
+            else "zero_deposits",
         },
         "average_monthly_revenue_usd": _decimal(features.average_monthly_revenue),
         "nsf_count": features.nsf_count,
@@ -149,7 +182,9 @@ def feature_record(features: CreditFeatures) -> dict:
             "numerator_usd": _decimal(features.high_risk_debit_total),
             "denominator_usd": _decimal(features.debit_total),
             "ratio": _decimal(features.high_risk_debit_share),
-            "undefined_reason": None if features.high_risk_debit_share is not None else "zero_debits",
+            "undefined_reason": None
+            if features.high_risk_debit_share is not None
+            else "zero_debits",
         },
         "other_funder_payments": {
             "repayment_total_usd": _decimal(features.funder_repayment_total),
@@ -175,44 +210,69 @@ def _delta(after: Decimal | int | None, before: Decimal | int | None) -> str | i
     return str(difference) if isinstance(difference, Decimal) else difference
 
 
-def _business_record(coverage: BusinessCoverage, legacy: CreditFeatures, reviewed: CreditFeatures) -> dict:
-    if (legacy.business_id != reviewed.business_id or legacy.transaction_count != reviewed.transaction_count
-            or legacy.coverage_days != reviewed.coverage_days or legacy.deposit_total != reviewed.deposit_total
-            or legacy.debit_total != reviewed.debit_total):
-        raise ValueError("legacy and reviewed features must share transactions, coverage, and cash denominators")
+def _business_record(
+    coverage: BusinessCoverage, legacy: CreditFeatures, reviewed: CreditFeatures
+) -> dict:
+    if (
+        legacy.business_id != reviewed.business_id
+        or legacy.transaction_count != reviewed.transaction_count
+        or legacy.coverage_days != reviewed.coverage_days
+        or legacy.deposit_total != reviewed.deposit_total
+        or legacy.debit_total != reviewed.debit_total
+    ):
+        raise ValueError(
+            "legacy and reviewed features must share transactions, coverage, and cash denominators"
+        )
     return {
         "business_id": coverage.business_id,
         "coverage": {
-            "account_ids": list(coverage.account_ids), "start": coverage.start.isoformat(),
-            "end": coverage.end.isoformat(), "observed_common_days": coverage.days,
+            "account_ids": list(coverage.account_ids),
+            "start": coverage.start.isoformat(),
+            "end": coverage.end.isoformat(),
+            "observed_common_days": coverage.days,
             "is_complete_90_days": coverage.is_complete_90_days,
             "not_directly_comparable_with_90_day_training": not coverage.is_complete_90_days,
         },
         "legacy": feature_record(legacy),
         "reviewed": feature_record(reviewed),
         "reviewed_minus_legacy": {
-            "eligible_revenue_total_usd": _delta(reviewed.eligible_revenue_total, legacy.eligible_revenue_total),
-            "revenue_to_deposits_ratio": _delta(reviewed.revenue_to_deposits, legacy.revenue_to_deposits),
-            "average_monthly_revenue_usd": _delta(reviewed.average_monthly_revenue, legacy.average_monthly_revenue),
+            "eligible_revenue_total_usd": _delta(
+                reviewed.eligible_revenue_total, legacy.eligible_revenue_total
+            ),
+            "revenue_to_deposits_ratio": _delta(
+                reviewed.revenue_to_deposits, legacy.revenue_to_deposits
+            ),
+            "average_monthly_revenue_usd": _delta(
+                reviewed.average_monthly_revenue, legacy.average_monthly_revenue
+            ),
             "nsf_count": _delta(reviewed.nsf_count, legacy.nsf_count),
             "overdraft_count": _delta(reviewed.overdraft_count, legacy.overdraft_count),
-            "high_risk_debit_share_ratio": _delta(reviewed.high_risk_debit_share, legacy.high_risk_debit_share),
+            "high_risk_debit_share_ratio": _delta(
+                reviewed.high_risk_debit_share, legacy.high_risk_debit_share
+            ),
             "other_funder_daily_payments_usd": _delta(
                 reviewed.other_funder_daily_payments, legacy.other_funder_daily_payments
             ),
-            "final_offer_usd": _delta(calculate_offer(reviewed).final, calculate_offer(legacy).final),
+            "final_offer_usd": _delta(
+                calculate_offer(reviewed).final, calculate_offer(legacy).final
+            ),
         },
     }
 
 
 def build_credit_report(
-    normalized: NormalizedInput, legacy_labels: tuple[LegacyLabel, ...],
+    normalized: NormalizedInput,
+    legacy_labels: tuple[LegacyLabel, ...],
     reviewed_outcomes: tuple[ReviewOutcome, ...] | list[ReviewOutcome],
 ) -> dict:
-    legacy = {item.transaction_id: CreditLabel(item.transaction_id, item.group, item.status)
-              for item in legacy_labels}
-    reviewed = {item.transaction_id: CreditLabel(item.transaction_id, item.final_group, item.final_status)
-                for item in reviewed_outcomes}
+    legacy = {
+        item.transaction_id: CreditLabel(item.transaction_id, item.group, item.status)
+        for item in legacy_labels
+    }
+    reviewed = {
+        item.transaction_id: CreditLabel(item.transaction_id, item.final_group, item.final_status)
+        for item in reviewed_outcomes
+    }
     if len(legacy) != len(legacy_labels) or len(reviewed) != len(reviewed_outcomes):
         raise ValueError("duplicate credit label transaction ID")
     before = compute_features(normalized, legacy)

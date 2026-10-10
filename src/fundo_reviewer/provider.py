@@ -28,7 +28,11 @@ from fundo_reviewer.reviewer import (
     ReviewRequest,
 )
 
-GroupEnum = Enum("GroupEnum", {f"GROUP_{index:02d}": group for index, group in enumerate((*GROUPS, UNMATCHED))}, type=str)
+GroupEnum = Enum(
+    "GroupEnum",
+    {f"GROUP_{index:02d}": group for index, group in enumerate((*GROUPS, UNMATCHED))},
+    type=str,
+)
 
 
 class ProviderShape(BaseModel):
@@ -70,7 +74,9 @@ def build_batch_request(requests: tuple[ReviewRequest, ...]) -> BatchReviewReque
     )
     user = "Review these independent JSON transaction data blocks:\n" + json.dumps(
         {"transactions": [request.payload for request in requests]},
-        ensure_ascii=False, sort_keys=True, separators=(",", ":"),
+        ensure_ascii=False,
+        sort_keys=True,
+        separators=(",", ":"),
     )
     return BatchReviewRequest(requests, system, user)
 
@@ -79,7 +85,13 @@ class _StructuredReviewAdapter(ABC):
     """Shared review methods; concrete adapters own transport details."""
 
     @abstractmethod
-    def _request(self, system_prompt: str, user_prompt: str, text_format: type[BaseModel], max_output_tokens: int):
+    def _request(
+        self,
+        system_prompt: str,
+        user_prompt: str,
+        text_format: type[BaseModel],
+        max_output_tokens: int,
+    ):
         raise NotImplementedError
 
     @abstractmethod
@@ -87,11 +99,15 @@ class _StructuredReviewAdapter(ABC):
         raise NotImplementedError
 
     def review(self, request: ReviewRequest) -> ProviderReply:
-        response = self._request(request.system_prompt, request.user_prompt, ProviderShape, MAX_OUTPUT_TOKENS)
+        response = self._request(
+            request.system_prompt, request.user_prompt, ProviderShape, MAX_OUTPUT_TOKENS
+        )
         return self._reply(response, batched=False)
 
     def review_batch(self, request: BatchReviewRequest) -> ProviderReply:
-        response = self._request(request.system_prompt, request.user_prompt, BatchProviderShape, BATCH_MAX_OUTPUT_TOKENS)
+        response = self._request(
+            request.system_prompt, request.user_prompt, BatchProviderShape, BATCH_MAX_OUTPUT_TOKENS
+        )
         return self._reply(response, batched=True)
 
 
@@ -108,9 +124,17 @@ class OpenAIProvider(_StructuredReviewAdapter):
         self.model = model
         self.client = OpenAI(api_key=api_key, max_retries=0, timeout=120.0)
         self._last_call_at: float | None = None
-        self.min_request_interval = max(0.0, float(os.environ.get("FUNDO_MIN_REQUEST_INTERVAL_SECONDS", "60")))
+        self.min_request_interval = max(
+            0.0, float(os.environ.get("FUNDO_MIN_REQUEST_INTERVAL_SECONDS", "60"))
+        )
 
-    def _request(self, system_prompt: str, user_prompt: str, text_format: type[BaseModel], max_output_tokens: int):
+    def _request(
+        self,
+        system_prompt: str,
+        user_prompt: str,
+        text_format: type[BaseModel],
+        max_output_tokens: int,
+    ):
         from openai import RateLimitError
 
         for attempt in range(4):
@@ -135,22 +159,31 @@ class OpenAIProvider(_StructuredReviewAdapter):
                 message = str(exc).lower()
                 # A depleted billing balance is not a transient rate limit;
                 # retrying it only wastes time and obscures the real blocker.
-                if ("insufficient_quota" in message or "credit_balance_exhausted" in message
-                        or "no credits remaining" in message):
+                if (
+                    "insufficient_quota" in message
+                    or "credit_balance_exhausted" in message
+                    or "no credits remaining" in message
+                ):
                     raise FatalReviewError(
                         "provider API credit balance exhausted; add credits or use a funded project/key"
                     ) from exc
                 # Daily quota cannot be fixed by a short retry; surface it so
                 # the run can resume from committed batch cache after reset.
                 if "requests per day" in message:
-                    raise FatalReviewError("provider daily request quota exhausted; resume from cache after reset") from exc
+                    raise FatalReviewError(
+                        "provider daily request quota exhausted; resume from cache after reset"
+                    ) from exc
                 # A TPM ceiling that reports a distant reset cannot be fixed
                 # by short retries; stop immediately so the run can resume later.
                 if "tokens per minute" in message or "tpm" in message:
-                    raise FatalReviewError("provider token-per-minute quota exhausted; resume from cache after reset") from exc
+                    raise FatalReviewError(
+                        "provider token-per-minute quota exhausted; resume from cache after reset"
+                    ) from exc
                 if attempt == 3:
-                    raise FatalReviewError("provider minute request quota persisted after bounded retries; resume later") from exc
-                retry_after = (exc.response.headers.get("retry-after") if exc.response else None)
+                    raise FatalReviewError(
+                        "provider minute request quota persisted after bounded retries; resume later"
+                    ) from exc
+                retry_after = exc.response.headers.get("retry-after") if exc.response else None
                 try:
                     delay = min(max(float(retry_after), 1), 20) if retry_after else 7.0
                 except ValueError:
@@ -180,9 +213,18 @@ class OpenAIProvider(_StructuredReviewAdapter):
                         return ProviderReply("refused", raw_response=raw, usage=usage)
         parsed = response.output_parsed
         return ProviderReply(
-            "completed", parsed=(parsed.model_dump(mode="json")["reviews"] if batched else parsed.model_dump(mode="json")) if parsed is not None else None,
-            raw_response=raw, usage=usage,
+            "completed",
+            parsed=(
+                parsed.model_dump(mode="json")["reviews"]
+                if batched
+                else parsed.model_dump(mode="json")
+            )
+            if parsed is not None
+            else None,
+            raw_response=raw,
+            usage=usage,
         )
+
 
 class OpenRouterProvider(_StructuredReviewAdapter):
     """OpenRouter's OpenAI-compatible Chat Completions API."""
@@ -199,12 +241,20 @@ class OpenRouterProvider(_StructuredReviewAdapter):
         self.model = spec.provider_model or model
         self.response_format_kind = spec.response_format
         self.client = OpenAI(
-            api_key=api_key, base_url="https://openrouter.ai/api/v1",
-            max_retries=0, timeout=180.0,
+            api_key=api_key,
+            base_url="https://openrouter.ai/api/v1",
+            max_retries=0,
+            timeout=180.0,
         )
         self._last_call_at: float | None = None
 
-    def _request(self, system_prompt: str, user_prompt: str, text_format: type[BaseModel], max_output_tokens: int):
+    def _request(
+        self,
+        system_prompt: str,
+        user_prompt: str,
+        text_format: type[BaseModel],
+        max_output_tokens: int,
+    ):
         from openai import RateLimitError
 
         for attempt in range(4):
@@ -220,7 +270,9 @@ class OpenRouterProvider(_StructuredReviewAdapter):
                     response_format = {
                         "type": "json_schema",
                         "json_schema": {
-                            "name": "transaction_review_batch" if text_format is BatchProviderShape else "transaction_review",
+                            "name": "transaction_review_batch"
+                            if text_format is BatchProviderShape
+                            else "transaction_review",
                             "strict": True,
                             "schema": text_format.model_json_schema(),
                         },
@@ -241,10 +293,14 @@ class OpenRouterProvider(_StructuredReviewAdapter):
                 return response
             except RateLimitError as exc:
                 if attempt == 3:
-                    raise FatalReviewError("OpenRouter rate limit persisted after bounded retries") from exc
+                    raise FatalReviewError(
+                        "OpenRouter rate limit persisted after bounded retries"
+                    ) from exc
                 retry_after = exc.response.headers.get("retry-after") if exc.response else None
                 try:
-                    delay = min(max(float(retry_after), 1), 60) if retry_after else 15.0 * (attempt + 1)
+                    delay = (
+                        min(max(float(retry_after), 1), 60) if retry_after else 15.0 * (attempt + 1)
+                    )
                 except ValueError:
                     delay = 15.0 * (attempt + 1)
                 time.sleep(delay)
@@ -290,7 +346,8 @@ class OpenRouterProvider(_StructuredReviewAdapter):
         return ProviderReply(
             "completed",
             parsed=parsed,
-            raw_response=raw, usage=usage,
+            raw_response=raw,
+            usage=usage,
         )
 
 
@@ -324,9 +381,15 @@ class BudgetedBatchProvider:
         self.model = model
 
     def review_batch(self, request: BatchReviewRequest) -> ProviderReply:
-        identity = batch_identity(request.requests, self.model, request.system_prompt, request.user_prompt)
+        identity = batch_identity(
+            request.requests, self.model, request.system_prompt, request.user_prompt
+        )
         reservation = self.ledger.reserve_batch(
-            identity, self.model, request.system_prompt, request.user_prompt, BATCH_MAX_OUTPUT_TOKENS,
+            identity,
+            self.model,
+            request.system_prompt,
+            request.user_prompt,
+            BATCH_MAX_OUTPUT_TOKENS,
         )
         reply = self.provider.review_batch(request)
         self.ledger.settle(reservation, reply.usage)

@@ -90,7 +90,12 @@ def _write_json(path: Path, value: Any) -> None:
     write_json_atomic(path, value)
 
 
-def _write_run_artifacts(output_dir: Path, credit_report: dict[str, Any], outcomes: list[dict[str, Any]], manifest: dict[str, Any]) -> None:
+def _write_run_artifacts(
+    output_dir: Path,
+    credit_report: dict[str, Any],
+    outcomes: list[dict[str, Any]],
+    manifest: dict[str, Any],
+) -> None:
     """Replace the reports and their hash manifest without interleaving local writers."""
     with artifact_set_lock(output_dir):
         credit_path = output_dir / "credit_report.json"
@@ -121,7 +126,7 @@ def _run_batched(normalized, labels, *, mode, cache_path, ledger_path, model, pr
     total_batches = (len(transactions) + batch_size - 1) // batch_size
     for offset in range(0, len(transactions), batch_size):
         batch_number = offset // batch_size + 1
-        chunk = transactions[offset:offset + batch_size]
+        chunk = transactions[offset : offset + batch_size]
         requests = tuple(build_request(item, labels[item.transaction_id]) for item in chunk)
         batch = build_batch_request(requests)
         identity = batch_identity(requests, model, batch.system_prompt, batch.user_prompt)
@@ -135,7 +140,9 @@ def _run_batched(normalized, labels, *, mode, cache_path, ledger_path, model, pr
                 if mode == "offline":
                     logger.error(
                         "offline replay stopped: no cached response for batch %d/%d (%d rows)",
-                        batch_number, total_batches, len(chunk),
+                        batch_number,
+                        total_batches,
+                        len(chunk),
                     )
                     raise
                 assert budgeted is not None
@@ -146,7 +153,9 @@ def _run_batched(normalized, labels, *, mode, cache_path, ledger_path, model, pr
                 except CacheMiss:
                     logger.info(
                         "batch %d/%d cache miss; requesting provider (%d rows)",
-                        batch_number, total_batches, len(chunk),
+                        batch_number,
+                        total_batches,
+                        len(chunk),
                     )
                     new_api_calls += 1
                     try:
@@ -154,12 +163,17 @@ def _run_batched(normalized, labels, *, mode, cache_path, ledger_path, model, pr
                     except FatalReviewError:
                         logger.error(
                             "batch %d/%d stopped by provider; completed cache batches are preserved",
-                            batch_number, total_batches,
+                            batch_number,
+                            total_batches,
                         )
                         raise
                     except Exception as exc:
                         reply = ProviderReply(
-                            "provider_failure", raw_response={"error_type": type(exc).__name__, "message": "provider call failed"}
+                            "provider_failure",
+                            raw_response={
+                                "error_type": type(exc).__name__,
+                                "message": "provider call failed",
+                            },
                         )
                     if reply.usage:
                         new_usage.update(reply.usage)
@@ -181,18 +195,26 @@ def _run_batched(normalized, labels, *, mode, cache_path, ledger_path, model, pr
             if reply.status == "completed" and isinstance(reply.parsed, list):
                 try:
                     by_id = {item["transaction_id"]: item for item in reply.parsed}
-                    if len(by_id) != len(reply.parsed) or set(by_id) != {item.transaction_id for item in chunk}:
+                    if len(by_id) != len(reply.parsed) or set(by_id) != {
+                        item.transaction_id for item in chunk
+                    }:
                         by_id = None
                 except (KeyError, TypeError):
                     by_id = None
             if reply.status == "completed" and by_id is None:
-                reply = ProviderReply("invalid_response", raw_response=reply.raw_response, usage=reply.usage)
+                reply = ProviderReply(
+                    "invalid_response", raw_response=reply.raw_response, usage=reply.usage
+                )
             batch_outcomes = []
             for request in requests:
                 item_reply = (
-                    ProviderReply("completed", parsed=by_id[request.transaction.transaction_id],
-                                  raw_response=reply.raw_response)
-                    if by_id is not None else reply
+                    ProviderReply(
+                        "completed",
+                        parsed=by_id[request.transaction.transaction_id],
+                        raw_response=reply.raw_response,
+                    )
+                    if by_id is not None
+                    else reply
                 )
                 batch_outcomes.append(review_one(request, _StaticProvider(item_reply)))
             validated = [_outcome_record(item) for item in batch_outcomes]
@@ -205,12 +227,20 @@ def _run_batched(normalized, labels, *, mode, cache_path, ledger_path, model, pr
                 # decision to replay and must be eligible for a later online retry.
                 cache.append(identity, reply, validated)
             batch_statuses = Counter(item.review_status for item in batch_outcomes)
-            status_summary = ",".join(f"{status}:{count}" for status, count in sorted(batch_statuses.items()))
+            status_summary = ",".join(
+                f"{status}:{count}" for status, count in sorted(batch_statuses.items())
+            )
             logger.info(
                 "batch %d/%d complete source=%s rows=%d status=%s",
-                batch_number, total_batches, "cache" if was_cache_hit else "provider", len(chunk), status_summary,
+                batch_number,
+                total_batches,
+                "cache" if was_cache_hit else "provider",
+                len(chunk),
+                status_summary,
             )
-            if model_spec(model).provider == "openrouter" and any(item.degraded for item in batch_outcomes):
+            if model_spec(model).provider == "openrouter" and any(
+                item.degraded for item in batch_outcomes
+            ):
                 # OpenRouter free/low-cost endpoints have returned malformed or
                 # incomplete batch JSON. Preserve the response, then stop rather
                 # than spend on every remaining batch with a broken contract.
@@ -218,7 +248,15 @@ def _run_batched(normalized, labels, *, mode, cache_path, ledger_path, model, pr
                     "OpenRouter batch response was degraded; cached for diagnosis, stopping before more calls"
                 )
             outcomes.extend(batch_outcomes)
-    return outcomes, cache_hits, batch_hits, new_api_calls, new_usage, historical_usage, historical_cost
+    return (
+        outcomes,
+        cache_hits,
+        batch_hits,
+        new_api_calls,
+        new_usage,
+        historical_usage,
+        historical_cost,
+    )
 
 
 def run_pipeline(
@@ -241,9 +279,23 @@ def run_pipeline(
     labels = {item.transaction_id: item for item in legacy}
     batch_hits = 0
     if batch_size > 1:
-        outcomes, cache_hits, batch_hits, new_api_calls, new_usage, historical_usage, historical_cost = _run_batched(
-            normalized, labels, mode=mode, cache_path=cache_path, ledger_path=ledger_path,
-            model=model, provider=provider, batch_size=batch_size,
+        (
+            outcomes,
+            cache_hits,
+            batch_hits,
+            new_api_calls,
+            new_usage,
+            historical_usage,
+            historical_cost,
+        ) = _run_batched(
+            normalized,
+            labels,
+            mode=mode,
+            cache_path=cache_path,
+            ledger_path=ledger_path,
+            model=model,
+            provider=provider,
+            batch_size=batch_size,
         )
     else:
         cache = ReviewCache(cache_path)
@@ -267,7 +319,8 @@ def run_pipeline(
                 if mode == "offline":
                     logger.error(
                         "offline replay stopped: no cached response for transaction %d/%d",
-                        position, total_transactions,
+                        position,
+                        total_transactions,
                     )
                     raise  # no silent partial replay or fake keep
                 assert budgeted is not None
@@ -279,13 +332,16 @@ def run_pipeline(
                     except CacheMiss:
                         logger.info(
                             "transaction %d/%d cache miss; requesting provider",
-                            position, total_transactions,
+                            position,
+                            total_transactions,
                         )
                         new_api_calls += 1
                         outcome = review_one(request, budgeted)
                         source = "provider"
                         if outcome.review_status in {"kept", "changed"}:
-                            cache.append(request, model, outcome, usage_derived_cost(outcome.usage, model))
+                            cache.append(
+                                request, model, outcome, usage_derived_cost(outcome.usage, model)
+                            )
                         if outcome.usage:
                             new_usage.update(outcome.usage)
                     else:
@@ -296,20 +352,32 @@ def run_pipeline(
                         historical_cost += usage_derived_cost(cached.usage, model)
                         outcome = review_one(request, _StaticProvider(cached))
                         if outcome.degraded:
-                            raise CacheCorrupt(f"cached proposal invalid for {transaction.transaction_id}: {outcome.error}")
+                            raise CacheCorrupt(
+                                f"cached proposal invalid for {transaction.transaction_id}: {outcome.error}"
+                            )
             else:
                 cache_hits += 1
                 outcome = review_one(request, _StaticProvider(cached))
                 if outcome.degraded:
-                    raise CacheCorrupt(f"cached proposal invalid for {transaction.transaction_id}: {outcome.error}")
+                    raise CacheCorrupt(
+                        f"cached proposal invalid for {transaction.transaction_id}: {outcome.error}"
+                    )
                 source = "cache"
                 if cached.usage:
                     historical_usage.update(cached.usage)
                 historical_cost += usage_derived_cost(cached.usage, model)
-            if source == "provider" or position == 1 or position % 100 == 0 or position == total_transactions:
+            if (
+                source == "provider"
+                or position == 1
+                or position % 100 == 0
+                or position == total_transactions
+            ):
                 logger.info(
                     "transaction %d/%d complete source=%s status=%s",
-                    position, total_transactions, source, outcome.review_status,
+                    position,
+                    total_transactions,
+                    source,
+                    outcome.review_status,
                 )
             outcomes.append(outcome)
     input_sha256 = normalized.source_sha256 or hashlib.sha256(input_path.read_bytes()).hexdigest()
@@ -321,9 +389,13 @@ def run_pipeline(
         "input_sha256": input_sha256,
         "as_of": normalized.as_of.isoformat(),
         "coverage": [
-            {"business_id": business.business_id, "start": business.start.isoformat(),
-             "end": business.end.isoformat(), "days": business.days,
-             "is_complete_90_days": business.is_complete_90_days}
+            {
+                "business_id": business.business_id,
+                "start": business.start.isoformat(),
+                "end": business.end.isoformat(),
+                "days": business.days,
+                "is_complete_90_days": business.is_complete_90_days,
+            }
             for business in normalized.business_coverage
         ],
         "accepted_transactions": len(normalized.transactions),
@@ -360,19 +432,25 @@ def run_pipeline(
         "historical_cache_usage_derived_cost_usd": str(historical_cost),
         "accuracy": "not_measured_without_separate_truth_evaluation",
     }
-    _write_run_artifacts(output_dir, credit_report, [_outcome_record(item) for item in outcomes], manifest)
+    _write_run_artifacts(
+        output_dir, credit_report, [_outcome_record(item) for item in outcomes], manifest
+    )
     return manifest
 
 
 def _build_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(description="Review Plaid-shaped input with cache-only or online execution")
+    parser = argparse.ArgumentParser(
+        description="Review Plaid-shaped input with cache-only or online execution"
+    )
     parser.add_argument("--input", type=Path, default=Path("data/transactions/main_90_days.json"))
     parser.add_argument("--output-dir", type=Path, default=Path("reports/main"))
     parser.add_argument("--mode", choices=("offline", "online"), default="offline")
     parser.add_argument("--cache", type=Path, default=Path("cache/batch_reviews.jsonl"))
     parser.add_argument("--spend-ledger", type=Path, default=Path("cache/spend_ledger.jsonl"))
     parser.add_argument(
-        "--model", choices=tuple(spec.model for spec in registered_models()), default=DEFAULT_MODEL,
+        "--model",
+        choices=tuple(spec.model for spec in registered_models()),
+        default=DEFAULT_MODEL,
         help="registered model/provider ID (see the choices shown here)",
     )
     parser.add_argument("--batch-size", type=int, default=80)
@@ -385,12 +463,33 @@ def main() -> None:
     args = parser.parse_args()
     try:
         result = run_pipeline(
-            args.input, args.output_dir, args.mode, args.cache, args.spend_ledger,
-            args.model, batch_size=args.batch_size,
+            args.input,
+            args.output_dir,
+            args.mode,
+            args.cache,
+            args.spend_ledger,
+            args.model,
+            batch_size=args.batch_size,
         )
     except (CacheMiss, ValueError, RuntimeError, OSError) as exc:
         parser.exit(1, f"{parser.prog}: error: {exc}\n")
-    print(json.dumps({key: result[key] for key in ("accepted_transactions", "review_status_counts", "flag_count", "degraded_count", "cache_hits", "new_api_calls", "new_usage_derived_cost_usd")}, sort_keys=True))
+    print(
+        json.dumps(
+            {
+                key: result[key]
+                for key in (
+                    "accepted_transactions",
+                    "review_status_counts",
+                    "flag_count",
+                    "degraded_count",
+                    "cache_hits",
+                    "new_api_calls",
+                    "new_usage_derived_cost_usd",
+                )
+            },
+            sort_keys=True,
+        )
+    )
 
 
 if __name__ == "__main__":

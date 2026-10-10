@@ -27,6 +27,7 @@ Run the same lightweight static checks used by CI:
 
 ```bash
 uv run --locked --group dev ruff check .
+uv run --locked --group dev ruff format --check .
 ```
 
 GitHub Actions runs static checks, the locked dependency install and test suite on CPython 3.12, 3.13, and 3.14, then verifies that the offline sample replay matches committed outputs byte-for-byte; see [the test workflow](.github/workflows/tests.yml). The workflow needs no API key or external model calls. The suite also cross-checks the committed main input, response cache, manifest, and evaluation counts so those partial results cannot silently drift apart.

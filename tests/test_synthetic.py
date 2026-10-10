@@ -42,8 +42,10 @@ def _read(cohort: str):
 def test_committed_fixtures_are_exact_regeneration_and_hashes_are_stable(tmp_path, capsys):
     expected = generate_files()
     assert set(expected) == {
-        "transactions/main_90_days.json", "ground_truth/main_90_days.json",
-        "transactions/short_61_days.json", "ground_truth/short_61_days.json",
+        "transactions/main_90_days.json",
+        "ground_truth/main_90_days.json",
+        "transactions/short_61_days.json",
+        "ground_truth/short_61_days.json",
     }
     for path, contents in expected.items():
         assert (DATA / path).read_bytes() == contents
@@ -52,7 +54,9 @@ def test_committed_fixtures_are_exact_regeneration_and_hashes_are_stable(tmp_pat
     assert generate_files() == expected
     hashes = write_files(tmp_path)
     capsys.readouterr()
-    assert hashes == {name: hashlib.sha256(contents).hexdigest() for name, contents in expected.items()}
+    assert hashes == {
+        name: hashlib.sha256(contents).hexdigest() for name, contents in expected.items()
+    }
     assert all((tmp_path / name).read_bytes() == contents for name, contents in expected.items())
 
 
@@ -61,7 +65,9 @@ def test_main_cohort_schema_coverage_id_alignment_and_truth_isolation():
     assert source["as_of"] == AS_OF.isoformat()
     assert len(normalized.business_coverage) == 10
     assert len(normalized.transactions) == len(source["transactions"]) == 2000
-    assert all(item.days == 90 and item.is_complete_90_days for item in normalized.business_coverage)
+    assert all(
+        item.days == 90 and item.is_complete_90_days for item in normalized.business_coverage
+    )
     assert all(item.start == date(2026, 7, 11) for item in normalized.business_coverage)
     assert not normalized.excluded
     ids = {item.transaction_id for item in normalized.transactions}
@@ -76,9 +82,19 @@ def test_main_cohort_schema_coverage_id_alignment_and_truth_isolation():
     assert truth["seed"] == SEED
     assert truth["cohort"] == "main_90_days"
     forbidden = {
-        "truth", "ground_truth", "truth_label", "scenario_id", "intended_group",
-        "intended_personal", "intended_revenue", "hard_negative", "alternative_label",
-        "rationale", "revenue_eligible", "ambiguous", "ambiguity_note",
+        "truth",
+        "ground_truth",
+        "truth_label",
+        "scenario_id",
+        "intended_group",
+        "intended_personal",
+        "intended_revenue",
+        "hard_negative",
+        "alternative_label",
+        "rationale",
+        "revenue_eligible",
+        "ambiguous",
+        "ambiguity_note",
     }
     assert not forbidden.intersection(source)
     assert all(not forbidden.intersection(record) for record in source["transactions"])
@@ -95,7 +111,9 @@ def test_scenario_inventory_all_named_groups_and_intent_based_truth():
     assert all(counts[scenario_id] > 0 for scenario_id in SCENARIOS)
     assert sum(value["hard_negative"] for value in labels.values()) > 0
     assert sum(value["ambiguous"] for value in labels.values()) > 0
-    assert all(value["rationale"] and isinstance(value["rationale"], str) for value in labels.values())
+    assert all(
+        value["rationale"] and isinstance(value["rationale"], str) for value in labels.values()
+    )
     for record in normalized.transactions:
         label = labels[record.transaction_id]
         intended = SCENARIOS[label["scenario_id"]]
@@ -103,7 +121,9 @@ def test_scenario_inventory_all_named_groups_and_intent_based_truth():
         assert label["status"] == intended.status
         assert record.is_inflow == (intended.direction == "in")
         assert label["revenue_eligible"] == (
-            record.is_inflow and intended.status == "business" and intended.group not in REVENUE_EXCLUSIONS
+            record.is_inflow
+            and intended.status == "business"
+            and intended.group not in REVENUE_EXCLUSIONS
         )
         assert label["ambiguous"] == bool(label.get("ambiguity_note"))
         if "alternative_label" in label:
@@ -131,26 +151,33 @@ def test_adversarial_cases_no_fee_bank_and_held_out_split():
     assert not labels[funder.transaction_id]["revenue_eligible"]
     assert any("UCC 1" in record.name for record in by_scenario["ucc_punctuation"])
     assert any("OD-FEE" in record.name for record in by_scenario["overdraft_punctuation"])
-    assert any("IGNORE PRIOR INSTRUCTIONS" in record.name for record in by_scenario["instruction_text"])
+    assert any(
+        "IGNORE PRIOR INSTRUCTIONS" in record.name for record in by_scenario["instruction_text"]
+    )
     assert labels[by_scenario["nsf_name_collision"][0].transaction_id]["hard_negative"]
     metadata = truth["business_metadata"]
-    assert {name for name, data in metadata.items() if data["evaluation_split"] == "held_out"} == HOLDOUT_BUSINESSES
+    assert {
+        name for name, data in metadata.items() if data["evaluation_split"] == "held_out"
+    } == HOLDOUT_BUSINESSES
     assert metadata["biz_10"]["nsf_fee_observable"] is False
     assert metadata["biz_10"]["unobserved_payment_failures"] == "unknown"
     nsf_by_business = Counter(
-        record.business_id for record in normalized.transactions
+        record.business_id
+        for record in normalized.transactions
         if labels[record.transaction_id]["group"] == NSFS
     )
     assert nsf_by_business["biz_01"] == 5
     assert nsf_by_business["biz_02"] == 6
     assert nsf_by_business["biz_10"] == 0
     assert any(
-        record.business_id == "biz_03" and record.amount == -25000
+        record.business_id == "biz_03"
+        and record.amount == -25000
         and labels[record.transaction_id]["scenario_id"] == "advance_disbursement"
         for record in normalized.transactions
     )
     assert any(
-        record.business_id == "biz_04" and record.amount == -18000
+        record.business_id == "biz_04"
+        and record.amount == -18000
         and labels[record.transaction_id]["scenario_id"] == "customer_sale"
         for record in normalized.transactions
     )
@@ -164,7 +191,9 @@ def test_short_history_is_explicitly_separate_and_not_90_days():
     assert normalized.business_coverage[0].start == date(2026, 8, 9)
     assert normalized.business_coverage[0].days == 61
     assert not normalized.business_coverage[0].is_complete_90_days
-    assert len(normalized.transactions) == len(source["transactions"]) == len(truth["labels"]) == 120
+    assert (
+        len(normalized.transactions) == len(source["transactions"]) == len(truth["labels"]) == 120
+    )
     assert {record.transaction_id for record in normalized.transactions} == set(truth["labels"])
     assert not {record.transaction_id for record in normalized.transactions}.intersection(
         set(_read("main_90_days")[2]["labels"])

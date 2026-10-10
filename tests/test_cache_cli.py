@@ -63,7 +63,10 @@ def _concurrent_ledger_reservation(path, barrier, results):
     try:
         reservation = ledger.reserve_batch(
             {"model": "gpt-6-luna", "batch": "same-request"},
-            "gpt-6-luna", "system", "user", max_output_tokens=16_000,
+            "gpt-6-luna",
+            "system",
+            "user",
+            max_output_tokens=16_000,
         )
         results.put(("reserved", str(reservation.reserved_usd)))
     except BudgetExceeded:
@@ -75,7 +78,9 @@ def _concurrent_batch_cache_append(path, barrier, results):
     cache = BatchReviewCache(Path(path))
     barrier.wait()
     try:
-        cache.append(identity, ProviderReply("completed", parsed=[], raw_response={"test": True}), [])
+        cache.append(
+            identity, ProviderReply("completed", parsed=[], raw_response={"test": True}), []
+        )
         results.put("appended")
     except ValueError:
         results.put("duplicate")
@@ -92,21 +97,32 @@ class SharedCountingBatchProvider:
         reviews = [
             {
                 "transaction_id": request.transaction.transaction_id,
-                "decision": "keep", "group": request.legacy.group,
-                "status": request.legacy.status, "confidence": 0.8,
+                "decision": "keep",
+                "group": request.legacy.group,
+                "status": request.legacy.status,
+                "confidence": 0.8,
                 "reason": "Concurrent cache test",
             }
             for request in batch.requests
         ]
-        return ProviderReply("completed", parsed=reviews, raw_response={"test": True},
-                             usage={"input_tokens": 300, "output_tokens": 100})
+        return ProviderReply(
+            "completed",
+            parsed=reviews,
+            raw_response={"test": True},
+            usage={"input_tokens": 300, "output_tokens": 100},
+        )
 
 
 def _concurrent_batched_pipeline(cache_path, ledger_path, output_path, barrier, calls, results):
     barrier.wait()
     manifest = run_pipeline(
-        SMALL, Path(output_path), "online", Path(cache_path), Path(ledger_path),
-        provider=SharedCountingBatchProvider(calls), batch_size=80,
+        SMALL,
+        Path(output_path),
+        "online",
+        Path(cache_path),
+        Path(ledger_path),
+        provider=SharedCountingBatchProvider(calls),
+        batch_size=80,
     )
     results.put((manifest["new_api_calls"], manifest["cache_hits"]))
 
@@ -132,11 +148,22 @@ def test_cli_reports_offline_cache_miss_without_traceback(tmp_path):
     environment["PYTHONPATH"] = str(ROOT / "src")
     result = subprocess.run(
         [
-            sys.executable, "-m", "fundo_reviewer.cli", "--mode", "offline",
-            "--input", str(SMALL), "--cache", str(tmp_path / "missing.jsonl"),
-            "--output-dir", str(tmp_path / "output"),
+            sys.executable,
+            "-m",
+            "fundo_reviewer.cli",
+            "--mode",
+            "offline",
+            "--input",
+            str(SMALL),
+            "--cache",
+            str(tmp_path / "missing.jsonl"),
+            "--output-dir",
+            str(tmp_path / "output"),
         ],
-        cwd=ROOT, env=environment, capture_output=True, text=True,
+        cwd=ROOT,
+        env=environment,
+        capture_output=True,
+        text=True,
     )
     assert result.returncode == 1
     assert result.stdout == ""
@@ -156,7 +183,11 @@ class FakeProvider:
         if self.failure:
             if isinstance(self.failure, Exception):
                 raise self.failure
-            return ProviderReply(self.failure, raw_response={"status": self.failure}, usage={"input_tokens": 10, "output_tokens": 5})
+            return ProviderReply(
+                self.failure,
+                raw_response={"status": self.failure},
+                usage={"input_tokens": 10, "output_tokens": 5},
+            )
         group = request.legacy.group if self.decision == "keep" else "Not average monthly revenue"
         if group == request.legacy.group and self.decision == "change":
             group = "unmatched"
@@ -168,8 +199,12 @@ class FakeProvider:
             "confidence": 0.8,
             "reason": "Fake response for test",
         }
-        return ProviderReply("completed", parsed=parsed, raw_response={"parsed": parsed},
-                             usage={"input_tokens": 100, "output_tokens": 40})
+        return ProviderReply(
+            "completed",
+            parsed=parsed,
+            raw_response={"parsed": parsed},
+            usage={"input_tokens": 100, "output_tokens": 40},
+        )
 
 
 class FakeBatchProvider:
@@ -182,26 +217,36 @@ class FakeBatchProvider:
         reviews = [
             {
                 "transaction_id": request.transaction.transaction_id,
-                "decision": "keep", "group": request.legacy.group,
-                "status": request.legacy.status, "confidence": 0.7,
+                "decision": "keep",
+                "group": request.legacy.group,
+                "status": request.legacy.status,
+                "confidence": 0.7,
                 "reason": "Batch fake sees existing legacy label",
             }
             for request in batch.requests
         ]
         if self.omit_one:
             reviews = reviews[1:]
-        return ProviderReply("completed", parsed=list(reversed(reviews)),
-                             raw_response={"output_text": json.dumps(reviews)},
-                             usage={"input_tokens": 300, "output_tokens": 100})
+        return ProviderReply(
+            "completed",
+            parsed=list(reversed(reviews)),
+            raw_response={"output_text": json.dumps(reviews)},
+            usage={"input_tokens": 300, "output_tokens": 100},
+        )
 
 
 def test_request_key_invalidates_every_relevant_field_and_version(monkeypatch):
     request = _request()
     original = request_key(request, "gpt-6-luna")
     assert request_key(request, "other-model") != original
-    changed_payload = {**request.payload, "transaction": {**request.payload["transaction"], "name": "CHANGED"}}
+    changed_payload = {
+        **request.payload,
+        "transaction": {**request.payload["transaction"], "name": "CHANGED"},
+    }
     assert request_key(replace(request, payload=changed_payload), "gpt-6-luna") != original
-    changed_transaction = replace(load_input(SMALL).transactions[0], name="NEW CUSTOMER DESCRIPTION")
+    changed_transaction = replace(
+        load_input(SMALL).transactions[0], name="NEW CUSTOMER DESCRIPTION"
+    )
     changed_request = build_request(changed_transaction, label_transaction(changed_transaction))
     assert request_key(changed_request, "gpt-6-luna") != original
     changed_legacy = replace(request.legacy, group="NSFs")
@@ -209,7 +254,12 @@ def test_request_key_invalidates_every_relevant_field_and_version(monkeypatch):
     changed_ruleset = replace(request.legacy, ruleset_version="legacy-v2")
     assert request_key(replace(request, legacy=changed_ruleset), "gpt-6-luna") != original
     assert request_key(replace(request, system_prompt="new prompt"), "gpt-6-luna") != original
-    for name in ("PROMPT_VERSION", "SCHEMA_VERSION", "FLAG_POLICY_VERSION", "REVENUE_POLICY_VERSION"):
+    for name in (
+        "PROMPT_VERSION",
+        "SCHEMA_VERSION",
+        "FLAG_POLICY_VERSION",
+        "REVENUE_POLICY_VERSION",
+    ):
         current = getattr(cache_module, name)
         with monkeypatch.context() as patch:
             patch.setattr(cache_module, name, current + "-changed")
@@ -252,7 +302,12 @@ def test_cache_hit_miss_integrity_and_validated_only(tmp_path):
     outcome = review_one(request, FakeProvider())
     store.append(request, "gpt-6-luna", outcome, usage_derived_cost(outcome.usage))
     replayed = ReviewCache(path).replay(request, "gpt-6-luna")
-    assert review_one(request, type("Static", (), {"review": lambda self, _: replayed})()).review_status == "kept"
+    assert (
+        review_one(
+            request, type("Static", (), {"review": lambda self, _: replayed})()
+        ).review_status
+        == "kept"
+    )
     with pytest.raises(CacheMiss):
         store.replay(request, "other-model")
     with pytest.raises(ValueError, match="duplicate"):
@@ -289,7 +344,9 @@ def test_batch_cache_recovers_unterminated_final_record(tmp_path):
     identity = batch_identity(batch.requests, "gpt-6-luna", batch.system_prompt, batch.user_prompt)
     path = tmp_path / "batch.jsonl"
     store = BatchReviewCache(path)
-    store.append(identity, ProviderReply("invalid_response", raw_response={"reason": "bad schema"}), [])
+    store.append(
+        identity, ProviderReply("invalid_response", raw_response={"reason": "bad schema"}), []
+    )
     complete_records = path.read_bytes()
     path.write_bytes(complete_records + b'{"partial":')
 
@@ -417,7 +474,14 @@ def test_concurrent_batched_runs_share_one_provider_call(tmp_path):
     processes = [
         context.Process(
             target=_concurrent_batched_pipeline,
-            args=(str(cache_path), str(ledger_path), str(tmp_path / f"out-{index}"), barrier, calls, results),
+            args=(
+                str(cache_path),
+                str(ledger_path),
+                str(tmp_path / f"out-{index}"),
+                barrier,
+                calls,
+                results,
+            ),
         )
         for index in range(2)
     ]
@@ -455,8 +519,9 @@ def test_batch_key_changes_with_context_and_budget_blocks_before_call(tmp_path):
     key_two = batch_identity(two.requests, "gpt-6-luna", two.system_prompt, two.user_prompt)
     assert key_one != key_two
     fake = FakeBatchProvider()
-    guard = BudgetedBatchProvider(fake, SpendLedger(tmp_path / "tiny.jsonl", ceiling_usd=Decimal("0.000001")),
-                                  "gpt-6-luna")
+    guard = BudgetedBatchProvider(
+        fake, SpendLedger(tmp_path / "tiny.jsonl", ceiling_usd=Decimal("0.000001")), "gpt-6-luna"
+    )
     with pytest.raises(BudgetExceeded):
         guard.review_batch(two)
     assert fake.calls == 0
@@ -466,6 +531,7 @@ def test_batch_capability_is_explicit_and_openrouter_is_not_an_openai_subclass()
     assert isinstance(FakeBatchProvider(), BatchReviewProvider)
     assert not isinstance(FakeProvider(), BatchReviewProvider)
     from fundo_reviewer.provider import OpenRouterProvider
+
     assert not issubclass(OpenRouterProvider, OpenAIProvider)
 
 
@@ -496,28 +562,45 @@ def test_alternative_model_batch_replays_without_key_at_its_own_price(tmp_path, 
     path = tmp_path / "alternative.jsonl"
     ledger = tmp_path / "ledger.jsonl"
     fake = FakeBatchProvider()
-    online = run_pipeline(SMALL, tmp_path / "online", "online", path, ledger,
-                          model="gpt-5.6-luna", provider=fake, batch_size=80)
+    online = run_pipeline(
+        SMALL,
+        tmp_path / "online",
+        "online",
+        path,
+        ledger,
+        model="gpt-5.6-luna",
+        provider=fake,
+        batch_size=80,
+    )
     assert online["degraded_count"] == 0
     assert online["versions"]["pricing"] == pricing_version("gpt-5.6-luna")
     assert online["provider"] == "openai"
     assert online["pricing_assumption_usd_per_million_tokens"] == {
-        "input": "0.20", "output": "1.20",
+        "input": "0.20",
+        "output": "1.20",
         "pricing_version": pricing_version("gpt-5.6-luna"),
     }
-    assert online["new_usage_derived_cost_usd"] == str(usage_derived_cost(
-        online["new_provider_usage"], "gpt-5.6-luna"
-    ))
+    assert online["new_usage_derived_cost_usd"] == str(
+        usage_derived_cost(online["new_provider_usage"], "gpt-5.6-luna")
+    )
     monkeypatch.delenv("OPENAI_API_KEY", raising=False)
-    offline = run_pipeline(SMALL, tmp_path / "offline", "offline", path, ledger,
-                           model="gpt-5.6-luna", batch_size=80)
+    offline = run_pipeline(
+        SMALL, tmp_path / "offline", "offline", path, ledger, model="gpt-5.6-luna", batch_size=80
+    )
     assert offline["cache_hits"] == online["accepted_transactions"]
     assert (tmp_path / "online" / "review_outcomes.json").read_bytes() == (
         tmp_path / "offline" / "review_outcomes.json"
     ).read_bytes()
     with pytest.raises(CacheMiss):
-        run_pipeline(SMALL, tmp_path / "wrong_model", "offline", path, ledger,
-                     model="gpt-6-luna", batch_size=80)
+        run_pipeline(
+            SMALL,
+            tmp_path / "wrong_model",
+            "offline",
+            path,
+            ledger,
+            model="gpt-6-luna",
+            batch_size=80,
+        )
 
 
 def test_online_fill_then_no_key_offline_replay_is_byte_identical(tmp_path, monkeypatch):
@@ -534,13 +617,17 @@ def test_online_fill_then_no_key_offline_replay_is_byte_identical(tmp_path, monk
     assert manifest["accuracy"] == "not_measured_without_separate_truth_evaluation"
     assert ledger_path.exists() and cache_path.exists()
     monkeypatch.delenv("OPENAI_API_KEY", raising=False)
-    monkeypatch.setattr("fundo_reviewer.cli.create_provider", lambda *args: pytest.fail("offline loaded provider"))
+    monkeypatch.setattr(
+        "fundo_reviewer.cli.create_provider", lambda *args: pytest.fail("offline loaded provider")
+    )
     replay = run_pipeline(SMALL, first_offline, "offline", cache_path, ledger_path)
     run_pipeline(SMALL, second_offline, "offline", cache_path, ledger_path)
     assert replay["cache_hits"] == provider.calls and replay["new_api_calls"] == 0
     for file_name in ("review_outcomes.json", "run_manifest.json"):
         assert (first_offline / file_name).read_bytes() == (second_offline / file_name).read_bytes()
-    assert (online_out / "review_outcomes.json").read_bytes() == (first_offline / "review_outcomes.json").read_bytes()
+    assert (online_out / "review_outcomes.json").read_bytes() == (
+        first_offline / "review_outcomes.json"
+    ).read_bytes()
     assert "OPENAI_API_KEY" not in cache_path.read_text()
     assert "ground_truth" not in cache_path.read_text()
     assert "scenario_id" not in cache_path.read_text()
@@ -554,25 +641,37 @@ def test_manifest_hashes_exact_input_snapshot_used_for_review(tmp_path):
     class MutatingBatchProvider:
         def review_batch(self, batch):
             source.write_bytes(original + b"\n")
-            reviews = [{
-                "transaction_id": request.transaction.transaction_id,
-                "decision": "keep", "group": request.legacy.group,
-                "status": request.legacy.status, "confidence": 0.7,
-                "reason": "Validated against loaded snapshot",
-            } for request in batch.requests]
+            reviews = [
+                {
+                    "transaction_id": request.transaction.transaction_id,
+                    "decision": "keep",
+                    "group": request.legacy.group,
+                    "status": request.legacy.status,
+                    "confidence": 0.7,
+                    "reason": "Validated against loaded snapshot",
+                }
+                for request in batch.requests
+            ]
             return ProviderReply("completed", parsed=reviews, raw_response={"test": True})
 
     original_digest = hashlib.sha256(original).hexdigest()
     manifest = run_pipeline(
-        source, tmp_path / "reports", "online", tmp_path / "cache.jsonl",
-        tmp_path / "spend.jsonl", provider=MutatingBatchProvider(), batch_size=80,
+        source,
+        tmp_path / "reports",
+        "online",
+        tmp_path / "cache.jsonl",
+        tmp_path / "spend.jsonl",
+        provider=MutatingBatchProvider(),
+        batch_size=80,
     )
 
     assert manifest["input_sha256"] == original_digest
     assert hashlib.sha256(source.read_bytes()).hexdigest() != manifest["input_sha256"]
 
 
-def test_batch_progress_logs_exclude_transaction_text_credentials_and_provider_errors(tmp_path, caplog, monkeypatch):
+def test_batch_progress_logs_exclude_transaction_text_credentials_and_provider_errors(
+    tmp_path, caplog, monkeypatch
+):
     source = tmp_path / "input.json"
     payload = json.loads(SMALL.read_text(encoding="utf-8"))
     payload["transactions"][0]["name"] = "PRIVATE-TRANSACTION-DESCRIPTION-7f91"
@@ -585,8 +684,13 @@ def test_batch_progress_logs_exclude_transaction_text_credentials_and_provider_e
 
     with caplog.at_level(logging.INFO, logger="fundo_reviewer.cli"):
         run_pipeline(
-            source, tmp_path / "reports", "online", tmp_path / "cache.jsonl",
-            tmp_path / "spend.jsonl", provider=FailingBatchProvider(), batch_size=80,
+            source,
+            tmp_path / "reports",
+            "online",
+            tmp_path / "cache.jsonl",
+            tmp_path / "spend.jsonl",
+            provider=FailingBatchProvider(),
+            batch_size=80,
         )
 
     assert "batch 1/1 complete source=provider rows=3 status=provider_failure:3" in caplog.text
@@ -598,13 +702,20 @@ def test_batch_progress_logs_exclude_transaction_text_credentials_and_provider_e
         assert secret not in caplog.text
 
 
-def test_individual_review_reports_progress_without_transaction_details(tmp_path, caplog, monkeypatch):
+def test_individual_review_reports_progress_without_transaction_details(
+    tmp_path, caplog, monkeypatch
+):
     monkeypatch.setenv("OPENAI_API_KEY", "CREDENTIAL-SENTINEL-2f10")
 
     with caplog.at_level(logging.INFO, logger="fundo_reviewer.cli"):
         run_pipeline(
-            SMALL, tmp_path / "reports", "online", tmp_path / "cache.jsonl",
-            tmp_path / "spend.jsonl", provider=FakeProvider(), batch_size=1,
+            SMALL,
+            tmp_path / "reports",
+            "online",
+            tmp_path / "cache.jsonl",
+            tmp_path / "spend.jsonl",
+            provider=FakeProvider(),
+            batch_size=1,
         )
 
     assert "transaction 1/3 cache miss; requesting provider" in caplog.text
@@ -621,7 +732,9 @@ def test_uncached_strict_offline_new_input_fails_and_online_failure_degrades(tmp
         run_pipeline(SMALL, tmp_path / "offline", "offline", cache_path, ledger_path)
     assert not (tmp_path / "offline" / "run_manifest.json").exists()
     provider = FakeProvider(failure=TimeoutError("outage"))
-    manifest = run_pipeline(SMALL, tmp_path / "failed", "online", cache_path, ledger_path, provider=provider)
+    manifest = run_pipeline(
+        SMALL, tmp_path / "failed", "online", cache_path, ledger_path, provider=provider
+    )
     assert manifest["degraded_count"] == provider.calls == manifest["accepted_transactions"]
     assert manifest["review_status_counts"] == {"provider_failure": provider.calls}
     assert not cache_path.exists()  # failure is never a valid keep cache entry
@@ -635,21 +748,30 @@ def test_new_truth_free_envelope_is_accepted_online_without_accuracy_claim(tmp_p
     source["transactions"][0]["transaction_id"] = "tx_new_unseen"
     input_path = tmp_path / "new.json"
     input_path.write_text(json.dumps(source))
-    manifest = run_pipeline(input_path, tmp_path / "output", "online", tmp_path / "cache.jsonl",
-                            tmp_path / "spend.jsonl", provider=FakeProvider())
+    manifest = run_pipeline(
+        input_path,
+        tmp_path / "output",
+        "online",
+        tmp_path / "cache.jsonl",
+        tmp_path / "spend.jsonl",
+        provider=FakeProvider(),
+    )
     assert manifest["accepted_transactions"] == 1
     assert manifest["accuracy"] == "not_measured_without_separate_truth_evaluation"
     assert "truth" not in (tmp_path / "output" / "review_outcomes.json").read_text()
     assert hashlib.sha256((tmp_path / "output" / "review_outcomes.json").read_bytes()).hexdigest()
 
 
-def test_batch_review_replays_all_ids_without_key_and_detects_corruption(tmp_path, monkeypatch, caplog):
+def test_batch_review_replays_all_ids_without_key_and_detects_corruption(
+    tmp_path, monkeypatch, caplog
+):
     path = tmp_path / "batch.jsonl"
     ledger = tmp_path / "ledger.jsonl"
     fake = FakeBatchProvider()
     with caplog.at_level(logging.INFO, logger="fundo_reviewer.cli"):
-        online = run_pipeline(SMALL, tmp_path / "online", "online", path, ledger,
-                              provider=fake, batch_size=2)
+        online = run_pipeline(
+            SMALL, tmp_path / "online", "online", path, ledger, provider=fake, batch_size=2
+        )
     assert "batch 1/2 cache miss; requesting provider (2 rows)" in caplog.text
     assert "batch 1/2 complete source=provider rows=2 status=kept:2" in caplog.text
     assert fake.calls == online["new_api_calls"]
@@ -657,7 +779,9 @@ def test_batch_review_replays_all_ids_without_key_and_detects_corruption(tmp_pat
     assert online["degraded_count"] == 0
     assert len(BatchReviewCache(path).entries) == fake.calls
     monkeypatch.delenv("OPENAI_API_KEY", raising=False)
-    monkeypatch.setattr("fundo_reviewer.cli.create_provider", lambda *args: pytest.fail("offline loaded provider"))
+    monkeypatch.setattr(
+        "fundo_reviewer.cli.create_provider", lambda *args: pytest.fail("offline loaded provider")
+    )
     caplog.clear()
     with caplog.at_level(logging.INFO, logger="fundo_reviewer.cli"):
         offline = run_pipeline(SMALL, tmp_path / "offline", "offline", path, ledger, batch_size=2)
@@ -676,13 +800,23 @@ def test_batch_review_replays_all_ids_without_key_and_detects_corruption(tmp_pat
 def test_batch_missing_id_is_explicit_degraded_not_silent_keep(tmp_path):
     path = tmp_path / "batch.jsonl"
     ledger = tmp_path / "ledger.jsonl"
-    online = run_pipeline(SMALL, tmp_path / "online", "online", path, ledger,
-                          provider=FakeBatchProvider(omit_one=True), batch_size=2)
+    online = run_pipeline(
+        SMALL,
+        tmp_path / "online",
+        "online",
+        path,
+        ledger,
+        provider=FakeBatchProvider(omit_one=True),
+        batch_size=2,
+    )
     assert online["degraded_count"] == online["accepted_transactions"]
     assert online["review_status_counts"] == {"invalid_response": online["accepted_transactions"]}
     offline = run_pipeline(SMALL, tmp_path / "offline", "offline", path, ledger, batch_size=2)
     assert offline["review_status_counts"] == online["review_status_counts"]
-    assert not any(record["flag"] for record in json.loads((tmp_path / "offline" / "review_outcomes.json").read_text()))
+    assert not any(
+        record["flag"]
+        for record in json.loads((tmp_path / "offline" / "review_outcomes.json").read_text())
+    )
 
 
 def test_openrouter_degraded_batch_stops_after_caching_response(tmp_path):
@@ -690,16 +824,26 @@ def test_openrouter_degraded_batch_stops_after_caching_response(tmp_path):
     ledger = tmp_path / "ledger.jsonl"
     with pytest.raises(FatalReviewError, match="OpenRouter batch response was degraded"):
         run_pipeline(
-            SMALL, tmp_path / "online", "online", path, ledger,
+            SMALL,
+            tmp_path / "online",
+            "online",
+            path,
+            ledger,
             model="openrouter/openai/gpt-oss-20b",
-            provider=FakeBatchProvider(omit_one=True), batch_size=2,
+            provider=FakeBatchProvider(omit_one=True),
+            batch_size=2,
         )
     assert path.exists()
     # A cached malformed response is still not treated as a success on replay.
     with pytest.raises(FatalReviewError, match="OpenRouter batch response was degraded"):
         run_pipeline(
-            SMALL, tmp_path / "offline", "offline", path, ledger,
-            model="openrouter/openai/gpt-oss-20b", batch_size=2,
+            SMALL,
+            tmp_path / "offline",
+            "offline",
+            path,
+            ledger,
+            model="openrouter/openai/gpt-oss-20b",
+            batch_size=2,
         )
 
 
@@ -710,15 +854,29 @@ def test_batch_transport_failure_degrades_but_can_be_retried_online(tmp_path):
 
     path = tmp_path / "batch.jsonl"
     ledger = tmp_path / "ledger.jsonl"
-    failed = run_pipeline(SMALL, tmp_path / "failed", "online", path, ledger,
-                          provider=FailingBatchProvider(), batch_size=80)
+    failed = run_pipeline(
+        SMALL,
+        tmp_path / "failed",
+        "online",
+        path,
+        ledger,
+        provider=FailingBatchProvider(),
+        batch_size=80,
+    )
     assert failed["degraded_count"] == failed["accepted_transactions"]
     assert failed["review_status_counts"] == {"provider_failure": failed["accepted_transactions"]}
     assert not path.exists()  # no model answer to replay, unlike a refusal
     with pytest.raises(CacheMiss):
         run_pipeline(SMALL, tmp_path / "offline", "offline", path, ledger, batch_size=80)
-    recovered = run_pipeline(SMALL, tmp_path / "recovered", "online", path, ledger,
-                             provider=FakeBatchProvider(), batch_size=80)
+    recovered = run_pipeline(
+        SMALL,
+        tmp_path / "recovered",
+        "online",
+        path,
+        ledger,
+        provider=FakeBatchProvider(),
+        batch_size=80,
+    )
     assert recovered["degraded_count"] == 0
     assert path.exists()
 
@@ -728,14 +886,16 @@ def test_full_2000_record_batch_pipeline_fake_replays_without_key(tmp_path, monk
     cache_path = tmp_path / "batch.jsonl"
     ledger_path = tmp_path / "ledger.jsonl"
     fake = FakeBatchProvider()
-    online = run_pipeline(main, tmp_path / "online", "online", cache_path, ledger_path,
-                          provider=fake, batch_size=80)
+    online = run_pipeline(
+        main, tmp_path / "online", "online", cache_path, ledger_path, provider=fake, batch_size=80
+    )
     assert online["accepted_transactions"] == 2000
     assert online["new_api_calls"] == fake.calls == 25
     assert online["degraded_count"] == 0
     monkeypatch.delenv("OPENAI_API_KEY", raising=False)
-    offline = run_pipeline(main, tmp_path / "offline", "offline", cache_path, ledger_path,
-                           batch_size=80)
+    offline = run_pipeline(
+        main, tmp_path / "offline", "offline", cache_path, ledger_path, batch_size=80
+    )
     assert offline["cache_hits"] == 2000
     assert offline["cache_batch_hits"] == 25
     assert offline["new_api_calls"] == 0
@@ -748,12 +908,18 @@ def test_openai_batch_adapter_uses_structured_outputs_without_tools_or_key(monke
     request = _request()
     proposal = {
         "transaction_id": request.transaction.transaction_id,
-        "decision": "keep", "group": request.legacy.group,
-        "status": request.legacy.status, "confidence": 0.7, "reason": "Supported",
+        "decision": "keep",
+        "group": request.legacy.group,
+        "status": request.legacy.status,
+        "confidence": 0.7,
+        "reason": "Supported",
     }
     response = SimpleNamespace(
-        id="resp_fake", status="completed", model="gpt-6-luna",
-        output_text=json.dumps({"reviews": [proposal]}), output=[],
+        id="resp_fake",
+        status="completed",
+        model="gpt-6-luna",
+        output_text=json.dumps({"reviews": [proposal]}),
+        output=[],
         usage=SimpleNamespace(input_tokens=300, output_tokens=100),
         output_parsed=BatchProviderShape.model_validate({"reviews": [proposal]}),
     )
@@ -785,10 +951,13 @@ def test_openai_credit_exhaustion_is_fatal_without_retries():
     class NoCreditResponses:
         def parse(self, **kwargs):
             calls.append(kwargs)
-            response = httpx.Response(429, request=httpx.Request("POST", "https://api.openai.com/v1/responses"))
+            response = httpx.Response(
+                429, request=httpx.Request("POST", "https://api.openai.com/v1/responses")
+            )
             raise RateLimitError(
                 "insufficient_quota: credit_balance_exhausted: You have no credits remaining",
-                response=response, body={"code": "credit_balance_exhausted"},
+                response=response,
+                body={"code": "credit_balance_exhausted"},
             )
 
     adapter = object.__new__(OpenAIProvider)

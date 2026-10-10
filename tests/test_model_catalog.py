@@ -18,7 +18,9 @@ def test_catalog_is_single_source_for_pricing_and_environment_metadata():
     assert set(MODEL_PRICES) == set(specs)
     for model, spec in specs.items():
         assert MODEL_PRICES[model] == (
-            spec.input_usd_per_million, spec.output_usd_per_million, spec.pricing_version
+            spec.input_usd_per_million,
+            spec.output_usd_per_million,
+            spec.pricing_version,
         )
         assert pricing_version(model) == spec.pricing_version
 
@@ -32,7 +34,9 @@ def test_env_example_documents_keys_without_secrets_and_local_env_is_ignored():
             values[key] = value
     required = {spec.api_key_env for spec in registered_models() if spec.api_key_env}
     assert required <= values.keys()
-    assert all(values[key] == "" for key in required), "env.example must never contain real API credentials"
+    assert all(values[key] == "" for key in required), (
+        "env.example must never contain real API credentials"
+    )
     assert ".env" in (project_root / ".gitignore").read_text().splitlines()
 
 
@@ -63,10 +67,13 @@ def test_openrouter_api_model_ids_and_json_capabilities_live_in_catalog():
     assert gpt_oss.response_format == "json_schema"
 
 
-@pytest.mark.parametrize("model", [
-    "openrouter/google/gemma-4-26b-a4b-it:free",
-    "openrouter/meta-llama/llama-3.3-70b-instruct:free",
-])
+@pytest.mark.parametrize(
+    "model",
+    [
+        "openrouter/google/gemma-4-26b-a4b-it:free",
+        "openrouter/meta-llama/llama-3.3-70b-instruct:free",
+    ],
+)
 def test_openrouter_adapter_uses_catalog_json_mode_without_network(model):
     spec = model_spec(model)
     captured = {}
@@ -74,13 +81,27 @@ def test_openrouter_adapter_uses_catalog_json_mode_without_network(model):
     adapter.model = spec.provider_model
     adapter.response_format_kind = spec.response_format
     adapter._last_call_at = None
-    adapter.client = type("Client", (), {
-        "chat": type("Chat", (), {
-            "completions": type("Completions", (), {
-                "create": staticmethod(lambda **kwargs: captured.update(kwargs) or kwargs),
-            })(),
-        })(),
-    })()
+    adapter.client = type(
+        "Client",
+        (),
+        {
+            "chat": type(
+                "Chat",
+                (),
+                {
+                    "completions": type(
+                        "Completions",
+                        (),
+                        {
+                            "create": staticmethod(
+                                lambda **kwargs: captured.update(kwargs) or kwargs
+                            ),
+                        },
+                    )(),
+                },
+            )(),
+        },
+    )()
     adapter._request("system", "user", BatchProviderShape, 100)
     assert captured["model"] == spec.provider_model
     assert captured["response_format"] == {"type": "json_object"}
@@ -93,8 +114,12 @@ def test_openrouter_adapter_uses_catalog_json_mode_without_network(model):
 def test_provider_factory_routes_by_catalog_not_model_prefix(monkeypatch, model, adapter):
     sentinel = object()
     selected = []
-    monkeypatch.setattr(provider_module, "OpenAIProvider", lambda _: selected.append("openai") or sentinel)
-    monkeypatch.setattr(provider_module, "OpenRouterProvider", lambda _: selected.append("openrouter") or sentinel)
+    monkeypatch.setattr(
+        provider_module, "OpenAIProvider", lambda _: selected.append("openai") or sentinel
+    )
+    monkeypatch.setattr(
+        provider_module, "OpenRouterProvider", lambda _: selected.append("openrouter") or sentinel
+    )
     assert provider_module.create_provider(model) is sentinel
     assert selected == [adapter]
     with pytest.raises(ValueError, match="no hosted review adapter"):

@@ -26,13 +26,22 @@ TRUTH = ROOT / "data" / "ground_truth" / "main_90_days.json"
 
 class _KeepBatch:
     def review_batch(self, batch):
-        return ProviderReply("completed", parsed=[{
-            "transaction_id": request.transaction.transaction_id,
-            "decision": "keep", "group": request.legacy.group,
-            "status": request.legacy.status, "confidence": 0.7,
-            "reason": "Kept existing synthetic label",
-        } for request in batch.requests], raw_response={"synthetic_test_provider": True},
-                             usage={"input_tokens": 200, "output_tokens": 100})
+        return ProviderReply(
+            "completed",
+            parsed=[
+                {
+                    "transaction_id": request.transaction.transaction_id,
+                    "decision": "keep",
+                    "group": request.legacy.group,
+                    "status": request.legacy.status,
+                    "confidence": 0.7,
+                    "reason": "Kept existing synthetic label",
+                }
+                for request in batch.requests
+            ],
+            raw_response={"synthetic_test_provider": True},
+            usage={"input_tokens": 200, "output_tokens": 100},
+        )
 
 
 def _target(report, name):
@@ -55,10 +64,20 @@ def test_seeded_sensitivity_counts_ids_and_financial_directions(tmp_path):
     assert [len(item["selected"]) for item in first["random_cases"]] == [40, 100, 200]
     ids = [{item["transaction_id"] for item in case["selected"]} for case in first["random_cases"]]
     assert ids[0] < ids[1] < ids[2]
-    assert all(item["truth"] != item["alternative"] for case in first["random_cases"] for item in case["selected"])
+    assert all(
+        item["truth"] != item["alternative"]
+        for case in first["random_cases"]
+        for item in case["selected"]
+    )
 
-    assert Decimal(_selected_business(_target(first, "false_revenue_high_dollar"))["offer_delta_usd"]) > 0
-    assert Decimal(_selected_business(_target(first, "missed_revenue_high_dollar"))["offer_delta_usd"]) < 0
+    assert (
+        Decimal(_selected_business(_target(first, "false_revenue_high_dollar"))["offer_delta_usd"])
+        > 0
+    )
+    assert (
+        Decimal(_selected_business(_target(first, "missed_revenue_high_dollar"))["offer_delta_usd"])
+        < 0
+    )
     false_repayment = _selected_business(_target(first, "false_active_advance_repayment"))
     missed_repayment = _selected_business(_target(first, "missed_active_advance_repayment"))
     assert Decimal(false_repayment["daily_funder_payment_delta_usd"]) > 0
@@ -67,8 +86,16 @@ def test_seeded_sensitivity_counts_ids_and_financial_directions(tmp_path):
     assert Decimal(missed_repayment["offer_delta_usd"]) > 0
     five_to_six = _selected_business(_target(first, "nsf_five_to_six"))
     six_to_five = _selected_business(_target(first, "nsf_six_to_five"))
-    assert (five_to_six["nsf_count_before"], five_to_six["nsf_count_after"], five_to_six["offer_after_usd"]) == (5, 6, "0.00")
-    assert (six_to_five["nsf_count_before"], six_to_five["nsf_count_after"], six_to_five["offer_before_usd"]) == (6, 5, "0.00")
+    assert (
+        five_to_six["nsf_count_before"],
+        five_to_six["nsf_count_after"],
+        five_to_six["offer_after_usd"],
+    ) == (5, 6, "0.00")
+    assert (
+        six_to_five["nsf_count_before"],
+        six_to_five["nsf_count_after"],
+        six_to_five["offer_before_usd"],
+    ) == (6, 5, "0.00")
 
 
 def test_truth_join_rejects_missing_extra_ids_and_inconsistent_revenue(tmp_path):
@@ -84,8 +111,10 @@ def test_truth_join_rejects_missing_extra_ids_and_inconsistent_revenue(tmp_path)
     corrupted = dict(source)
     corrupted["labels"] = dict(source["labels"])
     tid = next(iter(corrupted["labels"]))
-    corrupted["labels"][tid] = {**corrupted["labels"][tid],
-                                 "revenue_eligible": not corrupted["labels"][tid]["revenue_eligible"]}
+    corrupted["labels"][tid] = {
+        **corrupted["labels"][tid],
+        "revenue_eligible": not corrupted["labels"][tid]["revenue_eligible"],
+    }
     path.write_text(json.dumps(corrupted))
     with pytest.raises(ValueError, match="truth revenue inconsistent"):
         load_truth(normalized, path)
@@ -101,8 +130,10 @@ def test_full_synthetic_evaluation_accounts_for_every_id_and_detects_tampering(t
     assert result["transactions_evaluated"] == 2000
     assert quality["counts"]["transactions"] == 2000
     assert len(quality["businesses"]) == 10
-    assert all("legacy_signed" in item["amr_error_usd"] and "reviewed_absolute" in item["amr_error_usd"]
-               for item in quality["businesses"])
+    assert all(
+        "legacy_signed" in item["amr_error_usd"] and "reviewed_absolute" in item["amr_error_usd"]
+        for item in quality["businesses"]
+    )
     assert quality["counts"]["hard_negatives"] > 0
     assert quality["counts"]["hard_negative_false_flags"] == 0
     assert quality["counts"]["true_corrections"] == 0
@@ -144,10 +175,15 @@ def test_checked_in_partial_run_partitions_model_and_fallback_metrics(tmp_path):
     assert model["counts"]["transactions"] + fallback["counts"]["transactions"] == 2000
     assert sum(model["review_status_counts"].values()) == model["counts"]["transactions"]
     assert sum(fallback["review_status_counts"].values()) == fallback["counts"]["transactions"]
-    assert fallback["counts"]["reviewed_group_status_correct"] == fallback["counts"]["legacy_group_status_correct"]
+    assert (
+        fallback["counts"]["reviewed_group_status_correct"]
+        == fallback["counts"]["legacy_group_status_correct"]
+    )
     for business in quality["businesses"]:
-        covered = sum(scopes[scope]["by_business"][business["business_id"]]["transactions"]
-                      for scope in ("model_reviewed", "degraded_fallback"))
+        covered = sum(
+            scopes[scope]["by_business"][business["business_id"]]["transactions"]
+            for scope in ("model_reviewed", "degraded_fallback")
+        )
         assert covered == business["label_counts"]["transactions"]
 
 
@@ -162,7 +198,9 @@ def test_quality_report_hashes_exact_truth_snapshot_used(tmp_path, monkeypatch):
         truth_path.write_bytes(original_truth + b"\n")
         return report
 
-    monkeypatch.setattr(evaluation_module, "build_sensitivity_report", mutate_truth_after_validation)
+    monkeypatch.setattr(
+        evaluation_module, "build_sensitivity_report", mutate_truth_after_validation
+    )
     run_evaluation(MAIN, truth_path, ROOT / "reports" / "main", tmp_path / "evaluation")
 
     quality = json.loads((tmp_path / "evaluation" / "quality_report.json").read_text())
@@ -178,16 +216,29 @@ def test_sensitivity_only_never_claims_review_accuracy(tmp_path):
     assert report["measurement_type"].startswith("simulated_sensitivity")
 
 
-def test_evaluation_cli_reports_expected_errors_without_partial_output(tmp_path, monkeypatch, capsys):
+def test_evaluation_cli_reports_expected_errors_without_partial_output(
+    tmp_path, monkeypatch, capsys
+):
     output_dir = tmp_path / "existing-output"
     output_dir.mkdir()
     sensitivity_path = output_dir / "sensitivity_report.json"
     sensitivity_path.write_text('{"previous": "keep"}\n')
     missing_review_dir = tmp_path / "missing-review"
-    monkeypatch.setattr(sys, "argv", [
-        "fundo-evaluation", "--input", str(MAIN), "--truth", str(TRUTH),
-        "--review-dir", str(missing_review_dir), "--output-dir", str(output_dir),
-    ])
+    monkeypatch.setattr(
+        sys,
+        "argv",
+        [
+            "fundo-evaluation",
+            "--input",
+            str(MAIN),
+            "--truth",
+            str(TRUTH),
+            "--review-dir",
+            str(missing_review_dir),
+            "--output-dir",
+            str(output_dir),
+        ],
+    )
 
     with pytest.raises(SystemExit) as error:
         evaluation_module.main()

@@ -27,12 +27,14 @@ def test_checked_in_main_reports_and_partial_cache_are_consistent():
     quality = json.loads((ROOT / "reports/evaluation/quality_report.json").read_text())
 
     assert manifest["input_sha256"] == hashlib.sha256(input_path.read_bytes()).hexdigest()
-    assert manifest["review_outcomes_sha256"] == hashlib.sha256(
-        (report_dir / "review_outcomes.json").read_bytes()
-    ).hexdigest()
-    assert manifest["credit_report_sha256"] == hashlib.sha256(
-        (report_dir / "credit_report.json").read_bytes()
-    ).hexdigest()
+    assert (
+        manifest["review_outcomes_sha256"]
+        == hashlib.sha256((report_dir / "review_outcomes.json").read_bytes()).hexdigest()
+    )
+    assert (
+        manifest["credit_report_sha256"]
+        == hashlib.sha256((report_dir / "credit_report.json").read_bytes()).hexdigest()
+    )
 
     statuses = Counter(outcome["review_status"] for outcome in outcomes)
     assert len(outcomes) == manifest["accepted_transactions"]
@@ -47,10 +49,12 @@ def test_checked_in_main_reports_and_partial_cache_are_consistent():
     batch_size = manifest["batch_size"]
     expected_identities = []
     for offset in range(0, len(normalized.transactions), batch_size):
-        chunk = normalized.transactions[offset:offset + batch_size]
+        chunk = normalized.transactions[offset : offset + batch_size]
         requests = tuple(build_request(item, labels[item.transaction_id]) for item in chunk)
         batch = build_batch_request(requests)
-        identity = batch_identity(requests, manifest["model"], batch.system_prompt, batch.user_prompt)
+        identity = batch_identity(
+            requests, manifest["model"], batch.system_prompt, batch.user_prompt
+        )
         expected_identities.append((identity, len(chunk)))
 
     cache = BatchReviewCache(ROOT / "cache/batch_reviews.jsonl")
@@ -63,9 +67,13 @@ def test_checked_in_main_reports_and_partial_cache_are_consistent():
     assert manifest["cache_batch_hits"] == len(matched)
     assert manifest["cache_hits"] == sum(rows for _, rows in matched)
 
-    assert sum(business["reviewed"]["transaction_count"] for business in credit["businesses"]) == len(outcomes)
+    assert sum(
+        business["reviewed"]["transaction_count"] for business in credit["businesses"]
+    ) == len(outcomes)
     assert quality["input_sha256"] == manifest["input_sha256"]
     scope = quality["review_quality_by_scope"]
-    assert scope["model_reviewed"]["counts"]["transactions"] == statuses["kept"] + statuses["changed"]
+    assert (
+        scope["model_reviewed"]["counts"]["transactions"] == statuses["kept"] + statuses["changed"]
+    )
     assert scope["degraded_fallback"]["counts"]["transactions"] == manifest["degraded_count"]
     assert quality["counts"]["transactions"] == len(outcomes)

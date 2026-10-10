@@ -18,12 +18,12 @@ def _run_with_fake_uv(tmp_path: Path, *args: str) -> str:
     fake_uv.write_text(
         "#!/usr/bin/env bash\n"
         "for ((index = 1; index < $#; index++)); do\n"
-        "  if [[ \"${!index}\" == \"--env-file\" ]]; then\n"
+        '  if [[ "${!index}" == "--env-file" ]]; then\n'
         "    env_index=$((index + 1))\n"
-        "    env_file=\"${!env_index}\"\n"
-        "    if [[ -f \"$env_file\" ]]; then\n"
+        '    env_file="${!env_index}"\n'
+        '    if [[ -f "$env_file" ]]; then\n'
         "      IFS='=' read -r key value < \"$env_file\"\n"
-        "      export \"$key=$value\"\n"
+        '      export "$key=$value"\n'
         "    fi\n"
         "  fi\n"
         "done\n"

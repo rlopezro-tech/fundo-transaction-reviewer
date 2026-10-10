@@ -219,7 +219,9 @@ def test_input_order_does_not_change_normalized_order() -> None:
         ("business_id", "other_business", "conflicts"),
     ],
 )
-def test_malformed_transaction_has_actionable_field_error(field: str, value: object, message: str) -> None:
+def test_malformed_transaction_has_actionable_field_error(
+    field: str, value: object, message: str
+) -> None:
     data = envelope()
     data["transactions"][0][field] = value
     with pytest.raises(InputValidationError, match=message):

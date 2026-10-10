@@ -88,7 +88,9 @@ def pricing_version(model: str) -> str:
 
 
 def _canonical(value: Any) -> str:
-    return json.dumps(value, ensure_ascii=False, sort_keys=True, separators=(",", ":"), allow_nan=False)
+    return json.dumps(
+        value, ensure_ascii=False, sort_keys=True, separators=(",", ":"), allow_nan=False
+    )
 
 
 def _digest(value: Any) -> str:
@@ -203,15 +205,21 @@ class ReviewCache:
         key = _digest(identity)
         entry = self.entries.get(key)
         if entry is None:
-            raise CacheMiss(f"cache miss for transaction {request.transaction.transaction_id} key {key}")
+            raise CacheMiss(
+                f"cache miss for transaction {request.transaction.transaction_id} key {key}"
+            )
         if entry["request_identity"] != identity:
             raise CacheCorrupt(f"cache request mismatch for {key}")
         return ProviderReply(
-            status="completed", parsed=entry["proposal"],
-            raw_response=entry["raw_response"], usage=entry["usage"],
+            status="completed",
+            parsed=entry["proposal"],
+            raw_response=entry["raw_response"],
+            usage=entry["usage"],
         )
 
-    def append(self, request: ReviewRequest, model: str, outcome: ReviewOutcome, cost_usd: Decimal) -> None:
+    def append(
+        self, request: ReviewRequest, model: str, outcome: ReviewOutcome, cost_usd: Decimal
+    ) -> None:
         if outcome.review_status not in {"kept", "changed"} or outcome.proposal is None:
             raise ValueError("only validated keep/change responses may enter the replay cache")
         identity = request_identity(request, model)
@@ -233,7 +241,10 @@ class ReviewCache:
             _append_jsonl_unlocked(self.path, entry)
             self.entries[key] = entry
 
-def batch_identity(requests: tuple[ReviewRequest, ...], model: str, system_prompt: str, user_prompt: str) -> dict[str, Any]:
+
+def batch_identity(
+    requests: tuple[ReviewRequest, ...], model: str, system_prompt: str, user_prompt: str
+) -> dict[str, Any]:
     return {
         "batch_version": "review-batch-v1",
         "model": model,
@@ -300,7 +311,12 @@ class BatchReviewCache:
             raise CacheMiss(f"batch cache miss for key {key}")
         return entry["validated_outcomes"]
 
-    def append(self, identity: dict[str, Any], reply: ProviderReply, validated_outcomes: list[dict[str, Any]]) -> None:
+    def append(
+        self,
+        identity: dict[str, Any],
+        reply: ProviderReply,
+        validated_outcomes: list[dict[str, Any]],
+    ) -> None:
         key = _digest(identity)
         entry = {
             "key": key,
@@ -331,11 +347,17 @@ def usage_derived_cost(usage: dict[str, int] | None, model: str = DEFAULT_PRICED
         return Decimal(0)
     input_tokens = usage.get("input_tokens", 0)
     output_tokens = usage.get("output_tokens", 0)
-    if (not isinstance(input_tokens, int) or not isinstance(output_tokens, int)
-            or input_tokens < 0 or output_tokens < 0):
+    if (
+        not isinstance(input_tokens, int)
+        or not isinstance(output_tokens, int)
+        or input_tokens < 0
+        or output_tokens < 0
+    ):
         raise ValueError("provider usage token counts must be nonnegative integers")
-    return (Decimal(input_tokens) * spec.input_usd_per_million
-            + Decimal(output_tokens) * spec.output_usd_per_million) / Decimal(1_000_000)
+    return (
+        Decimal(input_tokens) * spec.input_usd_per_million
+        + Decimal(output_tokens) * spec.output_usd_per_million
+    ) / Decimal(1_000_000)
 
 
 @dataclass(frozen=True)
@@ -420,14 +442,18 @@ class SpendLedger:
         _append_jsonl_unlocked(self.path, event)
         self.events.append(event)
 
-    def reserve(self, request: ReviewRequest, model: str, max_output_tokens: int = MAX_OUTPUT_TOKENS) -> Reservation:
+    def reserve(
+        self, request: ReviewRequest, model: str, max_output_tokens: int = MAX_OUTPUT_TOKENS
+    ) -> Reservation:
         pricing_version(model)
         if max_output_tokens <= 0:
             raise ValueError("max_output_tokens must be positive")
         # Deliberately overestimate tokenization using UTF-8 byte count plus
         # fixed framing/schema overhead. Standard price ignores discounts.
         input_bound = len((request.system_prompt + request.user_prompt).encode("utf-8")) + 3000
-        reserved = usage_derived_cost({"input_tokens": input_bound, "output_tokens": max_output_tokens}, model)
+        reserved = usage_derived_cost(
+            {"input_tokens": input_bound, "output_tokens": max_output_tokens}, model
+        )
         key = request_key(request, model)
         with _exclusive_jsonl_lock(self.path):
             self._reload()
@@ -435,23 +461,34 @@ class SpendLedger:
             if settled + outstanding + reserved > self.ceiling_usd:
                 raise BudgetExceeded(f"next call may exceed ${self.ceiling_usd} operating ceiling")
             call_id = f"{key}-{len(self.events):08d}"
-            self._append_unlocked({
-                "type": "reserve", "call_id": call_id, "reserved_usd": str(reserved),
-                "request_key": key, "model": model,
-                "pricing_version": pricing_version(model),
-                "at_utc": datetime.now(timezone.utc).isoformat(),
-            })
+            self._append_unlocked(
+                {
+                    "type": "reserve",
+                    "call_id": call_id,
+                    "reserved_usd": str(reserved),
+                    "request_key": key,
+                    "model": model,
+                    "pricing_version": pricing_version(model),
+                    "at_utc": datetime.now(timezone.utc).isoformat(),
+                }
+            )
         return Reservation(call_id, reserved, model)
 
     def reserve_batch(
-        self, identity: dict[str, Any], model: str, system_prompt: str,
-        user_prompt: str, max_output_tokens: int = BATCH_MAX_OUTPUT_TOKENS,
+        self,
+        identity: dict[str, Any],
+        model: str,
+        system_prompt: str,
+        user_prompt: str,
+        max_output_tokens: int = BATCH_MAX_OUTPUT_TOKENS,
     ) -> Reservation:
         pricing_version(model)
         if max_output_tokens <= 0:
             raise ValueError("max_output_tokens must be positive")
         input_bound = len((system_prompt + user_prompt).encode("utf-8")) + 6000
-        reserved = usage_derived_cost({"input_tokens": input_bound, "output_tokens": max_output_tokens}, model)
+        reserved = usage_derived_cost(
+            {"input_tokens": input_bound, "output_tokens": max_output_tokens}, model
+        )
         key = _digest(identity)
         with _exclusive_jsonl_lock(self.path):
             self._reload()
@@ -459,25 +496,37 @@ class SpendLedger:
             if settled + outstanding + reserved > self.ceiling_usd:
                 raise BudgetExceeded(f"next batch may exceed ${self.ceiling_usd} operating ceiling")
             call_id = f"{key}-{len(self.events):08d}"
-            self._append_unlocked({
-                "type": "reserve", "call_id": call_id, "reserved_usd": str(reserved),
-                "request_key": key, "model": model, "pricing_version": pricing_version(model),
-                "at_utc": datetime.now(timezone.utc).isoformat(),
-            })
+            self._append_unlocked(
+                {
+                    "type": "reserve",
+                    "call_id": call_id,
+                    "reserved_usd": str(reserved),
+                    "request_key": key,
+                    "model": model,
+                    "pricing_version": pricing_version(model),
+                    "at_utc": datetime.now(timezone.utc).isoformat(),
+                }
+            )
         return Reservation(call_id, reserved, model)
 
     def settle(self, reservation: Reservation, usage: dict[str, int] | None) -> Decimal:
         cost = usage_derived_cost(usage, reservation.model)
         if cost > reservation.reserved_usd:
-            raise BudgetExceeded("actual usage exceeded reserved worst-case cost; stop further calls")
+            raise BudgetExceeded(
+                "actual usage exceeded reserved worst-case cost; stop further calls"
+            )
         with _exclusive_jsonl_lock(self.path):
             self._reload()
             active_reservations = self._balances()[2]
             if active_reservations.get(reservation.call_id) != reservation.reserved_usd:
                 raise CacheCorrupt(f"reservation {reservation.call_id} is not outstanding")
-            self._append_unlocked({
-                "type": "settle", "call_id": reservation.call_id,
-                "usage": usage, "usage_derived_cost_usd": str(cost),
-                "at_utc": datetime.now(timezone.utc).isoformat(),
-            })
+            self._append_unlocked(
+                {
+                    "type": "settle",
+                    "call_id": reservation.call_id,
+                    "usage": usage,
+                    "usage_derived_cost_usd": str(cost),
+                    "at_utc": datetime.now(timezone.utc).isoformat(),
+                }
+            )
         return cost

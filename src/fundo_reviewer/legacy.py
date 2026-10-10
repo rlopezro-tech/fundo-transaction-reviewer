@@ -127,7 +127,11 @@ def label_transaction(transaction: NormalizedTransaction) -> LegacyLabel:
                     rule.rule_id,
                     rule.group,
                     rule.keyword,
-                    tuple(field for field in ("name", "merchant_name") if rule.keyword in fields.get(field, "")),
+                    tuple(
+                        field
+                        for field in ("name", "merchant_name")
+                        if rule.keyword in fields.get(field, "")
+                    ),
                     _PRIORITY[rule.group],
                 )
                 for rule in RULES
@@ -137,7 +141,8 @@ def label_transaction(transaction: NormalizedTransaction) -> LegacyLabel:
         )
     )
     personal_rule_ids = tuple(
-        rule_id for rule_id, marker in PERSONAL_RULES
+        rule_id
+        for rule_id, marker in PERSONAL_RULES
         if any(marker in value for value in fields.values())
     )
     group = matches[0].group if matches else UNMATCHED

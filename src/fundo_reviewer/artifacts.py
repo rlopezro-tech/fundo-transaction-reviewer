@@ -30,8 +30,11 @@ def write_bytes_atomic(path: Path, payload: bytes) -> None:
     temporary_path: Path | None = None
     try:
         with tempfile.NamedTemporaryFile(
-            mode="wb", dir=path.parent,
-            prefix=f".{path.name}.", suffix=".tmp", delete=False,
+            mode="wb",
+            dir=path.parent,
+            prefix=f".{path.name}.",
+            suffix=".tmp",
+            delete=False,
         ) as temporary:
             temporary_path = Path(temporary.name)
             temporary.write(payload)
@@ -45,5 +48,7 @@ def write_bytes_atomic(path: Path, payload: bytes) -> None:
 
 def write_json_atomic(path: Path, value: Any) -> None:
     """Write formatted JSON without exposing a partially written destination."""
-    payload = (json.dumps(value, indent=2, sort_keys=True, ensure_ascii=False) + "\n").encode("utf-8")
+    payload = (json.dumps(value, indent=2, sort_keys=True, ensure_ascii=False) + "\n").encode(
+        "utf-8"
+    )
     write_bytes_atomic(path, payload)

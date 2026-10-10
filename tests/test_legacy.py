@@ -32,10 +32,18 @@ ROOT = Path(__file__).resolve().parents[1]
 
 def _transaction(name: str, amount: str = "-100.00", merchant_name: str | None = None):
     return NormalizedTransaction(
-        transaction_id="tx_test", business_id="biz_test", account_id="acct_test",
-        date=date(2026, 10, 8), amount=Decimal(amount), name=name,
-        merchant_name=merchant_name, category=None, personal_finance_category=None,
-        pending=False, pending_transaction_id=None, raw={"name": name, "amount": amount},
+        transaction_id="tx_test",
+        business_id="biz_test",
+        account_id="acct_test",
+        date=date(2026, 10, 8),
+        amount=Decimal(amount),
+        name=name,
+        merchant_name=merchant_name,
+        category=None,
+        personal_finance_category=None,
+        pending=False,
+        pending_transaction_id=None,
+        raw={"name": name, "amount": amount},
     )
 
 
@@ -78,7 +86,9 @@ def test_frozen_taxonomy_ids_keywords_and_precedence():
 def test_literal_matching_normalization_merchant_trace_and_collision():
     assert normalize_text("  ＳＱＵＡＲＥ\u00a0  INC  ") == "square inc"
     assert normalize_text("UCC-1") != normalize_text("UCC 1")
-    label = label_transaction(_transaction("  ＳＱＵＡＲＥ   INC  MERCHANT SETTLEMENT ", merchant_name="Square Inc"))
+    label = label_transaction(
+        _transaction("  ＳＱＵＡＲＥ   INC  MERCHANT SETTLEMENT ", merchant_name="Square Inc")
+    )
     assert label.group == "Active advance"  # explicit priority beats revenue verification
     assert label.source_name == "  ＳＱＵＡＲＥ   INC  MERCHANT SETTLEMENT "
     assert label.source_merchant_name == "Square Inc"
@@ -122,7 +132,9 @@ def test_no_match_personal_fallback_category_ignored_and_punctuation_misses():
     assert label_transaction(category_only).group == UNMATCHED
 
 
-@pytest.mark.parametrize("marker", ["PERSONAL", "OWNER DRAW", "OWNER CONTRIBUTION", "FAMILY TRANSFER", "HOUSEHOLD"])
+@pytest.mark.parametrize(
+    "marker", ["PERSONAL", "OWNER DRAW", "OWNER CONTRIBUTION", "FAMILY TRANSFER", "HOUSEHOLD"]
+)
 def test_all_personal_markers_apply_to_either_text_field(marker):
     assert label_transaction(_transaction("SOMETHING", merchant_name=marker)).status == "personal"
     assert label_transaction(_transaction(marker)).status == "personal"
@@ -139,7 +151,9 @@ def test_revenue_boundaries_auto_deposit_verification_and_no_inference_from_text
     assert label_transaction(_transaction("MERCHANT SETTLEMENT CLIENT")).revenue_eligible
     assert not label_transaction(_transaction("OWNER CONTRIBUTION PERSONAL")).revenue_eligible
     assert not label_transaction(_transaction("INTERNAL TRANSFER FROM RESERVE")).revenue_eligible
-    assert not label_transaction(_transaction("SQUARE CAPITAL FUNDING DISBURSEMENT")).revenue_eligible
+    assert not label_transaction(
+        _transaction("SQUARE CAPITAL FUNDING DISBURSEMENT")
+    ).revenue_eligible
     assert not label_transaction(_transaction("RENT PAYMENT", "100.00")).revenue_eligible
     with pytest.raises(ValueError, match="unsupported group"):
         is_revenue_eligible(Decimal("-100"), group="invented", status="business")

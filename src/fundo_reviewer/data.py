@@ -283,7 +283,9 @@ def _transaction(
         category = tuple(category)
     personal_finance_category = record.get("personal_finance_category")
     if personal_finance_category is not None and not isinstance(personal_finance_category, dict):
-        raise InputValidationError(f"{location}.personal_finance_category: expected an object or null")
+        raise InputValidationError(
+            f"{location}.personal_finance_category: expected an object or null"
+        )
     return NormalizedTransaction(
         transaction_id=transaction_id,
         business_id=account.business_id,
