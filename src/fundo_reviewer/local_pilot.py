@@ -222,7 +222,14 @@ def main() -> None:
     parser = argparse.ArgumentParser(description="Run a 20-record local Ollama reviewer pilot")
     parser.add_argument("--model", choices=(DEFAULT_MODEL,), default=DEFAULT_MODEL)
     args = parser.parse_args()
-    report = run_pilot(args.model)
+    try:
+        report = run_pilot(args.model)
+    except (OSError, RuntimeError, ValueError) as exc:
+        parser.exit(
+            1,
+            f"{parser.prog}: error: local pilot failed ({type(exc).__name__}); "
+            "check the Ollama service, pinned model, and cache integrity\n",
+        )
     print(
         json.dumps(
             {
