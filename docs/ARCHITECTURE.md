@@ -46,7 +46,7 @@ transaction JSON → validate/window → keyword baseline → cached/provider re
 | `data.py`, `synthetic.py` | Plaid-shaped validation and deterministic synthetic fixtures |
 | `legacy.py`, `revenue.py` | Keyword labels and code-derived revenue eligibility |
 | `reviewer.py`, `provider.py` | Prompt/schema validation, explicit individual/batch protocols, adapter factory, transport, and degraded fallback |
-| `model_catalog.py` | Approved model IDs, provider routing, API-key environment names, and versioned prices |
+| `model_catalog.py` | Approved model IDs, provider routing, API-key environment names, versioned prices, and model API/JSON capabilities |
 | `cache.py` | Integrity-checked replay cache and conservative spend ledger; pricing is read from the catalog |
 | `credit.py` | Per-business feature and illustrative offer calculations |
 | `cli.py` | Online cache fill or offline cache replay |
@@ -54,7 +54,7 @@ transaction JSON → validate/window → keyword baseline → cached/provider re
 | `pilot.py` | Historical OpenAI prompt experiments; not the production/main CLI |
 | `local_pilot.py` | Separate Ollama diagnostic path; Ollama is not currently a hosted-review adapter |
 
-The CLI and OpenAI prompt pilot both use `provider.create_provider()`, which routes using `model_catalog.py` rather than parsing model-name prefixes. Pricing and API-key environment names are catalog metadata, so adding a model for an existing provider does not require edits to CLI/cache routing. OpenAI and OpenRouter implement separate transport adapters over shared review/batch methods; the batch capability is an explicit protocol, not a duck-typed `hasattr` check. A genuinely new hosted provider still needs an adapter and a factory mapping; provider-specific protocol behavior remains in its adapter. Ollama remains a diagnostic-only path and cannot be selected for the main review pipeline.
+The CLI and OpenAI prompt pilot both use `provider.create_provider()`, which routes using `model_catalog.py` rather than parsing model-name prefixes. Pricing, API-key environment names, API model IDs, and model-specific JSON response modes are catalog metadata, so adding a model for an existing provider does not require edits to CLI/cache routing or scattered model-name checks. OpenAI and OpenRouter implement separate transport adapters over shared review/batch methods; the batch capability is an explicit protocol, not a duck-typed `hasattr` check. A genuinely new hosted provider still needs an adapter and a factory mapping; provider-specific protocol behavior remains in its adapter. Ollama remains a diagnostic-only path and cannot be selected for the main review pipeline.
 
 ## Current delivery limitation
 

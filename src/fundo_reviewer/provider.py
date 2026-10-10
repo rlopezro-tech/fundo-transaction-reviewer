@@ -187,7 +187,8 @@ class OpenRouterProvider(_StructuredReviewAdapter):
             raise RuntimeError(f"{spec.api_key_env} is required for online review")
         from openai import OpenAI
 
-        self.model = model if model == "openrouter/free" else model.removeprefix("openrouter/")
+        self.model = spec.provider_model or model
+        self.response_format_kind = spec.response_format
         self.client = OpenAI(
             api_key=api_key, base_url="https://openrouter.ai/api/v1",
             max_retries=0, timeout=180.0,
@@ -202,10 +203,7 @@ class OpenRouterProvider(_StructuredReviewAdapter):
                 if self._last_call_at is not None:
                     time.sleep(max(0.0, 7.0 - (time.monotonic() - self._last_call_at)))
                 self._last_call_at = time.monotonic()
-                if self.model in {
-                    "google/gemma-4-26b-a4b-it:free",
-                    "meta-llama/llama-3.3-70b-instruct:free",
-                }:
+                if self.response_format_kind == "json_object":
                     # These free endpoints support JSON mode but not
                     # constrained JSON Schema decoding.
                     response_format = {"type": "json_object"}
@@ -234,7 +232,7 @@ class OpenRouterProvider(_StructuredReviewAdapter):
                 return response
             except RateLimitError as exc:
                 if attempt == 3:
-                    raise FatalReviewError("OpenRouter free-model rate limit persisted after bounded retries") from exc
+                    raise FatalReviewError("OpenRouter rate limit persisted after bounded retries") from exc
                 retry_after = exc.response.headers.get("retry-after") if exc.response else None
                 try:
                     delay = min(max(float(retry_after), 1), 60) if retry_after else 15.0 * (attempt + 1)

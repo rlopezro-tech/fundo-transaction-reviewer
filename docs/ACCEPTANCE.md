@@ -16,7 +16,7 @@ Status reflects repository evidence on the current branch. **Partial** means an 
 | One run command with API key in environment | Pass for online execution | `README.md`; `OPENAI_API_KEY` in local ignored `.env` | Verify from a clean checkout; API quota is currently a blocker |
 | Total LLM cost below $10 | Within limit by recorded estimate; not independently billed | Append-only provider ledgers; `SOLUTION.md` | Reconcile final usage and reservations; do not call usage estimate a receipt |
 | Central model/provider metadata and routing | Pass for registered hosted models | `src/fundo_reviewer/model_catalog.py`; CLI and pilot call the provider factory; pricing tests | A new provider still requires its adapter/factory entry; Ollama remains diagnostic-only |
-| Clean-checkout install and test | **Pass locally / CI pending** | Clean Git archive + fresh Python 3.12 environment from `uv.lock`; `128 passed`; offline sample replay produced 3 hits and 0 calls | Push branch and confirm GitHub Actions succeeds on its clean runner |
+| Clean-checkout install and test | **Partial / CI pending** | Prior clean Git archive: `128 passed` plus sample replay; current suite: `131 passed` locally | Rerun clean-archive verification for latest changes; push branch and confirm GitHub Actions succeeds |
 
 ## Submission decision
 

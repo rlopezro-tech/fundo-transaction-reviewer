@@ -6,6 +6,7 @@ import pytest
 from fundo_reviewer.cache import MODEL_PRICES, pricing_version, usage_derived_cost
 from fundo_reviewer.model_catalog import DEFAULT_MODEL, model_spec, registered_models
 from fundo_reviewer import provider as provider_module
+from fundo_reviewer.provider import BatchProviderShape, OpenRouterProvider
 
 
 def test_catalog_is_single_source_for_pricing_and_environment_metadata():
@@ -47,6 +48,40 @@ def test_ollama_is_explicitly_local_but_unknown_hosted_models_are_rejected():
     assert local.input_usd_per_million == local.output_usd_per_million == Decimal(0)
     with pytest.raises(ValueError, match="approved model catalog"):
         model_spec("unlisted-provider/model")
+
+
+def test_openrouter_api_model_ids_and_json_capabilities_live_in_catalog():
+    gemma = model_spec("openrouter/google/gemma-4-26b-a4b-it:free")
+    llama = model_spec("openrouter/meta-llama/llama-3.3-70b-instruct:free")
+    gpt_oss = model_spec("openrouter/openai/gpt-oss-20b")
+    assert gemma.provider_model == "google/gemma-4-26b-a4b-it:free"
+    assert llama.provider_model == "meta-llama/llama-3.3-70b-instruct:free"
+    assert gemma.response_format == llama.response_format == "json_object"
+    assert gpt_oss.provider_model == "openai/gpt-oss-20b"
+    assert gpt_oss.response_format == "json_schema"
+
+
+@pytest.mark.parametrize("model", [
+    "openrouter/google/gemma-4-26b-a4b-it:free",
+    "openrouter/meta-llama/llama-3.3-70b-instruct:free",
+])
+def test_openrouter_adapter_uses_catalog_json_mode_without_network(model):
+    spec = model_spec(model)
+    captured = {}
+    adapter = object.__new__(OpenRouterProvider)
+    adapter.model = spec.provider_model
+    adapter.response_format_kind = spec.response_format
+    adapter._last_call_at = None
+    adapter.client = type("Client", (), {
+        "chat": type("Chat", (), {
+            "completions": type("Completions", (), {
+                "create": staticmethod(lambda **kwargs: captured.update(kwargs) or kwargs),
+            })(),
+        })(),
+    })()
+    adapter._request("system", "user", BatchProviderShape, 100)
+    assert captured["model"] == spec.provider_model
+    assert captured["response_format"] == {"type": "json_object"}
 
 
 @pytest.mark.parametrize(

@@ -137,7 +137,7 @@ def _run_batched(normalized, labels, *, mode, cache_path, ledger_path, model, pr
             # explicit degraded status. A transport failure has no model
             # decision to replay and must be eligible for a later online retry.
             cache.append(identity, reply, validated)
-        if model.startswith("openrouter/") and any(item.degraded for item in batch_outcomes):
+        if model_spec(model).provider == "openrouter" and any(item.degraded for item in batch_outcomes):
             # OpenRouter free/low-cost endpoints have returned malformed or
             # incomplete batch JSON. Preserve the response, then stop rather
             # than spend on every remaining batch with a broken contract.
