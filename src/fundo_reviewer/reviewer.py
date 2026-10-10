@@ -6,7 +6,7 @@ import json
 from dataclasses import dataclass
 from datetime import date
 from decimal import Decimal
-from typing import Any, Protocol
+from typing import Any, Protocol, runtime_checkable
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
@@ -109,6 +109,13 @@ class ProviderReply:
 
 class ReviewProvider(Protocol):
     def review(self, request: ReviewRequest) -> ProviderReply: ...
+
+
+@runtime_checkable
+class BatchReviewProvider(Protocol):
+    """Optional provider capability required by the batch pipeline."""
+
+    def review_batch(self, request: Any) -> ProviderReply: ...
 
 
 class FatalReviewError(RuntimeError):

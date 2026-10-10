@@ -23,6 +23,7 @@ from fundo_reviewer.provider import (
     BatchProviderShape, BudgetedBatchProvider, BudgetedProvider, OpenAIProvider, build_batch_request,
 )
 from fundo_reviewer.reviewer import FatalReviewError, ProviderReply, build_request, review_one
+from fundo_reviewer.reviewer import BatchReviewProvider
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -175,6 +176,13 @@ def test_batch_key_changes_with_context_and_budget_blocks_before_call(tmp_path):
     with pytest.raises(BudgetExceeded):
         guard.review_batch(two)
     assert fake.calls == 0
+
+
+def test_batch_capability_is_explicit_and_openrouter_is_not_an_openai_subclass():
+    assert isinstance(FakeBatchProvider(), BatchReviewProvider)
+    assert not isinstance(FakeProvider(), BatchReviewProvider)
+    from fundo_reviewer.provider import OpenRouterProvider
+    assert not issubclass(OpenRouterProvider, OpenAIProvider)
 
 
 def test_alternative_model_has_distinct_price_budget_and_cache_key(tmp_path):

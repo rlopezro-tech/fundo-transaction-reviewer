@@ -22,7 +22,7 @@ from fundo_reviewer.provider import (
 )
 from fundo_reviewer.revenue import REVENUE_POLICY_VERSION
 from fundo_reviewer.reviewer import (
-    FLAG_POLICY_VERSION, PROMPT_VERSION, SCHEMA_VERSION,
+    BatchReviewProvider, FLAG_POLICY_VERSION, PROMPT_VERSION, SCHEMA_VERSION,
     FatalReviewError, ProviderReply, ReviewOutcome, ReviewProvider, build_request, review_one,
 )
 
@@ -68,7 +68,7 @@ def _run_batched(normalized, labels, *, mode, cache_path, ledger_path, model, pr
     budgeted = None
     if mode == "online":
         live = provider if provider is not None else create_provider(model)
-        if not hasattr(live, "review_batch"):
+        if not isinstance(live, BatchReviewProvider):
             raise TypeError("batch mode requires provider.review_batch")
         budgeted = BudgetedBatchProvider(live, SpendLedger(ledger_path), model)
     outcomes = []

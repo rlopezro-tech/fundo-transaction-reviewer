@@ -5,6 +5,7 @@ from __future__ import annotations
 import os
 import time
 import json
+from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from enum import Enum
 from typing import Literal
@@ -15,7 +16,7 @@ from pydantic import BaseModel, ConfigDict
 from fundo_reviewer.cache import BATCH_MAX_OUTPUT_TOKENS, MAX_OUTPUT_TOKENS, SpendLedger, batch_identity
 from fundo_reviewer.model_catalog import DEFAULT_MODEL, model_spec
 from fundo_reviewer.revenue import GROUPS, UNMATCHED
-from fundo_reviewer.reviewer import FatalReviewError, ProviderReply, ReviewProvider, ReviewRequest
+from fundo_reviewer.reviewer import BatchReviewProvider, FatalReviewError, ProviderReply, ReviewProvider, ReviewRequest
 
 
 GroupEnum = Enum("GroupEnum", {f"GROUP_{index:02d}": group for index, group in enumerate((*GROUPS, UNMATCHED))}, type=str)
@@ -65,7 +66,27 @@ def build_batch_request(requests: tuple[ReviewRequest, ...]) -> BatchReviewReque
     return BatchReviewRequest(requests, system, user)
 
 
-class OpenAIProvider:
+class _StructuredReviewAdapter(ABC):
+    """Shared review methods; concrete adapters own transport details."""
+
+    @abstractmethod
+    def _request(self, system_prompt: str, user_prompt: str, text_format: type[BaseModel], max_output_tokens: int):
+        raise NotImplementedError
+
+    @abstractmethod
+    def _reply(self, response, *, batched: bool) -> ProviderReply:
+        raise NotImplementedError
+
+    def review(self, request: ReviewRequest) -> ProviderReply:
+        response = self._request(request.system_prompt, request.user_prompt, ProviderShape, MAX_OUTPUT_TOKENS)
+        return self._reply(response, batched=False)
+
+    def review_batch(self, request: BatchReviewRequest) -> ProviderReply:
+        response = self._request(request.system_prompt, request.user_prompt, BatchProviderShape, BATCH_MAX_OUTPUT_TOKENS)
+        return self._reply(response, batched=True)
+
+
+class OpenAIProvider(_StructuredReviewAdapter):
     def __init__(self, model: str = DEFAULT_MODEL):
         spec = model_spec(model)
         if spec.provider != "openai":
@@ -154,16 +175,7 @@ class OpenAIProvider:
             raw_response=raw, usage=usage,
         )
 
-    def review(self, request: ReviewRequest) -> ProviderReply:
-        response = self._request(request.system_prompt, request.user_prompt, ProviderShape, MAX_OUTPUT_TOKENS)
-        return self._reply(response, batched=False)
-
-    def review_batch(self, request: BatchReviewRequest) -> ProviderReply:
-        response = self._request(request.system_prompt, request.user_prompt, BatchProviderShape, BATCH_MAX_OUTPUT_TOKENS)
-        return self._reply(response, batched=True)
-
-
-class OpenRouterProvider(OpenAIProvider):
+class OpenRouterProvider(_StructuredReviewAdapter):
     """OpenRouter's OpenAI-compatible Chat Completions API."""
 
     def __init__(self, model: str = "openrouter/free"):
@@ -299,7 +311,7 @@ class BudgetedProvider:
 
 
 class BudgetedBatchProvider:
-    def __init__(self, provider: ReviewProvider, ledger: SpendLedger, model: str):
+    def __init__(self, provider: BatchReviewProvider, ledger: SpendLedger, model: str):
         self.provider = provider
         self.ledger = ledger
         self.model = model
