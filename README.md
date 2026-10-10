@@ -78,7 +78,7 @@ To regenerate the existing full result artifacts from the available outcome snap
 PYTHONPATH=src uv run --locked python -m fundo_reviewer.evaluation --review-dir reports/main --output-dir reports/evaluation
 ```
 
-The quality report separates valid model-reviewed rows from degraded legacy fallbacks (including per-business coverage); whole-cohort credit-feature results still include the fallback labels. Read the scope caveat in [SOLUTION.md](SOLUTION.md). The `reports/evaluation/sensitivity_report.json` is a separate simulation, not model accuracy.
+The quality report separates valid model-reviewed rows from degraded legacy fallbacks (including per-business coverage); whole-cohort credit-feature results still include the fallback labels. The evaluator validates all requested inputs before replacing output files and reports expected validation errors concisely on stderr. Read the scope caveat in [SOLUTION.md](SOLUTION.md). The `reports/evaluation/sensitivity_report.json` is a separate simulation, not model accuracy.
 
 ## Project files
 

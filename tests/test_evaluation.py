@@ -2,6 +2,7 @@
 
 import json
 import hashlib
+import sys
 from decimal import Decimal
 from pathlib import Path
 
@@ -173,3 +174,25 @@ def test_sensitivity_only_never_claims_review_accuracy(tmp_path):
     assert not (tmp_path / "sensitivity_only" / "quality_report.json").exists()
     report = json.loads((tmp_path / "sensitivity_only" / "sensitivity_report.json").read_text())
     assert report["measurement_type"].startswith("simulated_sensitivity")
+
+
+def test_evaluation_cli_reports_expected_errors_without_partial_output(tmp_path, monkeypatch, capsys):
+    output_dir = tmp_path / "existing-output"
+    output_dir.mkdir()
+    sensitivity_path = output_dir / "sensitivity_report.json"
+    sensitivity_path.write_text('{"previous": "keep"}\n')
+    missing_review_dir = tmp_path / "missing-review"
+    monkeypatch.setattr(sys, "argv", [
+        "fundo-evaluation", "--input", str(MAIN), "--truth", str(TRUTH),
+        "--review-dir", str(missing_review_dir), "--output-dir", str(output_dir),
+    ])
+
+    with pytest.raises(SystemExit) as error:
+        evaluation_module.main()
+
+    captured = capsys.readouterr()
+    assert error.value.code == 1
+    assert captured.out == ""
+    assert "error:" in captured.err and "run_manifest.json" in captured.err
+    assert "Traceback" not in captured.err
+    assert sensitivity_path.read_text() == '{"previous": "keep"}\n'

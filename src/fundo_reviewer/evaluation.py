@@ -504,16 +504,19 @@ def run_evaluation(input_path: Path, truth_path: Path, review_dir: Path | None, 
     truth_data = load_truth(normalized, truth_path)
     truth_records, truth = truth_data.records, truth_data.labels
     sensitivity = build_sensitivity_report(normalized, truth_records, truth)
-    _write(output_dir / "sensitivity_report.json", sensitivity)
     result = {"sensitivity_cases": len(sensitivity["random_cases"]) + len(sensitivity["targeted_cases"])}
+    quality = None
     if review_dir is not None:
         legacy_labels, legacy = _legacy_labels(normalized)
         reviewed_records, reviewed, manifest = load_reviewed(normalized, input_path, review_dir, legacy_labels)
         quality = _quality_report(normalized, input_path, truth_data, truth_records, truth,
                                   legacy, reviewed_records, reviewed, manifest)
-        _write(output_dir / "quality_report.json", quality)
         result["transactions_evaluated"] = quality["counts"]["transactions"]
         result["aggregate_absolute_amr_error_usd"] = quality["aggregate_absolute_amr_error_usd"]
+    # Validate and calculate every requested output before changing the destination.
+    _write(output_dir / "sensitivity_report.json", sensitivity)
+    if quality is not None:
+        _write(output_dir / "quality_report.json", quality)
     return result
 
 
@@ -524,7 +527,11 @@ def main() -> None:
     parser.add_argument("--review-dir", type=Path, help="CLI output directory; omit for sensitivity-only development")
     parser.add_argument("--output-dir", type=Path, default=Path("reports/evaluation"))
     args = parser.parse_args()
-    print(json.dumps(run_evaluation(args.input, args.truth, args.review_dir, args.output_dir), sort_keys=True))
+    try:
+        result = run_evaluation(args.input, args.truth, args.review_dir, args.output_dir)
+    except (ValueError, OSError) as exc:
+        parser.exit(1, f"{parser.prog}: error: {exc}\n")
+    print(json.dumps(result, sort_keys=True))
 
 
 if __name__ == "__main__":
