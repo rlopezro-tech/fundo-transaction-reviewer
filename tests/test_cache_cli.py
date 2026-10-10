@@ -967,3 +967,21 @@ def test_openai_credit_exhaustion_is_fatal_without_retries():
     with pytest.raises(FatalReviewError, match="credit balance exhausted"):
         adapter.review_batch(build_batch_request((_request(),)))
     assert len(calls) == 1
+
+
+def test_openai_non_rate_limit_transport_errors_are_fatal_without_retries():
+    calls = []
+
+    class BrokenResponses:
+        def parse(self, **kwargs):
+            calls.append(kwargs)
+            raise RuntimeError("sensitive provider error details")
+
+    adapter = object.__new__(OpenAIProvider)
+    adapter.model = "gpt-6-luna"
+    adapter.client = SimpleNamespace(responses=BrokenResponses())
+    adapter._last_call_at = None
+    with pytest.raises(FatalReviewError, match=r"OpenAI request failed \(RuntimeError\)") as error:
+        adapter.review_batch(build_batch_request((_request(),)))
+    assert "sensitive provider error details" not in str(error.value)
+    assert len(calls) == 1

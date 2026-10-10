@@ -189,6 +189,13 @@ class OpenAIProvider(_StructuredReviewAdapter):
                 except ValueError:
                     delay = 7.0
                 time.sleep(delay)
+            except Exception as exc:
+                # Do not turn an unusable credential, incompatible request, or
+                # transport outage into a degraded result for every later batch.
+                # The CLI preserves completed cache entries and stops for inspection.
+                raise FatalReviewError(
+                    f"OpenAI request failed ({type(exc).__name__}); stop and inspect before retrying"
+                ) from exc
 
     def _reply(self, response, *, batched: bool) -> ProviderReply:
         raw: dict[str, Any] = {
