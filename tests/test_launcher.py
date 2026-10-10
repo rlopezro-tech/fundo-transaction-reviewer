@@ -59,3 +59,29 @@ def test_launcher_loads_env_only_for_explicit_online_mode(tmp_path):
     assert "key=sentinel-test-key\n" in output
     assert "--env-file .env" in output
     assert "--locked" in output
+
+
+def test_launcher_resolves_repository_root_when_called_from_elsewhere(tmp_path):
+    fake_bin = tmp_path / "fake-bin"
+    fake_bin.mkdir()
+    fake_uv = fake_bin / "uv"
+    fake_uv.write_text(
+        "#!/usr/bin/env bash\n"
+        'printf "cwd=%s\\n" "$PWD"\n'
+        "[[ -f tests/fixtures/input_90_days.json ]] && echo input=found\n"
+    )
+    fake_uv.chmod(0o755)
+
+    environment = os.environ.copy()
+    environment["PATH"] = f"{fake_bin}{os.pathsep}{environment['PATH']}"
+    result = subprocess.run(
+        [str(ROOT / "scripts" / "run"), "--mode=offline"],
+        cwd=tmp_path,
+        env=environment,
+        text=True,
+        capture_output=True,
+        check=True,
+    )
+
+    assert f"cwd={ROOT}\n" in result.stdout
+    assert "input=found\n" in result.stdout
