@@ -107,7 +107,7 @@ def run_pilot(variant: str, model: str = DEFAULT_MODEL) -> dict:
                 )
             if outcome.review_status == "provider_failure":
                 raise RuntimeError(
-                    f"pilot stopped after provider failure for {transaction_id}: {outcome.error}"
+                    "pilot stopped after provider failure; inspect the recorded attempt before retrying"
                 )
             if not outcome.degraded:
                 cache.append(request, model, outcome, usage_derived_cost(outcome.usage, model))
@@ -149,7 +149,10 @@ def main() -> None:
     parser.add_argument("--variant", choices=("weak", "current"), required=True)
     parser.add_argument("--model", default=DEFAULT_MODEL)
     args = parser.parse_args()
-    result = run_pilot(args.variant, args.model)
+    try:
+        result = run_pilot(args.variant, args.model)
+    except (OSError, RuntimeError, ValueError) as exc:
+        parser.exit(1, f"{parser.prog}: error: {exc}\n")
     print(
         json.dumps(
             {
