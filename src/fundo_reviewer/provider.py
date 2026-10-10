@@ -156,7 +156,14 @@ class OpenAIProvider(_StructuredReviewAdapter):
                 )
                 return response
             except RateLimitError as exc:
-                message = str(exc).lower()
+                # Provider error codes are more stable than message wording;
+                # include the structured body for quota classification without
+                # exposing it in logs or user-facing errors.
+                message = " ".join(
+                    str(value)
+                    for value in (exc.code, exc.type, exc.body, str(exc))
+                    if value is not None
+                ).lower()
                 # A depleted billing balance is not a transient rate limit;
                 # retrying it only wastes time and obscures the real blocker.
                 if (

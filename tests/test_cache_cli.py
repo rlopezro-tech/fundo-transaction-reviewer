@@ -969,6 +969,30 @@ def test_openai_credit_exhaustion_is_fatal_without_retries():
     assert len(calls) == 1
 
 
+def test_openai_structured_credit_code_is_classified_without_message_match():
+    calls = []
+
+    class StructuredQuotaResponses:
+        def parse(self, **kwargs):
+            calls.append(kwargs)
+            response = httpx.Response(
+                429, request=httpx.Request("POST", "https://api.openai.com/v1/responses")
+            )
+            raise RateLimitError(
+                "Request rejected",
+                response=response,
+                body={"code": "insufficient_quota", "message": "billing restriction"},
+            )
+
+    adapter = object.__new__(OpenAIProvider)
+    adapter.model = "gpt-6-luna"
+    adapter.client = SimpleNamespace(responses=StructuredQuotaResponses())
+    adapter._last_call_at = None
+    with pytest.raises(FatalReviewError, match="credit balance exhausted"):
+        adapter.review_batch(build_batch_request((_request(),)))
+    assert len(calls) == 1
+
+
 def test_openai_non_rate_limit_transport_errors_are_fatal_without_retries():
     calls = []
 
