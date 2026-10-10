@@ -19,6 +19,26 @@ Generate the synthetic fixtures (no Plaid account or API key needed):
 PYTHONPATH=src uv run python -m fundo_reviewer.synthetic --output-root data
 ```
 
+## Input and output locations
+
+- `data/transactions/` — reviewer inputs; add a new Plaid-shaped file here.
+- `data/ground_truth/` — evaluator-only expected labels; never send these to a provider.
+- `cache/` — provider responses and spend ledgers used for exact replay.
+- `reports/main/` — main review outputs; `reports/evaluation/` — quality and sensitivity analysis.
+
+## Reproduce the cached example offline
+
+This replays the committed three-transaction example without an API key or provider call, and writes fresh output under `/tmp`:
+
+```bash
+./scripts/run --mode offline \
+  --input tests/fixtures/input_90_days.json \
+  --cache cache/new_input.jsonl \
+  --output-dir /tmp/fundo-offline-replay
+```
+
+The command should report 3 cache hits and 0 API calls. The regenerated `review_outcomes.json`, `credit_report.json`, and `run_manifest.json` match the committed artifacts in `reports/new_input/` byte for byte. The main 2,000-row run is different: its cache is partial, so a full offline replay intentionally fails on missing batches.
+
 The committed main report has 2,000 rows, but its LLM cache is partial. The model returned usable decisions for **799 rows**, returned one invalid response, and the remaining **1,200 rows fell back to legacy labels** after provider rate limits. Therefore the full 2,000-row offline replay is not currently possible; offline mode intentionally errors on missing cache entries.
 
 To continue online when API quota is available, add `OPENAI_API_KEY=...` to a local `.env` (gitignored), then run:
