@@ -527,6 +527,22 @@ def test_batch_progress_logs_exclude_transaction_text_credentials_and_provider_e
         assert secret not in caplog.text
 
 
+def test_individual_review_reports_progress_without_transaction_details(tmp_path, caplog, monkeypatch):
+    monkeypatch.setenv("OPENAI_API_KEY", "CREDENTIAL-SENTINEL-2f10")
+
+    with caplog.at_level(logging.INFO, logger="fundo_reviewer.cli"):
+        run_pipeline(
+            SMALL, tmp_path / "reports", "online", tmp_path / "cache.jsonl",
+            tmp_path / "spend.jsonl", provider=FakeProvider(), batch_size=1,
+        )
+
+    assert "transaction 1/3 cache miss; requesting provider" in caplog.text
+    assert "transaction 1/3 complete source=provider status=kept" in caplog.text
+    assert "transaction 3/3 complete source=provider status=kept" in caplog.text
+    for secret in ("tx_start", "CARD PURCHASE", "CREDENTIAL-SENTINEL-2f10"):
+        assert secret not in caplog.text
+
+
 def test_uncached_strict_offline_new_input_fails_and_online_failure_degrades(tmp_path):
     cache_path = tmp_path / "cache.jsonl"
     ledger_path = tmp_path / "spend.jsonl"

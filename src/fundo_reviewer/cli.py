@@ -208,16 +208,26 @@ def run_pipeline(
         new_usage = Counter()
         historical_usage = Counter()
         historical_cost = 0
-        for transaction in normalized.transactions:
+        total_transactions = len(normalized.transactions)
+        for position, transaction in enumerate(normalized.transactions, start=1):
             request = build_request(transaction, labels[transaction.transaction_id])
             try:
                 cached = cache.replay(request, model)
             except CacheMiss:
                 if mode == "offline":
+                    logger.error(
+                        "offline replay stopped: no cached response for transaction %d/%d",
+                        position, total_transactions,
+                    )
                     raise  # no silent partial replay or fake keep
                 assert budgeted is not None
+                logger.info(
+                    "transaction %d/%d cache miss; requesting provider",
+                    position, total_transactions,
+                )
                 new_api_calls += 1
                 outcome = review_one(request, budgeted)
+                source = "provider"
                 if outcome.review_status in {"kept", "changed"}:
                     cache.append(request, model, outcome, usage_derived_cost(outcome.usage, model))
                 if outcome.usage:
@@ -227,9 +237,15 @@ def run_pipeline(
                 outcome = review_one(request, _StaticProvider(cached))
                 if outcome.degraded:
                     raise CacheCorrupt(f"cached proposal invalid for {transaction.transaction_id}: {outcome.error}")
+                source = "cache"
                 if cached.usage:
                     historical_usage.update(cached.usage)
                 historical_cost += usage_derived_cost(cached.usage, model)
+            if source == "provider" or position == 1 or position % 100 == 0 or position == total_transactions:
+                logger.info(
+                    "transaction %d/%d complete source=%s status=%s",
+                    position, total_transactions, source, outcome.review_status,
+                )
             outcomes.append(outcome)
     input_sha256 = normalized.source_sha256 or hashlib.sha256(input_path.read_bytes()).hexdigest()
     status_counts = dict(sorted(Counter(item.review_status for item in outcomes).items()))

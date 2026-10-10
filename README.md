@@ -25,7 +25,7 @@ GitHub Actions runs the locked dependency install and test suite on CPython 3.12
 
 `scripts/run` is the short CLI launcher: it sets `PYTHONPATH` and loads `.env` only when `--mode online` is explicit. To configure hosted calls, copy `env.example` to `.env` and set the key for the selected provider; never commit `.env`.
 To switch among registered models/providers, select an ID listed by `./scripts/run --help` and set its matching key in `.env`; no source edits are needed. A completely new provider still needs a transport adapter. The model catalog is the source of supported IDs and key mapping.
-Online and offline batch runs print progress and per-batch status to stderr; the final machine-readable summary remains on stdout. Logs contain row counts and status only, not transaction descriptions or credentials.
+Online individual reviews report each provider request and completion; batch runs report per-batch progress. Offline individual replay emits periodic progress every 100 rows. All progress goes to stderr while the final machine-readable summary remains on stdout. Logs contain counts and statuses only, not transaction IDs, descriptions, credentials, or provider error text.
 
 Generate the synthetic fixtures (no Plaid account or API key needed):
 
