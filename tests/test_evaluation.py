@@ -110,6 +110,13 @@ def test_full_synthetic_evaluation_accounts_for_every_id_and_detects_tampering(t
     assert "ground_truth" not in cache.read_text()
     assert "scenario_id" not in cache.read_text()
 
+    credit_path = review_dir / "credit_report.json"
+    credit_bytes = credit_path.read_bytes()
+    credit_path.write_text("{}\n")
+    with pytest.raises(ValueError, match="credit report hash"):
+        run_evaluation(MAIN, TRUTH, review_dir, tmp_path / "bad-credit-report")
+    credit_path.write_bytes(credit_bytes)
+
     outcomes = json.loads((review_dir / "review_outcomes.json").read_text())
     (review_dir / "review_outcomes.json").write_text(json.dumps(outcomes[:-1]))
     with pytest.raises(ValueError, match="review outcomes hash"):

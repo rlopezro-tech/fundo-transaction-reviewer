@@ -103,6 +103,9 @@ def load_reviewed(
     digest = normalized.source_sha256 or hashlib.sha256(input_path.read_bytes()).hexdigest()
     if manifest.get("input_sha256") != digest or manifest.get("accepted_transactions") != len(normalized.transactions):
         raise ValueError("review manifest input hash or count does not match evaluation input")
+    credit_path = review_dir / "credit_report.json"
+    if manifest.get("credit_report_sha256") != hashlib.sha256(credit_path.read_bytes()).hexdigest():
+        raise ValueError("credit report hash does not match run manifest")
     outcomes_path = review_dir / "review_outcomes.json"
     if manifest.get("review_outcomes_sha256") != hashlib.sha256(outcomes_path.read_bytes()).hexdigest():
         raise ValueError("review outcomes hash does not match run manifest")
