@@ -18,10 +18,16 @@ def _run_with_fake_uv(tmp_path: Path, *args: str) -> str:
     fake_uv = fake_bin / "uv"
     fake_uv.write_text(
         "#!/usr/bin/env bash\n"
-        "if [[ \"${2-}\" == \"--env-file\" && -f \"${3-}\" ]]; then\n"
-        "  IFS='=' read -r key value < \"$3\"\n"
-        "  export \"$key=$value\"\n"
-        "fi\n"
+        "for ((index = 1; index < $#; index++)); do\n"
+        "  if [[ \"${!index}\" == \"--env-file\" ]]; then\n"
+        "    env_index=$((index + 1))\n"
+        "    env_file=\"${!env_index}\"\n"
+        "    if [[ -f \"$env_file\" ]]; then\n"
+        "      IFS='=' read -r key value < \"$env_file\"\n"
+        "      export \"$key=$value\"\n"
+        "    fi\n"
+        "  fi\n"
+        "done\n"
         "printf 'key=%s\\n' \"${OPENAI_API_KEY-}\"\n"
         "printf 'args=%s\\n' \"$*\"\n"
     )
@@ -46,9 +52,11 @@ def test_launcher_never_loads_env_for_offline_or_default_mode(tmp_path):
         output = _run_with_fake_uv(tmp_path / str(len(args)), *args)
         assert "key=\n" in output
         assert "--env-file" not in output
+        assert "--locked" in output
 
 
 def test_launcher_loads_env_only_for_explicit_online_mode(tmp_path):
     output = _run_with_fake_uv(tmp_path, "--mode=online")
     assert "key=sentinel-test-key\n" in output
     assert "--env-file .env" in output
+    assert "--locked" in output

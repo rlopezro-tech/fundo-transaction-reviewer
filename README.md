@@ -5,8 +5,8 @@ Python CLI that compares a deterministic keyword baseline with an LLM reviewer o
 ## Run locally
 
 ```bash
-uv sync --group dev
-uv run --group dev pytest -q
+uv sync --locked --group dev
+uv run --locked --group dev pytest -q
 ```
 
 GitHub Actions runs the locked dependency install and test suite, then verifies that the offline sample replay matches committed outputs byte-for-byte; see [the test workflow](.github/workflows/tests.yml). The workflow needs no API key or external model calls.
@@ -16,7 +16,7 @@ GitHub Actions runs the locked dependency install and test suite, then verifies 
 Generate the synthetic fixtures (no Plaid account or API key needed):
 
 ```bash
-PYTHONPATH=src uv run python -m fundo_reviewer.synthetic --output-root data
+PYTHONPATH=src uv run --locked python -m fundo_reviewer.synthetic --output-root data
 ```
 
 ## Input and output locations
@@ -52,7 +52,7 @@ This resumes from validated cached batches and can incur API charges. Successful
 To regenerate the existing full result artifacts from the available outcome snapshot and synthetic truth (no API call):
 
 ```bash
-PYTHONPATH=src uv run python -m fundo_reviewer.evaluation --review-dir reports/main --output-dir reports/evaluation
+PYTHONPATH=src uv run --locked python -m fundo_reviewer.evaluation --review-dir reports/main --output-dir reports/evaluation
 ```
 
 The quality report separates valid model-reviewed rows from degraded legacy fallbacks (including per-business coverage); whole-cohort credit-feature results still include the fallback labels. Read the scope caveat in [SOLUTION.md](SOLUTION.md). The `reports/evaluation/sensitivity_report.json` is a separate simulation, not model accuracy.
