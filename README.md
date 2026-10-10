@@ -4,6 +4,8 @@ Python CLI that compares a deterministic keyword baseline with an LLM reviewer o
 
 ## Quick start (no API key or charges)
 
+Requires `uv` and a Bash shell (macOS/Linux; use WSL on Windows). Install `uv` with Homebrew (`brew install uv`) or [the official installer for your platform](https://docs.astral.sh/uv/getting-started/installation/). `uv` reads the pinned Python version from `.python-version` and can install a managed interpreter if needed.
+
 ```bash
 uv sync --locked --group dev
 ./scripts/run --mode offline \
