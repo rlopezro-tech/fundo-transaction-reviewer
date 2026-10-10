@@ -98,7 +98,10 @@ def _read_jsonl(path: Path) -> list[str]:
             os.fsync(stream.fileno())
         logger.warning("discarded incomplete final JSONL record from %s", path)
         contents = contents[:last_record_end]
-    return contents.decode("utf-8").splitlines()
+    try:
+        return contents.decode("utf-8").splitlines()
+    except UnicodeDecodeError as exc:
+        raise CacheCorrupt(f"{path}: invalid UTF-8 in JSONL data") from exc
 
 
 def request_identity(request: ReviewRequest, model: str) -> dict[str, Any]:
@@ -153,6 +156,8 @@ class ReviewCache:
             for line_number, line in enumerate(_read_jsonl(self.path), 1):
                 try:
                     entry = json.loads(line)
+                    if not isinstance(entry, dict):
+                        raise ValueError("cache record must be an object")
                     integrity = entry.pop("integrity_sha256")
                     if integrity != _digest(entry):
                         raise ValueError("integrity hash mismatch")
@@ -230,6 +235,8 @@ class BatchReviewCache:
             for line_number, line in enumerate(_read_jsonl(self.path), 1):
                 try:
                     entry = json.loads(line)
+                    if not isinstance(entry, dict):
+                        raise ValueError("batch cache record must be an object")
                     integrity = entry.pop("integrity_sha256")
                     if integrity != _digest(entry) or entry["key"] != _digest(entry["identity"]):
                         raise ValueError("batch cache integrity/key mismatch")
@@ -323,13 +330,20 @@ class SpendLedger:
             for line_number, line in enumerate(_read_jsonl(self.path), 1):
                 try:
                     event = json.loads(line)
+                    if not isinstance(event, dict):
+                        raise ValueError("ledger record must be an object")
                     integrity = event.pop("integrity_sha256")
                     if integrity != _digest(event):
                         raise ValueError("ledger integrity mismatch")
                     self.events.append(event)
                 except (ValueError, KeyError, TypeError) as exc:
                     raise CacheCorrupt(f"{self.path}:{line_number}: {exc}") from exc
-        self._balances()  # validate event pairing on load
+        try:
+            self._balances()  # validate event pairing on load
+        except CacheCorrupt:
+            raise
+        except (ArithmeticError, KeyError, TypeError, ValueError) as exc:
+            raise CacheCorrupt(f"{self.path}: invalid ledger event: {exc}") from exc
 
     def _balances(self) -> tuple[Decimal, Decimal, dict[str, Decimal]]:
         reserved: dict[str, Decimal] = {}

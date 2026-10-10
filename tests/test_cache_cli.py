@@ -252,6 +252,36 @@ def test_batch_cache_recovers_unterminated_final_record(tmp_path):
     assert path.read_bytes() == complete_records
 
 
+@pytest.mark.parametrize("store_kind", ("review", "batch", "ledger"))
+def test_jsonl_stores_wrap_non_object_records_as_cache_corruption(tmp_path, store_kind):
+    path = tmp_path / f"{store_kind}.jsonl"
+    path.write_text("[]\n", encoding="utf-8")
+    store = {"review": ReviewCache, "batch": BatchReviewCache, "ledger": SpendLedger}[store_kind]
+
+    with pytest.raises(CacheCorrupt, match="record must be an object"):
+        store(path)
+
+
+def test_ledger_wraps_well_integrity_hashed_but_malformed_event(tmp_path):
+    path = tmp_path / "malformed-ledger.jsonl"
+    event = {"type": "reserve"}
+    path.write_text(
+        cache_module._canonical({**event, "integrity_sha256": cache_module._digest(event)}) + "\n",
+        encoding="utf-8",
+    )
+
+    with pytest.raises(CacheCorrupt, match="invalid ledger event"):
+        SpendLedger(path)
+
+
+def test_jsonl_stores_report_invalid_utf8_as_cache_corruption(tmp_path):
+    path = tmp_path / "invalid-utf8.jsonl"
+    path.write_bytes(b"\xff\n")
+
+    with pytest.raises(CacheCorrupt, match="invalid UTF-8"):
+        BatchReviewCache(path)
+
+
 def test_spend_ledger_recovers_unterminated_final_record_conservatively(tmp_path):
     path = tmp_path / "spend.jsonl"
     request = _request()
