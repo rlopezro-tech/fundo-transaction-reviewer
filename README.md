@@ -37,5 +37,6 @@ The evaluator includes provider-failure fallbacks in full-cohort denominators, s
 
 - [`SOLUTION.md`](SOLUTION.md) — measured results, limitations, challenge answers, production plan, and tools used.
 - [`docs/CHALLENGE.md`](docs/CHALLENGE.md) — challenge brief and final completion status.
+- [`docs/ACCEPTANCE.md`](docs/ACCEPTANCE.md) — requirement-by-requirement status and remaining gates.
 - [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) — implemented data flow and safety boundaries.
 - [`docs/reference/`](docs/reference/README.md) — concise implementation references; `docs/archive/` retains planning history.
