@@ -15,7 +15,7 @@ Status reflects repository evidence on the current branch. **Partial** means an 
 | Shadow rollout, drift, historical replay, underwriter feedback | Pass as proposed design | `SOLUTION.md` | Design only; no production service is expected |
 | One run command with API key in environment | Pass for online execution | `README.md`; `OPENAI_API_KEY` in local ignored `.env` | Verify from a clean checkout; API quota is currently a blocker |
 | Total LLM cost below $10 | Within limit by recorded estimate; not independently billed | Append-only provider ledgers; `SOLUTION.md` | Reconcile final usage and reservations; do not call usage estimate a receipt |
-| Clean-checkout install and test | Not yet independently verified | `pyproject.toml`, `uv.lock`, `README.md`; last recorded suite: 116 passing | Run install/tests in a clean environment and automate them in CI |
+| Clean-checkout install and test | **Partial / not verified** | Existing local virtual environment: `118 passed`; project metadata and lockfile are present | Verify install/tests from a clean checkout and automate them in CI |
 
 ## Submission decision
 
