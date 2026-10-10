@@ -61,7 +61,7 @@ def _digest(value: Any) -> str:
 
 def request_identity(request: ReviewRequest, model: str) -> dict[str, Any]:
     """Only whitelisted reviewer-visible data; no raw transaction or truth."""
-    return {
+    identity = {
         "cache_version": CACHE_VERSION,
         "model": model,
         "prompt_version": PROMPT_VERSION,
@@ -77,6 +77,21 @@ def request_identity(request: ReviewRequest, model: str) -> dict[str, Any]:
         "user_prompt": request.user_prompt,
         "payload": request.payload,
     }
+    try:
+        spec = model_spec(model)
+    except ValueError:
+        # Unknown model strings can still produce deterministic offline misses;
+        # online spend/provider gates reject them before making a call.
+        spec = None
+    if spec is not None and spec.provider_model is not None:
+        # Provider-side model aliases and output-mode changes must invalidate
+        # cached proposals, while preserving historical OpenAI cache keys.
+        identity["provider_request"] = {
+            "provider": spec.provider,
+            "model": spec.provider_model,
+            "response_format": spec.response_format,
+        }
+    return identity
 
 
 def request_key(request: ReviewRequest, model: str) -> str:

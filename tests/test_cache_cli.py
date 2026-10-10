@@ -109,6 +109,30 @@ def test_request_key_invalidates_every_relevant_field_and_version(monkeypatch):
     assert "ground_truth" not in identity_text and "scenario_id" not in identity_text
 
 
+def test_provider_request_configuration_invalidates_only_provider_specific_cache_keys(monkeypatch):
+    request = _request()
+    openai_identity = cache_module.request_identity(request, "gpt-6-luna")
+    assert "provider_request" not in openai_identity
+
+    model = "openrouter/google/gemma-4-26b-a4b-it:free"
+    before = cache_module.request_identity(request, model)
+    before_key = request_key(request, model)
+    assert before["provider_request"] == {
+        "provider": "openrouter",
+        "model": "google/gemma-4-26b-a4b-it:free",
+        "response_format": "json_object",
+    }
+    original_model_spec = cache_module.model_spec
+
+    def changed_model_spec(model_id):
+        spec = original_model_spec(model_id)
+        return replace(spec, response_format="json_schema") if model_id == model else spec
+
+    monkeypatch.setattr(cache_module, "model_spec", changed_model_spec)
+    assert cache_module.request_identity(request, model) != before
+    assert request_key(request, model) != before_key
+
+
 def test_cache_hit_miss_integrity_and_validated_only(tmp_path):
     request = _request()
     path = tmp_path / "reviews.jsonl"

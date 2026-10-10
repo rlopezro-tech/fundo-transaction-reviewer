@@ -37,7 +37,7 @@ transaction JSON → validate/window → keyword baseline → cached/provider re
 - **Model proposes only:** keep/change, group, business/personal, confidence, and a short reason. It cannot edit transaction facts, revenue, features, or offer.
 - **Failure behavior:** invalid, incomplete, refused, or ordinary provider exceptions retain the baseline label and are marked degraded. In batched mode, transport exceptions are not cached, so a later online run may retry them. Fatal budget/quota errors propagate and abort before a new report is written; OpenRouter stops after a degraded response. An uncached offline request fails instead of pretending it was reviewed. The launcher does not load `.env` for offline mode.
 - **Safety:** descriptions are untrusted JSON data; the provider has no tools. Structured output is checked again in application code.
-- **Reproducibility and cost tracking:** model/provider, versioned input/output price assumptions, usage, statuses, and output hashes are recorded in the run manifest; cache entries hash model/prompt/schema/input identity and the append-only ledger tracks reservations and settlements.
+- **Reproducibility and cost tracking:** model/provider, versioned input/output price assumptions, usage, statuses, and output hashes are recorded in the run manifest; cache entries hash model/prompt/schema/input identity and OpenRouter model/response-format routing (legacy OpenAI keys remain compatible); the append-only ledger tracks reservations and settlements.
 
 ## Main modules
 
