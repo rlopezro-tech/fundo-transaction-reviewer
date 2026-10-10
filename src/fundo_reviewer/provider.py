@@ -3,10 +3,13 @@
 from __future__ import annotations
 
 import json
+import math
 import os
 import time
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
+from datetime import datetime, timezone
+from email.utils import parsedate_to_datetime
 from enum import Enum
 from typing import Any, Literal
 
@@ -82,6 +85,25 @@ def _fatal_rate_limit_message(error, provider: str) -> str | None:
     if "tokens per minute" in details or "tpm" in details:
         return f"{provider} token-per-minute quota exhausted; resume from cache after reset"
     return None
+
+
+def _retry_after_seconds(value: str | None) -> float | None:
+    """Parse Retry-After's delta-seconds or HTTP-date forms."""
+    if not value:
+        return None
+    try:
+        seconds = float(value)
+    except ValueError:
+        try:
+            retry_at = parsedate_to_datetime(value)
+        except (TypeError, ValueError, OverflowError):
+            return None
+        if retry_at.tzinfo is None:
+            retry_at = retry_at.replace(tzinfo=timezone.utc)
+        seconds = (retry_at - datetime.now(timezone.utc)).total_seconds()
+    if not math.isfinite(seconds):
+        return None
+    return max(0.0, seconds)
 
 
 def build_batch_request(requests: tuple[ReviewRequest, ...]) -> BatchReviewRequest:
@@ -183,11 +205,14 @@ class OpenAIProvider(_StructuredReviewAdapter):
                     raise FatalReviewError(
                         "provider minute request quota persisted after bounded retries; resume later"
                     ) from exc
-                retry_after = exc.response.headers.get("retry-after") if exc.response else None
-                try:
-                    delay = min(max(float(retry_after), 1), 20) if retry_after else 7.0
-                except ValueError:
-                    delay = 7.0
+                retry_after = _retry_after_seconds(
+                    exc.response.headers.get("retry-after") if exc.response else None
+                )
+                if retry_after is not None and retry_after > 20:
+                    raise FatalReviewError(
+                        "OpenAI requested a long rate-limit cooldown; resume from cache later"
+                    ) from exc
+                delay = max(retry_after, 1.0) if retry_after is not None else 7.0
                 time.sleep(delay)
             except Exception as exc:
                 # Do not turn an unusable credential, incompatible request, or
@@ -306,13 +331,14 @@ class OpenRouterProvider(_StructuredReviewAdapter):
                     raise FatalReviewError(
                         "OpenRouter rate limit persisted after bounded retries"
                     ) from exc
-                retry_after = exc.response.headers.get("retry-after") if exc.response else None
-                try:
-                    delay = (
-                        min(max(float(retry_after), 1), 60) if retry_after else 15.0 * (attempt + 1)
-                    )
-                except ValueError:
-                    delay = 15.0 * (attempt + 1)
+                retry_after = _retry_after_seconds(
+                    exc.response.headers.get("retry-after") if exc.response else None
+                )
+                if retry_after is not None and retry_after > 60:
+                    raise FatalReviewError(
+                        "OpenRouter requested a long rate-limit cooldown; resume from cache later"
+                    ) from exc
+                delay = max(retry_after, 1.0) if retry_after is not None else 15.0 * (attempt + 1)
                 time.sleep(delay)
             except Exception as exc:
                 # A batch failure must stop the run; otherwise the CLI would

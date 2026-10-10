@@ -1,4 +1,6 @@
+from datetime import datetime, timedelta, timezone
 from decimal import Decimal
+from email.utils import format_datetime
 from pathlib import Path
 from types import SimpleNamespace
 
@@ -9,7 +11,7 @@ from openai import RateLimitError
 from fundo_reviewer import provider as provider_module
 from fundo_reviewer.cache import MODEL_PRICES, pricing_version, usage_derived_cost
 from fundo_reviewer.model_catalog import DEFAULT_MODEL, model_spec, registered_models
-from fundo_reviewer.provider import BatchProviderShape, OpenRouterProvider
+from fundo_reviewer.provider import BatchProviderShape, OpenRouterProvider, _retry_after_seconds
 from fundo_reviewer.reviewer import FatalReviewError
 
 
@@ -132,6 +134,41 @@ def test_openrouter_structured_credit_exhaustion_stops_without_retries():
     adapter._last_call_at = None
     adapter.client = SimpleNamespace(chat=SimpleNamespace(completions=QuotaCompletions()))
     with pytest.raises(FatalReviewError, match="OpenRouter API credit balance exhausted"):
+        adapter.review_batch(SimpleNamespace(system_prompt="system", user_prompt="user"))
+    assert len(calls) == 1
+
+
+def test_retry_after_accepts_delta_seconds_and_http_date():
+    assert _retry_after_seconds("12.5") == 12.5
+    assert _retry_after_seconds("not-a-date") is None
+    retry_at = datetime.now(timezone.utc) + timedelta(seconds=10)
+    delay = _retry_after_seconds(format_datetime(retry_at, usegmt=True))
+    assert delay is not None and 8 <= delay <= 10
+
+
+def test_openrouter_long_retry_after_stops_without_retrying_early():
+    calls = []
+
+    class LongCooldownCompletions:
+        def create(self, **kwargs):
+            calls.append(kwargs)
+            response = httpx.Response(
+                429,
+                headers={"retry-after": "120"},
+                request=httpx.Request("POST", "https://openrouter.ai/api/v1/chat/completions"),
+            )
+            raise RateLimitError(
+                "Temporary rate limit",
+                response=response,
+                body={"code": "rate_limit_exceeded", "message": "try again later"},
+            )
+
+    adapter = object.__new__(OpenRouterProvider)
+    adapter.model = "openai/gpt-oss-20b"
+    adapter.response_format_kind = "json_schema"
+    adapter._last_call_at = None
+    adapter.client = SimpleNamespace(chat=SimpleNamespace(completions=LongCooldownCompletions()))
+    with pytest.raises(FatalReviewError, match="long rate-limit cooldown"):
         adapter.review_batch(SimpleNamespace(system_prompt="system", user_prompt="user"))
     assert len(calls) == 1
 
