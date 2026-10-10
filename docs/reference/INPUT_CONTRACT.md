@@ -1,6 +1,6 @@
 # Input contract v1 — Ticket 01
 
-> **Status:** implemented input boundary, not an end-to-end reviewer. Fundo requires Plaid-shaped transaction data; the single-envelope format and validation policies are our approved choices in [Business rules](../archive/rules/BUSINESS_RULES.md). No Plaid API, Sandbox, ground truth, or API key is needed here.
+> **Status:** implemented input boundary, not an end-to-end reviewer. Fundo requires Plaid-shaped transaction data; the single-envelope format and validation policies are this project's documented implementation choices. No Plaid API, Sandbox, ground truth, or API key is needed here.
 
 ## File shape
 

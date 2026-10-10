@@ -9,4 +9,4 @@ These details supplement the submission; the concise entry points are `../CHALLE
 - `SYNTHETIC_DATA.md` — fixture scenarios, generation, and truth separation.
 - `FINANCIAL_GLOSSARY.md` — terminology.
 
-Historical tickets, planning decisions, and checklists live in `../archive/`; they are not the final status source.
+The root [`ACCEPTANCE.md`](../ACCEPTANCE.md) and [`SOLUTION.md`](../../SOLUTION.md) are the current sources for delivery status and measured results.
