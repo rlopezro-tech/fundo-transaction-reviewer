@@ -7,6 +7,7 @@ from pathlib import Path
 
 import pytest
 
+import fundo_reviewer.evaluation as evaluation_module
 from fundo_reviewer.cli import run_pipeline
 from fundo_reviewer.data import load_input
 from fundo_reviewer.evaluation import (
@@ -41,7 +42,8 @@ def _selected_business(case):
 
 def test_seeded_sensitivity_counts_ids_and_financial_directions(tmp_path):
     normalized = load_input(MAIN)
-    records, labels, _ = load_truth(normalized, TRUTH)
+    dataset = load_truth(normalized, TRUTH)
+    records, labels = dataset.records, dataset.labels
     first = build_sensitivity_report(normalized, records, labels)
     second = build_sensitivity_report(normalized, records, labels)
     assert first == second
@@ -137,6 +139,25 @@ def test_checked_in_partial_run_partitions_model_and_fallback_metrics(tmp_path):
         covered = sum(scopes[scope]["by_business"][business["business_id"]]["transactions"]
                       for scope in ("model_reviewed", "degraded_fallback"))
         assert covered == business["label_counts"]["transactions"]
+
+
+def test_quality_report_hashes_exact_truth_snapshot_used(tmp_path, monkeypatch):
+    truth_path = tmp_path / "truth.json"
+    original_truth = TRUTH.read_bytes()
+    truth_path.write_bytes(original_truth)
+    original_builder = evaluation_module.build_sensitivity_report
+
+    def mutate_truth_after_validation(*args):
+        report = original_builder(*args)
+        truth_path.write_bytes(original_truth + b"\n")
+        return report
+
+    monkeypatch.setattr(evaluation_module, "build_sensitivity_report", mutate_truth_after_validation)
+    run_evaluation(MAIN, truth_path, ROOT / "reports" / "main", tmp_path / "evaluation")
+
+    quality = json.loads((tmp_path / "evaluation" / "quality_report.json").read_text())
+    assert quality["truth_sha256"] == hashlib.sha256(original_truth).hexdigest()
+    assert hashlib.sha256(truth_path.read_bytes()).hexdigest() != quality["truth_sha256"]
 
 
 def test_sensitivity_only_never_claims_review_accuracy(tmp_path):

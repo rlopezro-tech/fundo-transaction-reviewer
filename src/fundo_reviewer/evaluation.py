@@ -10,6 +10,7 @@ import hashlib
 import json
 import random
 from collections import Counter
+from dataclasses import dataclass
 from decimal import Decimal
 from pathlib import Path
 from typing import Any, Mapping
@@ -31,6 +32,16 @@ SENSITIVITY_SEED = 20261009
 RATES = (2, 5, 10)
 
 
+@dataclass(frozen=True)
+class TruthDataset:
+    """Validated evaluation labels with their exact source-file provenance."""
+
+    records: dict[str, dict]
+    labels: dict[str, CreditLabel]
+    metadata: dict[str, Any]
+    source_sha256: str
+
+
 def _json(path: Path) -> Any:
     return json.loads(path.read_text(encoding="utf-8"))
 
@@ -46,8 +57,9 @@ def _label(transaction_id: str, record: Mapping[str, Any]) -> CreditLabel:
     return CreditLabel(transaction_id, group, status)
 
 
-def load_truth(normalized: NormalizedInput, path: Path) -> tuple[dict[str, dict], dict[str, CreditLabel], dict]:
-    data = _json(path)
+def load_truth(normalized: NormalizedInput, path: Path) -> TruthDataset:
+    raw_truth = path.read_bytes()
+    data = json.loads(raw_truth.decode("utf-8"))
     if not isinstance(data, dict) or not isinstance(data.get("labels"), dict):
         raise ValueError("synthetic truth must have an ID-keyed labels object")
     if data.get("as_of") != normalized.as_of.isoformat():
@@ -72,7 +84,7 @@ def load_truth(normalized: NormalizedInput, path: Path) -> tuple[dict[str, dict]
             if alternative == label:
                 raise ValueError(f"truth alternative label does not differ for {transaction.transaction_id}")
         labels[transaction.transaction_id] = label
-    return records, labels, data
+    return TruthDataset(records, labels, data, hashlib.sha256(raw_truth).hexdigest())
 
 
 def _legacy_labels(normalized: NormalizedInput) -> tuple[tuple[LegacyLabel, ...], dict[str, CreditLabel]]:
@@ -178,8 +190,8 @@ def _marginal_effect(
 
 
 def _quality_report(
-    normalized: NormalizedInput, input_path: Path, truth_path: Path,
-    truth_records: dict[str, dict], truth: dict[str, CreditLabel], truth_data: dict,
+    normalized: NormalizedInput, input_path: Path, truth_data: TruthDataset,
+    truth_records: dict[str, dict], truth: dict[str, CreditLabel],
     legacy: dict[str, CreditLabel], reviewed_records: dict[str, dict],
     reviewed: dict[str, CreditLabel], manifest: dict,
 ) -> dict:
@@ -305,8 +317,8 @@ def _quality_report(
         t, l, r = truth_features[bid], legacy_features[bid], reviewed_features[bid]
         businesses.append({
             "business_id": bid,
-            "evaluation_split": truth_data["business_metadata"][bid]["evaluation_split"],
-            "nsf_fee_observable": truth_data["business_metadata"][bid]["nsf_fee_observable"],
+            "evaluation_split": truth_data.metadata["business_metadata"][bid]["evaluation_split"],
+            "nsf_fee_observable": truth_data.metadata["business_metadata"][bid]["nsf_fee_observable"],
             "coverage_days": coverage.days,
             "label_counts": dict(sorted(per_business[bid].items())),
             "legacy": feature_record(l), "reviewed": feature_record(r), "truth": feature_record(t),
@@ -328,7 +340,7 @@ def _quality_report(
         "feature_policy_version": FEATURE_POLICY_VERSION,
         "offer_policy_version": OFFER_POLICY_VERSION,
         "input_sha256": normalized.source_sha256 or hashlib.sha256(input_path.read_bytes()).hexdigest(),
-        "truth_sha256": hashlib.sha256(truth_path.read_bytes()).hexdigest(),
+        "truth_sha256": truth_data.source_sha256,
         "review_manifest_input_sha256": manifest["input_sha256"],
         "counts": dict(sorted(counts.items())),
         "review_quality_by_scope": review_quality_by_scope,
@@ -486,14 +498,15 @@ def build_sensitivity_report(
 
 def run_evaluation(input_path: Path, truth_path: Path, review_dir: Path | None, output_dir: Path) -> dict:
     normalized = load_input(input_path)
-    truth_records, truth, truth_data = load_truth(normalized, truth_path)
+    truth_data = load_truth(normalized, truth_path)
+    truth_records, truth = truth_data.records, truth_data.labels
     sensitivity = build_sensitivity_report(normalized, truth_records, truth)
     _write(output_dir / "sensitivity_report.json", sensitivity)
     result = {"sensitivity_cases": len(sensitivity["random_cases"]) + len(sensitivity["targeted_cases"])}
     if review_dir is not None:
         legacy_labels, legacy = _legacy_labels(normalized)
         reviewed_records, reviewed, manifest = load_reviewed(normalized, input_path, review_dir, legacy_labels)
-        quality = _quality_report(normalized, input_path, truth_path, truth_records, truth, truth_data,
+        quality = _quality_report(normalized, input_path, truth_data, truth_records, truth,
                                   legacy, reviewed_records, reviewed, manifest)
         _write(output_dir / "quality_report.json", quality)
         result["transactions_evaluated"] = quality["counts"]["transactions"]
