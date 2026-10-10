@@ -39,7 +39,7 @@ This replays the committed three-transaction example without an API key or provi
 
 The command should report 3 cache hits and 0 API calls. The regenerated `review_outcomes.json`, `credit_report.json`, and `run_manifest.json` match the committed artifacts in `reports/new_input/` byte for byte. The main 2,000-row run is different: its cache is partial, so a full offline replay intentionally fails on missing batches.
 
-The committed main report has 2,000 rows, but its LLM cache is partial. It contains 10 cached batches covering 800 rows: **799 usable model decisions and one invalid response**. The other **1,200 rows fell back to legacy labels** after provider rate limits. The manifest's `cache_hits: 800` counts rows read from cached batches, not valid model decisions. Therefore the full 2,000-row offline replay is not currently possible; offline mode intentionally errors on missing cache entries.
+The committed main report has 2,000 rows, but its LLM cache is partial. It contains 10 cached batches covering 800 rows: **799 usable model decisions and one invalid response**. The other **1,201 rows retain legacy labels**: one because its cached response was invalid and 1,200 after provider failures. In the manifest, `cache_hits: 800` counts rows read from cached batches, while `degraded_count: 1201` counts all outcomes that fell back to legacy labels. Therefore the full 2,000-row offline replay is not currently possible; offline mode intentionally errors on missing cache entries.
 
 To continue online when API quota is available, add `OPENAI_API_KEY=...` to a local `.env` (gitignored), then run:
 

@@ -58,4 +58,4 @@ The CLI and OpenAI prompt pilot both use `provider.create_provider()`, which rou
 
 ## Current delivery limitation
 
-The main cohort contains 2,000 rows; 799 have valid model proposals, one model response is invalid, and 1,200 rows use degraded legacy fallback. OpenAI returned organization-level 100k TPM errors on both configured keys. Thus the report is complete as an **outcome/fallback snapshot**, but the model cache and no-key replay are partial. See [`../SOLUTION.md`](../SOLUTION.md).
+The main cohort contains 2,000 rows: 799 valid model proposals, one invalid response, and 1,200 provider failures. These last two categories produce **1,201 degraded outcomes** that retain legacy labels; 800 rows are represented in the 10 cached batches. OpenAI returned organization-level 100k TPM errors on both configured keys. Thus the report is complete as an **outcome/fallback snapshot**, but the model cache and no-key replay are partial. See [`../SOLUTION.md`](../SOLUTION.md).
