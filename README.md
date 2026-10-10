@@ -2,10 +2,21 @@
 
 Python CLI that compares a deterministic keyword baseline with an LLM reviewer on synthetic, Plaid-shaped bank transactions. It computes illustrative credit features; it is not a lending decision service.
 
-## Run locally
+## Quick start (no API key or charges)
 
 ```bash
 uv sync --locked --group dev
+./scripts/run --mode offline \
+  --input tests/fixtures/input_90_days.json \
+  --cache cache/new_input.jsonl \
+  --output-dir /tmp/fundo-offline-replay
+```
+
+This example returns 3 cache hits and 0 API calls. It writes `review_outcomes.json`, `credit_report.json`, and `run_manifest.json` under `/tmp/fundo-offline-replay/`; those files match the committed example under `reports/new_input/` byte for byte.
+
+## Run tests
+
+```bash
 uv run --locked --group dev pytest -q
 ```
 
@@ -40,19 +51,6 @@ Put a Plaid-shaped JSON input in `data/transactions/`, then use a separate cache
 ```
 
 The command uses the selected provider's key from `.env` and may incur API charges. Once every batch has a cache entry, replay the exact input without a key or provider call by changing `--mode online` to `--mode offline` and using the same `--input` and `--cache`. Do not put ground truth in the input or use real customer data for this challenge.
-
-## Reproduce the cached example offline
-
-This replays the committed three-transaction example without an API key or provider call, and writes fresh output under `/tmp`:
-
-```bash
-./scripts/run --mode offline \
-  --input tests/fixtures/input_90_days.json \
-  --cache cache/new_input.jsonl \
-  --output-dir /tmp/fundo-offline-replay
-```
-
-The command should report 3 cache hits and 0 API calls. The regenerated `review_outcomes.json`, `credit_report.json`, and `run_manifest.json` match the committed artifacts in `reports/new_input/` byte for byte. The main 2,000-row run is different: its cache is partial, so a full offline replay intentionally fails on missing batches.
 
 The committed main report has 2,000 rows, but its LLM cache is partial. It contains 10 cached batches covering 800 rows: **799 usable model decisions and one invalid response**. The other **1,201 rows retain legacy labels**: one because its cached response was invalid and 1,200 after provider failures. In the manifest, `cache_hits: 800` counts rows read from cached batches, while `degraded_count: 1201` counts all outcomes that fell back to legacy labels. Therefore the full 2,000-row offline replay is not currently possible; offline mode intentionally errors on missing cache entries.
 
