@@ -17,6 +17,7 @@ from datetime import date, timedelta
 from pathlib import Path
 from typing import Any
 
+from fundo_reviewer.artifacts import write_bytes_atomic
 from fundo_reviewer.data import load_input
 
 
@@ -357,8 +358,7 @@ def write_files(output_root: Path) -> dict[str, str]:
     hashes: dict[str, str] = {}
     for relative_path, contents in files.items():
         path = output_root / relative_path
-        path.parent.mkdir(parents=True, exist_ok=True)
-        path.write_bytes(contents)
+        write_bytes_atomic(path, contents)
         hashes[relative_path] = hashlib.sha256(contents).hexdigest()
     for cohort in ("main_90_days", "short_61_days"):
         normalized = load_input(output_root / "transactions" / f"{cohort}.json")

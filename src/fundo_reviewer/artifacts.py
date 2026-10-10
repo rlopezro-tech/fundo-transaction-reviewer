@@ -9,14 +9,13 @@ from pathlib import Path
 from typing import Any
 
 
-def write_json_atomic(path: Path, value: Any) -> None:
-    """Write formatted JSON without exposing a partially written destination."""
+def write_bytes_atomic(path: Path, payload: bytes) -> None:
+    """Replace a file atomically without exposing a partially written destination."""
     path.parent.mkdir(parents=True, exist_ok=True)
-    payload = json.dumps(value, indent=2, sort_keys=True, ensure_ascii=False) + "\n"
     temporary_path: Path | None = None
     try:
         with tempfile.NamedTemporaryFile(
-            mode="w", encoding="utf-8", newline="\n", dir=path.parent,
+            mode="wb", dir=path.parent,
             prefix=f".{path.name}.", suffix=".tmp", delete=False,
         ) as temporary:
             temporary_path = Path(temporary.name)
@@ -27,3 +26,9 @@ def write_json_atomic(path: Path, value: Any) -> None:
     finally:
         if temporary_path is not None:
             temporary_path.unlink(missing_ok=True)
+
+
+def write_json_atomic(path: Path, value: Any) -> None:
+    """Write formatted JSON without exposing a partially written destination."""
+    payload = (json.dumps(value, indent=2, sort_keys=True, ensure_ascii=False) + "\n").encode("utf-8")
+    write_bytes_atomic(path, payload)

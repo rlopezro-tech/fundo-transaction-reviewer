@@ -9,6 +9,7 @@ from collections import Counter
 from pathlib import Path
 from urllib.request import Request, urlopen
 
+from fundo_reviewer.artifacts import write_json_atomic
 from fundo_reviewer.cache import BatchReviewCache, CacheMiss, batch_identity
 from fundo_reviewer.data import load_input
 from fundo_reviewer.legacy import label_transaction
@@ -190,8 +191,7 @@ def run_pilot(model: str = DEFAULT_MODEL, cache_path: Path | None = None, output
         "ollama_usage_tokens": reply.usage,
         "api_cost_usd": "0",
     })
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    output_path.write_text(json.dumps(report, ensure_ascii=False, sort_keys=True, indent=2) + "\n", encoding="utf-8")
+    write_json_atomic(output_path, report)
     return report
 
 

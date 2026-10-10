@@ -2,7 +2,7 @@ import json
 
 import pytest
 
-from fundo_reviewer.artifacts import write_json_atomic
+from fundo_reviewer.artifacts import write_bytes_atomic, write_json_atomic
 
 
 def test_atomic_json_write_replaces_destination_with_formatted_utf8(tmp_path):
@@ -15,6 +15,15 @@ def test_atomic_json_write_replaces_destination_with_formatted_utf8(tmp_path):
     assert json.loads(destination.read_text(encoding="utf-8")) == {"count": 2, "label": "café"}
     assert destination.read_text(encoding="utf-8").endswith("\n")
     assert list(destination.parent.glob("*.tmp")) == []
+
+
+def test_atomic_bytes_write_preserves_exact_generated_fixture_bytes(tmp_path):
+    destination = tmp_path / "transactions" / "input.json"
+    payload = b'{"amount": -100.00}\n'
+
+    write_bytes_atomic(destination, payload)
+
+    assert destination.read_bytes() == payload
 
 
 def test_atomic_json_write_preserves_existing_file_when_serialization_fails(tmp_path):

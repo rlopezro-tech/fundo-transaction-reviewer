@@ -8,6 +8,7 @@ from collections import Counter
 from dataclasses import replace
 from pathlib import Path
 
+from fundo_reviewer.artifacts import write_json_atomic
 from fundo_reviewer.cache import CacheMiss, ReviewCache, SpendLedger, usage_derived_cost
 from fundo_reviewer.data import load_input
 from fundo_reviewer.legacy import label_transaction
@@ -105,8 +106,7 @@ def run_pilot(variant: str, model: str = DEFAULT_MODEL) -> dict:
         "records": records,
     }
     output = Path(f"reports/experiments/{provider_name}/pilots/pilot_{variant}.json")
-    output.parent.mkdir(parents=True, exist_ok=True)
-    output.write_text(json.dumps(result, ensure_ascii=False, sort_keys=True, indent=2) + "\n")
+    write_json_atomic(output, result)
     return result
 
 
