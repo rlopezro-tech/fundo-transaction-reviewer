@@ -40,6 +40,15 @@ def test_cli_defaults_outputs_to_main_report_folder():
     assert args.input == Path("data/transactions/main_90_days.json")
     assert args.output_dir == Path("reports/main")
     assert args.mode == "offline"
+    assert args.model == "gpt-6-luna"
+
+
+def test_cli_model_choices_come_from_registered_catalog():
+    parser = _build_parser()
+    model_action = next(action for action in parser._actions if action.dest == "model")
+    assert "openrouter/openai/gpt-oss-20b" in model_action.choices
+    with pytest.raises(SystemExit):
+        parser.parse_args(["--model", "not-a-registered-model"])
 
 
 class FakeProvider:

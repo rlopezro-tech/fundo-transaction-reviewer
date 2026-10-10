@@ -17,7 +17,7 @@ from fundo_reviewer.cache import (
 from fundo_reviewer.credit import FEATURE_POLICY_VERSION, OFFER_POLICY_VERSION, build_credit_report
 from fundo_reviewer.data import load_input
 from fundo_reviewer.legacy import RULESET_VERSION, label_transactions
-from fundo_reviewer.model_catalog import model_spec
+from fundo_reviewer.model_catalog import model_spec, registered_models
 from fundo_reviewer.provider import (
     DEFAULT_MODEL, BudgetedBatchProvider, BudgetedProvider, build_batch_request, create_provider,
 )
@@ -273,7 +273,10 @@ def _build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--mode", choices=("offline", "online"), default="offline")
     parser.add_argument("--cache", type=Path, default=Path("cache/batch_reviews.jsonl"))
     parser.add_argument("--spend-ledger", type=Path, default=Path("cache/spend_ledger.jsonl"))
-    parser.add_argument("--model", default=DEFAULT_MODEL)
+    parser.add_argument(
+        "--model", choices=tuple(spec.model for spec in registered_models()), default=DEFAULT_MODEL,
+        help="registered model/provider ID (see the choices shown here)",
+    )
     parser.add_argument("--batch-size", type=int, default=80)
     return parser
 
