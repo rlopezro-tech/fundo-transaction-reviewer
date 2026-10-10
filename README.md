@@ -13,6 +13,7 @@ GitHub Actions runs the locked dependency install and test suite, then verifies 
 
 `scripts/run` is the short CLI launcher: it sets `PYTHONPATH` and loads `.env` only when `--mode online` is explicit. To configure hosted calls, copy `env.example` to `.env` and set the key for the selected provider; never commit `.env`.
 To switch among registered models/providers, select an ID listed by `./scripts/run --help` and set its matching key in `.env`; no source edits are needed. A completely new provider still needs a transport adapter. The model catalog is the source of supported IDs and key mapping.
+Online and offline batch runs print progress and per-batch status to stderr; the final machine-readable summary remains on stdout. Logs contain row counts and status only, not transaction descriptions or credentials.
 
 Generate the synthetic fixtures (no Plaid account or API key needed):
 

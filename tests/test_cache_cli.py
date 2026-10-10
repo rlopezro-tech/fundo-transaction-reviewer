@@ -2,6 +2,7 @@
 
 import hashlib
 import json
+import logging
 from dataclasses import replace
 from decimal import Decimal
 from pathlib import Path
@@ -331,19 +332,25 @@ def test_new_truth_free_envelope_is_accepted_online_without_accuracy_claim(tmp_p
     assert hashlib.sha256((tmp_path / "output" / "review_outcomes.json").read_bytes()).hexdigest()
 
 
-def test_batch_review_replays_all_ids_without_key_and_detects_corruption(tmp_path, monkeypatch):
+def test_batch_review_replays_all_ids_without_key_and_detects_corruption(tmp_path, monkeypatch, caplog):
     path = tmp_path / "batch.jsonl"
     ledger = tmp_path / "ledger.jsonl"
     fake = FakeBatchProvider()
-    online = run_pipeline(SMALL, tmp_path / "online", "online", path, ledger,
-                          provider=fake, batch_size=2)
+    with caplog.at_level(logging.INFO, logger="fundo_reviewer.cli"):
+        online = run_pipeline(SMALL, tmp_path / "online", "online", path, ledger,
+                              provider=fake, batch_size=2)
+    assert "batch 1/2 cache miss; requesting provider (2 rows)" in caplog.text
+    assert "batch 1/2 complete source=provider rows=2 status=kept:2" in caplog.text
     assert fake.calls == online["new_api_calls"]
     assert online["accepted_transactions"] == sum(online["review_status_counts"].values())
     assert online["degraded_count"] == 0
     assert len(BatchReviewCache(path).entries) == fake.calls
     monkeypatch.delenv("OPENAI_API_KEY", raising=False)
     monkeypatch.setattr("fundo_reviewer.cli.create_provider", lambda *args: pytest.fail("offline loaded provider"))
-    offline = run_pipeline(SMALL, tmp_path / "offline", "offline", path, ledger, batch_size=2)
+    caplog.clear()
+    with caplog.at_level(logging.INFO, logger="fundo_reviewer.cli"):
+        offline = run_pipeline(SMALL, tmp_path / "offline", "offline", path, ledger, batch_size=2)
+    assert "batch 1/2 complete source=cache rows=2 status=kept:2" in caplog.text
     assert offline["cache_hits"] == online["accepted_transactions"]
     assert offline["cache_batch_hits"] == fake.calls
     assert (tmp_path / "online" / "review_outcomes.json").read_bytes() == (

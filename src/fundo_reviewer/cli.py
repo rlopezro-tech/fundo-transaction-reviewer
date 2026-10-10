@@ -5,6 +5,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import logging
 from collections import Counter
 from pathlib import Path
 from typing import Any
@@ -26,6 +27,8 @@ from fundo_reviewer.reviewer import (
     BatchReviewProvider, FLAG_POLICY_VERSION, PROMPT_VERSION, SCHEMA_VERSION,
     FatalReviewError, ProviderReply, ReviewOutcome, ReviewProvider, build_request, review_one,
 )
+
+logger = logging.getLogger(__name__)
 
 
 class _StaticProvider:
@@ -80,7 +83,9 @@ def _run_batched(normalized, labels, *, mode, cache_path, ledger_path, model, pr
     historical_usage = Counter()
     historical_cost = 0
     transactions = normalized.transactions
+    total_batches = (len(transactions) + batch_size - 1) // batch_size
     for offset in range(0, len(transactions), batch_size):
+        batch_number = offset // batch_size + 1
         chunk = transactions[offset:offset + batch_size]
         requests = tuple(build_request(item, labels[item.transaction_id]) for item in chunk)
         batch = build_batch_request(requests)
@@ -90,12 +95,24 @@ def _run_batched(normalized, labels, *, mode, cache_path, ledger_path, model, pr
             reply = cache.replay(identity)
         except CacheMiss:
             if mode == "offline":
+                logger.error(
+                    "offline replay stopped: no cached response for batch %d/%d (%d rows)",
+                    batch_number, total_batches, len(chunk),
+                )
                 raise
             assert budgeted is not None
+            logger.info(
+                "batch %d/%d cache miss; requesting provider (%d rows)",
+                batch_number, total_batches, len(chunk),
+            )
             new_api_calls += 1
             try:
                 reply = budgeted.review_batch(batch)
             except FatalReviewError:
+                logger.error(
+                    "batch %d/%d stopped by provider; completed cache batches are preserved",
+                    batch_number, total_batches,
+                )
                 raise
             except Exception as exc:
                 reply = ProviderReply(
@@ -137,6 +154,12 @@ def _run_batched(normalized, labels, *, mode, cache_path, ledger_path, model, pr
             # explicit degraded status. A transport failure has no model
             # decision to replay and must be eligible for a later online retry.
             cache.append(identity, reply, validated)
+        batch_statuses = Counter(item.review_status for item in batch_outcomes)
+        status_summary = ",".join(f"{status}:{count}" for status, count in sorted(batch_statuses.items()))
+        logger.info(
+            "batch %d/%d complete source=%s rows=%d status=%s",
+            batch_number, total_batches, "cache" if was_cache_hit else "provider", len(chunk), status_summary,
+        )
         if model_spec(model).provider == "openrouter" and any(item.degraded for item in batch_outcomes):
             # OpenRouter free/low-cost endpoints have returned malformed or
             # incomplete batch JSON. Preserve the response, then stop rather
@@ -282,6 +305,7 @@ def _build_parser() -> argparse.ArgumentParser:
 
 
 def main() -> None:
+    logging.basicConfig(level=logging.INFO, format="%(levelname)s %(name)s: %(message)s")
     args = _build_parser().parse_args()
     result = run_pipeline(args.input, args.output_dir, args.mode, args.cache, args.spend_ledger, args.model, batch_size=args.batch_size)
     print(json.dumps({key: result[key] for key in ("accepted_transactions", "review_status_counts", "flag_count", "degraded_count", "cache_hits", "new_api_calls", "new_usage_derived_cost_usd")}, sort_keys=True))
