@@ -10,7 +10,23 @@ if ! command -v uv >/dev/null 2>&1; then
 fi
 
 export PYTHONPATH="$ROOT/src${PYTHONPATH:+:$PYTHONPATH}"
-if [[ -f "$ROOT/.env" ]]; then
+
+# Keep offline replay independent from local secrets. The CLI defaults to offline;
+# only an explicit online mode is allowed to import the ignored .env file.
+MODE="offline"
+ARGS=("$@")
+for ((index = 0; index < ${#ARGS[@]}; index++)); do
+  case "${ARGS[$index]}" in
+    --mode=*) MODE="${ARGS[$index]#--mode=}" ;;
+    --mode)
+      if (( index + 1 < ${#ARGS[@]} )); then
+        MODE="${ARGS[$((index + 1))]}"
+      fi
+      ;;
+  esac
+done
+
+if [[ "$MODE" == "online" && -f "$ROOT/.env" ]]; then
   exec uv run --env-file .env python -m fundo_reviewer.cli "$@"
 fi
 exec uv run python -m fundo_reviewer.cli "$@"

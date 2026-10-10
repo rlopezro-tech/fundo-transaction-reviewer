@@ -29,13 +29,13 @@ transaction JSON → validate/window → keyword baseline → cached/provider re
 | `reports/main/`, `reports/evaluation/` | Selected cohort outputs and truth-based analysis |
 | `reports/new_input/` | Complete small offline replay example |
 | `reports/experiments/` | Prior pilots; not main-run evidence |
-| `scripts/run` | CLI launcher; sets source path and loads `.env` if present |
+| `scripts/run` | CLI launcher; sets source path and loads `.env` only for explicit online mode |
 
 ## Boundaries
 
 - **Code owns:** input validation, signed amount interpretation, 13-group precedence, revenue eligibility, feature formulas, offer calculation, cache identity, and output validation.
 - **Model proposes only:** keep/change, group, business/personal, confidence, and a short reason. It cannot edit transaction facts, revenue, features, or offer.
-- **Failure behavior:** invalid, incomplete, refused, or ordinary provider exceptions retain the baseline label and are marked degraded. In batched mode, transport exceptions are not cached, so a later online run may retry them. Fatal budget/quota errors propagate and abort before a new report is written; OpenRouter stops after a degraded response. An uncached offline request fails instead of pretending it was reviewed.
+- **Failure behavior:** invalid, incomplete, refused, or ordinary provider exceptions retain the baseline label and are marked degraded. In batched mode, transport exceptions are not cached, so a later online run may retry them. Fatal budget/quota errors propagate and abort before a new report is written; OpenRouter stops after a degraded response. An uncached offline request fails instead of pretending it was reviewed. The launcher does not load `.env` for offline mode.
 - **Safety:** descriptions are untrusted JSON data; the provider has no tools. Structured output is checked again in application code.
 - **Reproducibility:** model/prompt/schema/input identity is hashed into cache entries; output artifacts include hashes and status counts.
 
