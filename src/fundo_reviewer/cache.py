@@ -438,6 +438,24 @@ class SpendLedger:
             self._reload()
             return self._balances()[0]
 
+    def outstanding_reservations(self) -> list[dict[str, Any]]:
+        """Return safe-to-display metadata for reservations not yet settled."""
+        with _exclusive_jsonl_lock(self.path):
+            self._reload()
+            _, _, active = self._balances()
+            metadata = {
+                event["call_id"]: event for event in self.events if event["type"] == "reserve"
+            }
+            return [
+                {
+                    "call_id": call_id,
+                    "reserved_usd": str(amount),
+                    "model": metadata[call_id]["model"],
+                    "at_utc": metadata[call_id]["at_utc"],
+                }
+                for call_id, amount in active.items()
+            ]
+
     def _append_unlocked(self, event: dict[str, Any]) -> None:
         _append_jsonl_unlocked(self.path, event)
         self.events.append(event)
@@ -530,3 +548,40 @@ class SpendLedger:
                 }
             )
         return cost
+
+    def reconcile(self, call_id: str, usage: dict[str, int]) -> Decimal:
+        """Settle a stranded reservation using provider-confirmed token usage."""
+        if set(usage) != {"input_tokens", "output_tokens"} or any(
+            type(usage[key]) is not int or usage[key] < 0
+            for key in ("input_tokens", "output_tokens")
+        ):
+            raise ValueError(
+                "reconciliation requires nonnegative provider-reported input/output tokens"
+            )
+        with _exclusive_jsonl_lock(self.path):
+            self._reload()
+            active = self._balances()[2]
+            reserved_usd = active.get(call_id)
+            if reserved_usd is None:
+                raise ValueError("call ID is not an outstanding reservation")
+            reservation_event = next(
+                event
+                for event in self.events
+                if event["type"] == "reserve" and event["call_id"] == call_id
+            )
+            model = reservation_event["model"]
+            cost = usage_derived_cost(usage, model)
+            if cost > reserved_usd:
+                raise BudgetExceeded(
+                    "reported usage exceeds reserved cost; do not alter the ledger manually"
+                )
+            self._append_unlocked(
+                {
+                    "type": "settle",
+                    "call_id": call_id,
+                    "usage": usage,
+                    "usage_derived_cost_usd": str(cost),
+                    "at_utc": datetime.now(timezone.utc).isoformat(),
+                }
+            )
+            return cost

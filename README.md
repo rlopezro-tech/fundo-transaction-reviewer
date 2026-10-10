@@ -49,6 +49,8 @@ PYTHONPATH=src uv run --locked python -m fundo_reviewer.synthetic --output-root 
 - `cache/` — provider responses and spend ledgers used for exact replay.
 - `reports/main/` — main review outputs; `reports/evaluation/` — quality and sensitivity analysis.
 
+To inspect conservative budget holds or reconcile a stranded reservation with provider-confirmed token counts, see [`cache/README.md`](cache/README.md). Never guess usage or treat the cost estimate as a billing receipt.
+
 ## Review another input
 
 Put a Plaid-shaped JSON input in `data/transactions/`, then use a separate cache and output folder for that run. This makes it obvious which source was reviewed and where its results went:
