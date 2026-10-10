@@ -50,7 +50,16 @@ Put a Plaid-shaped JSON input in `data/transactions/`, then use a separate cache
   --output-dir reports/my_input
 ```
 
-The command uses the selected provider's key from `.env` and may incur API charges. Once every batch has a cache entry, replay the exact input without a key or provider call by changing `--mode online` to `--mode offline` and using the same `--input` and `--cache`. Do not put ground truth in the input or use real customer data for this challenge.
+The command uses the selected provider's key from `.env` and may incur API charges. Once every batch has a cache entry, replay the exact input without a key or provider call. Keep the model, batch size, input, and cache unchanged:
+
+```bash
+./scripts/run --mode offline --model gpt-6-luna --batch-size 80 \
+  --input data/transactions/my_input.json \
+  --cache cache/my_input_reviews.jsonl \
+  --output-dir reports/my_input_replay
+```
+
+Do not put ground truth in the input or use real customer data for this challenge.
 
 The committed main report has 2,000 rows, but its LLM cache is partial. It contains 10 cached batches covering 800 rows: **799 usable model decisions and one invalid response**. The other **1,201 rows retain legacy labels**: one because its cached response was invalid and 1,200 after provider failures. In the manifest, `cache_hits: 800` counts rows read from cached batches, while `degraded_count: 1201` counts all outcomes that fell back to legacy labels. Therefore the full 2,000-row offline replay is not currently possible; offline mode intentionally errors on missing cache entries.
 
