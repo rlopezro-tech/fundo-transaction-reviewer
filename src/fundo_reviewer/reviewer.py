@@ -1,4 +1,4 @@
-"""Ticket 04: safe, versioned review boundary around an existing legacy label."""
+"""Safe, versioned review boundary around an existing legacy label."""
 
 from __future__ import annotations
 

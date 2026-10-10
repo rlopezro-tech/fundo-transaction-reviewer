@@ -1,4 +1,4 @@
-"""Versioned, deliberately imperfect literal-keyword baseline (Ticket 03)."""
+"""Versioned, deliberately imperfect literal-keyword baseline."""
 
 from __future__ import annotations
 
@@ -12,7 +12,7 @@ from fundo_reviewer.revenue import GROUPS, UNMATCHED, is_revenue_eligible
 
 RULESET_VERSION = "legacy-v1"
 
-# Approved BUSINESS_RULES.md priority; never derive it from a dict's iteration.
+# Versioned priority defined by docs/reference/LEGACY_POLICY.md; never derive it from dict iteration.
 PRECEDENCE = (
     "NSFs",
     "Overdraft",

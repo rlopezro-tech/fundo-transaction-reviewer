@@ -1,4 +1,4 @@
-"""Ticket 07: separate synthetic-truth evaluation and seeded mislabel sensitivity.
+"""Separate synthetic-truth evaluation and seeded mislabel sensitivity.
 
 This module is deliberately not imported by the reviewer CLI or provider.
 """

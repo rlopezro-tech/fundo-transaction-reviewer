@@ -1,6 +1,6 @@
 # Synthetic dataset v1 — scenario inventory
 
-This inventory is the **scenario intent**, written before generating the fixtures. It is a project-designed test set, not real bank/customer evidence. The generator is `src/fundo_reviewer/synthetic.py`, version `synthetic-v1`, seed `20261008`, `as_of = 2026-10-08`. Regeneration uses only Python's standard library and the Ticket 01 validator.
+This inventory is the **scenario intent**, written before generating the fixtures. It is a project-designed test set, not real bank/customer evidence. The generator is `src/fundo_reviewer/synthetic.py`, version `synthetic-v1`, seed `20261008`, `as_of = 2026-10-08`. Regeneration uses only Python's standard library and the project's input validator.
 
 | Scenario ID | Intended economic meaning and deliberate test |
 | --- | --- |
@@ -32,8 +32,8 @@ The 13 Fundo groups are represented by the `Not average monthly revenue`, `NSFs`
 Run from the repository root:
 
 ```bash
-PYTHONPATH=src uv run python -m fundo_reviewer.synthetic --output-root data
-uv run --group dev pytest tests/test_synthetic.py
+PYTHONPATH=src uv run --locked python -m fundo_reviewer.synthetic --output-root data
+uv run --locked --group dev pytest tests/test_synthetic.py
 shasum -a 256 data/transactions/*.json data/ground_truth/*.json
 git diff --exit-code -- data/transactions data/ground_truth
 ```

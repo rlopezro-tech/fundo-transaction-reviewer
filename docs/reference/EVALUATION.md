@@ -3,7 +3,7 @@
 Evaluation is separate from the truth-free review CLI. Ground truth is not read or sent to the provider by review code.
 
 ```bash
-PYTHONPATH=src uv run python -m fundo_reviewer.evaluation --review-dir reports/main --output-dir reports/evaluation
+PYTHONPATH=src uv run --locked python -m fundo_reviewer.evaluation --review-dir reports/main --output-dir reports/evaluation
 ```
 
 This command validates the 2,000-row input/truth/review join and writes `quality_report.json` plus the deterministic sensitivity report. `quality_report.json` splits `model_reviewed` rows from `degraded_fallback` rows and includes per-business coverage; the whole-cohort credit-feature metrics still include fallback labels. These are **not** 2,000 model judgments. See [`../../SOLUTION.md`](../../SOLUTION.md) for the measured denominators and limitations.

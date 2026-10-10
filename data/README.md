@@ -7,7 +7,7 @@
 Regenerate the deterministic synthetic inputs from the repository root with:
 
 ```bash
-PYTHONPATH=src uv run python -m fundo_reviewer.synthetic --output-root data
+PYTHONPATH=src uv run --locked python -m fundo_reviewer.synthetic --output-root data
 ```
 
 Generation overwrites the two fixture directories above.

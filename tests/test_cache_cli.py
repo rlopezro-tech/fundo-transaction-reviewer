@@ -1,4 +1,4 @@
-"""Ticket 05: strict replay, invalidation, budget and truth-free CLI evidence."""
+"""Tests for cache replay, invalidation, budget, and the truth-free CLI."""
 
 import hashlib
 import json

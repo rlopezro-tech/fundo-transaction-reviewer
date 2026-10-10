@@ -1,4 +1,4 @@
-"""Ticket 06: fixed-source financial arithmetic and offer boundaries."""
+"""Tests for fixed-source financial arithmetic and offer boundaries."""
 
 import json
 from dataclasses import replace

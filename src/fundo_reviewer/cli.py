@@ -1,4 +1,4 @@
-"""Ticket 05: truth-free batch CLI with strict offline and budgeted online modes."""
+"""Truth-free batch CLI with strict offline replay and budgeted online modes."""
 
 from __future__ import annotations
 

@@ -1,4 +1,4 @@
-"""Ticket 07: strict synthetic joins and reproducible financial sensitivity."""
+"""Tests for strict synthetic joins and reproducible financial sensitivity."""
 
 import json
 import hashlib

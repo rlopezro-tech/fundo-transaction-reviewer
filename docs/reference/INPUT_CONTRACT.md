@@ -1,6 +1,6 @@
-# Input contract v1 — Ticket 01
+# Input contract v1
 
-> **Status:** implemented input boundary, not an end-to-end reviewer. Fundo requires Plaid-shaped transaction data; the single-envelope format and validation policies are this project's documented implementation choices. No Plaid API, Sandbox, ground truth, or API key is needed here.
+> **Status:** implemented input contract for the batch reviewer. The project uses synthetic Plaid-shaped transactions; the single-envelope format and validation policies are documented implementation choices. Generating and validating fixtures requires no Plaid API or key; online model review requires the selected provider's credentials.
 
 ## File shape
 
@@ -44,7 +44,7 @@ One UTF-8 JSON object requires these top-level keys:
 ## Use and evidence
 
 ```bash
-uv run --group dev pytest tests/test_data.py
+uv run --locked --group dev pytest tests/test_data.py
 ```
 
-`load_input("tests/fixtures/input_90_days.json")` returns a `NormalizedInput` object with accepted transactions, account/business coverage, and exclusions. [The 90-day fixture](../../tests/fixtures/input_90_days.json) is also a copyable example of a new input. [The separate 61-day fixture](../../tests/fixtures/input_61_days.json) tests coverage shift. Ticket 02 now supplies the [full synthetic dataset](SYNTHETIC_DATA.md); the CLI, legacy labels, reviewer, and reports belong to later tickets.
+`load_input("tests/fixtures/input_90_days.json")` returns a `NormalizedInput` object with accepted transactions, account/business coverage, and exclusions. [The 90-day fixture](../../tests/fixtures/input_90_days.json) is also a copyable example of a new input. [The separate 61-day fixture](../../tests/fixtures/input_61_days.json) tests coverage shift. [The synthetic-data inventory](SYNTHETIC_DATA.md) documents the full cohort; the CLI, labels, reviewer, and reports consume this shared contract.

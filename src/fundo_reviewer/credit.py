@@ -1,4 +1,4 @@
-"""Ticket 06: shared, deterministic credit features and illustrative offer."""
+"""Shared, deterministic credit features and illustrative offer."""
 
 from __future__ import annotations
 

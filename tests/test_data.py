@@ -1,4 +1,4 @@
-"""Ticket 01 contract tests; these fixtures contain no ground-truth labels."""
+"""Input-contract tests; these fixtures contain no ground-truth labels."""
 
 from __future__ import annotations
 

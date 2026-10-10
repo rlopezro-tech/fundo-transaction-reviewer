@@ -1,7 +1,7 @@
-"""Ticket 01: validate and normalize Plaid-shaped transaction envelopes.
+"""Validate and normalize Plaid-shaped transaction envelopes.
 
 This module deliberately does not assign labels, calculate revenue, or call a
-provider. Rules are versioned in docs/rules/BUSINESS_RULES.md.
+provider. The input contract is documented in docs/reference/INPUT_CONTRACT.md.
 """
 
 from __future__ import annotations

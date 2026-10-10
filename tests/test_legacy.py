@@ -1,4 +1,4 @@
-"""Ticket 03: frozen, explainable baseline and shared revenue policy."""
+"""Tests for the frozen, explainable baseline and shared revenue policy."""
 
 import json
 from dataclasses import replace

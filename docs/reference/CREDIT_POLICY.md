@@ -1,8 +1,8 @@
-# Credit features and illustrative offer — Ticket 06
+# Credit features and illustrative offer
 
 `credit-features-v1` and `illustrative-offer-v1` implement the policies documented here and in `src/fundo_reviewer/credit.py`. **Fundo supplies only the simplified formula and the `NSF_count > 5` cutoff.** The denominators, 30-day AMR normalization, zero-denominator handling, negative floor and cent rounding are our versioned V1 choices, not Fundo underwriting policy.
 
-The CLI uses exactly the accepted posted transactions and account-coverage intersection from Ticket 01 for both legacy and reviewed calculations. Only validated semantic labels differ; it never changes dates, signs or amounts. `credit_report.json` has one business entry with both feature sets and `reviewed_minus_legacy` deltas. Each includes the transaction count, common coverage dates/days, denominators, raw offer terms and policy versions. The run manifest includes a SHA-256 of the report. This remains an **illustrative counterfactual**, not a live funding decision.
+The CLI uses exactly the accepted posted transactions and the validated input's common account-coverage window for both legacy and reviewed calculations. Only validated semantic labels differ; it never changes dates, signs or amounts. `credit_report.json` has one business entry with both feature sets and `reviewed_minus_legacy` deltas. Each includes the transaction count, common coverage dates/days, denominators, raw offer terms and policy versions. The run manifest includes a SHA-256 of the report. This remains an **illustrative counterfactual**, not a live funding decision.
 
 | Feature | V1 calculation and limit |
 | --- | --- |
@@ -16,4 +16,4 @@ The CLI uses exactly the accepted posted transactions and account-coverage inter
 
 The offer uses `raw = 1.2 × AMR − 20 × other_funder_daily_payments`. Set the post-cutoff amount to zero **only when NSF count exceeds five**. Otherwise floor a negative amount at zero. Round only that final nonnegative USD amount to cents with `ROUND_HALF_UP`; retain unrounded `raw`, `after_nsf_cutoff` and `after_nonnegative_floor` values. A 61-day history can be normalized for arithmetic but does **not** become equivalent to a complete 90-day risk-model input. All values are decimal strings to avoid binary-float changes in money.
 
-`src/fundo_reviewer/credit.py` exposes `compute_features()` for any aligned mapping of semantic labels, so Ticket 07 can calculate synthetic-truth comparators with the exact same accepted records and arithmetic. The provider never receives these features, the offer, or truth.
+`src/fundo_reviewer/credit.py` exposes `compute_features()` for any aligned mapping of semantic labels; `evaluation.py` uses the same accepted records and arithmetic for synthetic-truth comparisons. The provider never receives these features, the offer, or truth.

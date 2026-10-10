@@ -1,7 +1,7 @@
-"""Ticket 02: deterministic synthetic scenarios and separate intent-based truth.
+"""Generate deterministic synthetic scenarios and separate intent-based truth.
 
 No legacy classifier, reviewer, API, or customer data is used here. Scenario
-meanings are authored in docs/SYNTHETIC_DATA.md and this module.
+meanings are authored in docs/reference/SYNTHETIC_DATA.md and this module.
 """
 
 from __future__ import annotations
@@ -352,7 +352,7 @@ def generate_files() -> dict[str, bytes]:
 
 
 def write_files(output_root: Path) -> dict[str, str]:
-    """Write fixtures and validate both transaction envelopes with Ticket 01."""
+    """Write fixtures and validate both transaction envelopes with the input contract."""
     files = generate_files()
     hashes: dict[str, str] = {}
     for relative_path, contents in files.items():

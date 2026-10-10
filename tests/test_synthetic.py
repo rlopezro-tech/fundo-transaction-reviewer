@@ -1,4 +1,4 @@
-"""Ticket 02 fixture, intent, determinism, and truth-boundary evidence."""
+"""Tests for synthetic fixtures, determinism, and the truth boundary."""
 
 import hashlib
 import json

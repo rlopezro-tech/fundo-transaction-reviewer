@@ -1,4 +1,4 @@
-"""Ticket 04: fake-provider review, validation, provenance, and trust boundary."""
+"""Fake-provider review, validation, provenance, and trust-boundary tests."""
 
 import json
 from dataclasses import replace
