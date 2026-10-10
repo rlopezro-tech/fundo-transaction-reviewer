@@ -10,6 +10,7 @@ from collections import Counter
 from pathlib import Path
 from typing import Any
 
+from fundo_reviewer.artifacts import write_json_atomic
 from fundo_reviewer.cache import (
     BatchReviewCache, CacheCorrupt, CacheMiss, ReviewCache, SpendLedger,
     batch_identity, pricing_version,
@@ -63,8 +64,7 @@ def _outcome_record(outcome: ReviewOutcome) -> dict[str, Any]:
 
 
 def _write_json(path: Path, value: Any) -> None:
-    path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(json.dumps(value, indent=2, sort_keys=True, ensure_ascii=False) + "\n", encoding="utf-8")
+    write_json_atomic(path, value)
 
 
 def _run_batched(normalized, labels, *, mode, cache_path, ledger_path, model, provider, batch_size):

@@ -14,6 +14,7 @@ from decimal import Decimal
 from pathlib import Path
 from typing import Any, Mapping
 
+from fundo_reviewer.artifacts import write_json_atomic
 from fundo_reviewer.credit import (
     FEATURE_POLICY_VERSION, OFFER_POLICY_VERSION, CreditLabel, calculate_offer,
     compute_features, feature_record,
@@ -35,8 +36,7 @@ def _json(path: Path) -> Any:
 
 
 def _write(path: Path, value: Any) -> None:
-    path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(json.dumps(value, indent=2, ensure_ascii=False, sort_keys=True) + "\n", encoding="utf-8")
+    write_json_atomic(path, value)
 
 
 def _label(transaction_id: str, record: Mapping[str, Any]) -> CreditLabel:
