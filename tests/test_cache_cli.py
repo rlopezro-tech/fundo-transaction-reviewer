@@ -53,6 +53,17 @@ def _concurrent_ledger_reservation(path, barrier, results):
         results.put(("blocked", None))
 
 
+def _concurrent_batch_cache_append(path, barrier, results):
+    identity = {"model": "gpt-6-luna", "batch": "same-request"}
+    cache = BatchReviewCache(Path(path))
+    barrier.wait()
+    try:
+        cache.append(identity, ProviderReply("completed", parsed=[], raw_response={"test": True}), [])
+        results.put("appended")
+    except ValueError:
+        results.put("duplicate")
+
+
 def test_cli_defaults_outputs_to_main_report_folder():
     args = _build_parser().parse_args([])
     assert args.input == Path("data/transactions/main_90_days.json")
@@ -298,6 +309,27 @@ def test_spend_ledger_serializes_concurrent_reservations_under_ceiling(tmp_path)
     assert reserved_amount > ceiling / 2
     ledger = SpendLedger(path, ceiling_usd=ceiling)
     assert ledger.committed_usd == reserved_amount <= ceiling
+
+
+def test_batch_cache_serializes_concurrent_duplicate_appends(tmp_path):
+    path = tmp_path / "concurrent-batches.jsonl"
+    context = multiprocessing.get_context("spawn")
+    barrier, results = context.Barrier(2), context.Queue()
+    processes = [
+        context.Process(target=_concurrent_batch_cache_append, args=(str(path), barrier, results))
+        for _ in range(2)
+    ]
+    for process in processes:
+        process.start()
+    outcomes = [results.get(timeout=20) for _ in processes]
+    for process in processes:
+        process.join(timeout=20)
+
+    assert all(process.exitcode == 0 for process in processes)
+    assert sorted(outcomes) == ["appended", "duplicate"]
+    cache = BatchReviewCache(path)
+    assert len(cache.entries) == 1
+    assert cache.replay({"model": "gpt-6-luna", "batch": "same-request"}).status == "completed"
 
 
 def test_unsafe_budget_blocks_provider_before_any_paid_call(tmp_path):

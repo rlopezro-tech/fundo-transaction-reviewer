@@ -25,8 +25,8 @@ logger = logging.getLogger(__name__)
 
 
 @contextmanager
-def _exclusive_ledger_lock(path: Path):
-    """Serialize ledger read/modify/append operations across local processes."""
+def _exclusive_jsonl_lock(path: Path):
+    """Serialize JSONL read/repair/append operations across local processes."""
     path.parent.mkdir(parents=True, exist_ok=True)
     lock_path = path.with_name(f".{path.name}.lock")
     with lock_path.open("a", encoding="utf-8") as lock_file:
@@ -134,8 +134,13 @@ class ReviewCache:
     def __init__(self, path: Path):
         self.path = path
         self.entries: dict[str, dict[str, Any]] = {}
+        with _exclusive_jsonl_lock(self.path):
+            self._reload()
+
+    def _reload(self) -> None:
+        self.entries = {}
         if self.path.exists():
-            for line_number, line in enumerate(_read_jsonl(path), 1):
+            for line_number, line in enumerate(_read_jsonl(self.path), 1):
                 try:
                     entry = json.loads(line)
                     integrity = entry.pop("integrity_sha256")
@@ -149,7 +154,7 @@ class ReviewCache:
                         raise ValueError("duplicate cache key")
                     self.entries[entry["key"]] = entry
                 except (ValueError, TypeError, KeyError) as exc:
-                    raise CacheCorrupt(f"{path}:{line_number}: {exc}") from exc
+                    raise CacheCorrupt(f"{self.path}:{line_number}: {exc}") from exc
 
     def replay(self, request: ReviewRequest, model: str) -> ProviderReply:
         identity = request_identity(request, model)
@@ -169,8 +174,6 @@ class ReviewCache:
             raise ValueError("only validated keep/change responses may enter the replay cache")
         identity = request_identity(request, model)
         key = _digest(identity)
-        if key in self.entries:
-            raise ValueError(f"duplicate cache key {key}")
         entry = {
             "key": key,
             "request_identity": identity,
@@ -182,12 +185,19 @@ class ReviewCache:
             "usage_derived_cost_usd": str(cost_usd),
         }
         integrity = _digest(entry)
+        with _exclusive_jsonl_lock(self.path):
+            self._reload()
+            if key in self.entries:
+                raise ValueError(f"duplicate cache key {key}")
+            self._append_unlocked(entry, integrity)
+
+    def _append_unlocked(self, entry: dict[str, Any], integrity: str) -> None:
         self.path.parent.mkdir(parents=True, exist_ok=True)
         with self.path.open("a", encoding="utf-8") as stream:
             stream.write(_canonical({**entry, "integrity_sha256": integrity}) + "\n")
             stream.flush()
             os.fsync(stream.fileno())
-        self.entries[key] = entry
+        self.entries[entry["key"]] = entry
 
 
 def batch_identity(requests: tuple[ReviewRequest, ...], model: str, system_prompt: str, user_prompt: str) -> dict[str, Any]:
@@ -210,8 +220,13 @@ class BatchReviewCache:
     def __init__(self, path: Path):
         self.path = path
         self.entries: dict[str, dict[str, Any]] = {}
-        if path.exists():
-            for line_number, line in enumerate(_read_jsonl(path), 1):
+        with _exclusive_jsonl_lock(self.path):
+            self._reload()
+
+    def _reload(self) -> None:
+        self.entries = {}
+        if self.path.exists():
+            for line_number, line in enumerate(_read_jsonl(self.path), 1):
                 try:
                     entry = json.loads(line)
                     integrity = entry.pop("integrity_sha256")
@@ -221,7 +236,7 @@ class BatchReviewCache:
                         raise ValueError("duplicate batch cache key")
                     self.entries[entry["key"]] = entry
                 except (ValueError, TypeError, KeyError) as exc:
-                    raise CacheCorrupt(f"{path}:{line_number}: {exc}") from exc
+                    raise CacheCorrupt(f"{self.path}:{line_number}: {exc}") from exc
 
     def replay(self, identity: dict[str, Any]) -> ProviderReply:
         key = _digest(identity)
@@ -243,8 +258,6 @@ class BatchReviewCache:
 
     def append(self, identity: dict[str, Any], reply: ProviderReply, validated_outcomes: list[dict[str, Any]]) -> None:
         key = _digest(identity)
-        if key in self.entries:
-            raise ValueError(f"duplicate batch cache key {key}")
         entry = {
             "key": key,
             "identity": identity,
@@ -256,12 +269,16 @@ class BatchReviewCache:
             "pricing_version": pricing_version(identity["model"]),
             "usage_derived_cost_usd": str(usage_derived_cost(reply.usage, identity["model"])),
         }
-        self.path.parent.mkdir(parents=True, exist_ok=True)
-        with self.path.open("a", encoding="utf-8") as stream:
-            stream.write(_canonical({**entry, "integrity_sha256": _digest(entry)}) + "\n")
-            stream.flush()
-            os.fsync(stream.fileno())
-        self.entries[key] = entry
+        with _exclusive_jsonl_lock(self.path):
+            self._reload()
+            if key in self.entries:
+                raise ValueError(f"duplicate batch cache key {key}")
+            self.path.parent.mkdir(parents=True, exist_ok=True)
+            with self.path.open("a", encoding="utf-8") as stream:
+                stream.write(_canonical({**entry, "integrity_sha256": _digest(entry)}) + "\n")
+                stream.flush()
+                os.fsync(stream.fileno())
+            self.entries[key] = entry
 
 
 def usage_derived_cost(usage: dict[str, int] | None, model: str = DEFAULT_PRICED_MODEL) -> Decimal:
@@ -300,7 +317,7 @@ class SpendLedger:
         self.path = path
         self.ceiling_usd = ceiling_usd
         self.events: list[dict[str, Any]] = []
-        with _exclusive_ledger_lock(self.path):
+        with _exclusive_jsonl_lock(self.path):
             self._reload()
 
     def _reload(self) -> None:
@@ -341,14 +358,14 @@ class SpendLedger:
 
     @property
     def committed_usd(self) -> Decimal:
-        with _exclusive_ledger_lock(self.path):
+        with _exclusive_jsonl_lock(self.path):
             self._reload()
             settled, outstanding, _ = self._balances()
             return settled + outstanding
 
     @property
     def settled_usd(self) -> Decimal:
-        with _exclusive_ledger_lock(self.path):
+        with _exclusive_jsonl_lock(self.path):
             self._reload()
             return self._balances()[0]
 
@@ -369,7 +386,7 @@ class SpendLedger:
         input_bound = len((request.system_prompt + request.user_prompt).encode("utf-8")) + 3000
         reserved = usage_derived_cost({"input_tokens": input_bound, "output_tokens": max_output_tokens}, model)
         key = request_key(request, model)
-        with _exclusive_ledger_lock(self.path):
+        with _exclusive_jsonl_lock(self.path):
             self._reload()
             settled, outstanding, _ = self._balances()
             if settled + outstanding + reserved > self.ceiling_usd:
@@ -393,7 +410,7 @@ class SpendLedger:
         input_bound = len((system_prompt + user_prompt).encode("utf-8")) + 6000
         reserved = usage_derived_cost({"input_tokens": input_bound, "output_tokens": max_output_tokens}, model)
         key = _digest(identity)
-        with _exclusive_ledger_lock(self.path):
+        with _exclusive_jsonl_lock(self.path):
             self._reload()
             settled, outstanding, _ = self._balances()
             if settled + outstanding + reserved > self.ceiling_usd:
@@ -410,7 +427,7 @@ class SpendLedger:
         cost = usage_derived_cost(usage, reservation.model)
         if cost > reservation.reserved_usd:
             raise BudgetExceeded("actual usage exceeded reserved worst-case cost; stop further calls")
-        with _exclusive_ledger_lock(self.path):
+        with _exclusive_jsonl_lock(self.path):
             self._reload()
             active_reservations = self._balances()[2]
             if active_reservations.get(reservation.call_id) != reservation.reserved_usd:
