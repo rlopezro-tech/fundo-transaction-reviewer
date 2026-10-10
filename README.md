@@ -21,7 +21,7 @@ Expected input, cache, and budget errors exit nonzero with a concise message on 
 uv run --locked --group dev pytest -q
 ```
 
-GitHub Actions runs the locked dependency install and test suite, then verifies that the offline sample replay matches committed outputs byte-for-byte; see [the test workflow](.github/workflows/tests.yml). The workflow needs no API key or external model calls.
+GitHub Actions runs the locked dependency install and test suite, then verifies that the offline sample replay matches committed outputs byte-for-byte; see [the test workflow](.github/workflows/tests.yml). The workflow needs no API key or external model calls. The suite also cross-checks the committed main input, response cache, manifest, and evaluation counts so those partial results cannot silently drift apart.
 
 `scripts/run` is the short CLI launcher: it sets `PYTHONPATH` and loads `.env` only when `--mode online` is explicit. To configure hosted calls, copy `env.example` to `.env` and set the key for the selected provider; never commit `.env`.
 To switch among registered models/providers, select an ID listed by `./scripts/run --help` and set its matching key in `.env`; no source edits are needed. A completely new provider still needs a transport adapter. The model catalog is the source of supported IDs and key mapping.
