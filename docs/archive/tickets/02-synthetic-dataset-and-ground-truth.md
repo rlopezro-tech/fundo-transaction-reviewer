@@ -31,7 +31,7 @@ Create a deterministic, entirely **synthetic** evaluation dataset that follows t
 
 ## Acceptance criteria
 
-- [x] The main dataset has 10 businesses × 200 transactions = 2,000; every business has 90 inclusive coverage days. See [scenario inventory and counts](../SYNTHETIC_DATA.md).
+- [x] The main dataset has 10 businesses × 200 transactions = 2,000; every business has 90 inclusive coverage days. See [scenario inventory and counts](../../reference/SYNTHETIC_DATA.md).
 - [x] Seed/version/order and all four SHA-256 values are documented; `tests/test_synthetic.py` checks byte-identical regeneration.
 - [x] All 2,000 main and 120 short-cohort transactions pass Ticket 01 validation, with unique IDs and one truth record each.
 - [x] Truth is authored from scenario intent, independent of the not-yet-built legacy engine/reviewer. Transaction artifacts contain no truth-only fields. No review requests/cache keys exist yet; Tickets 04–05 must preserve and test this boundary when they are built.
@@ -46,7 +46,7 @@ Do **not** build the legacy keyword engine, call an LLM, score reviewer quality,
 
 ## References
 
-- [Original challenge](../CHALLENGE.md) — synthetic data is allowed; target scale and funder-relevant examples.
+- [Original challenge](../../CHALLENGE.md) — synthetic data is allowed; target scale and funder-relevant examples.
 - [Ticket 01](01-transaction-data-contract.md) — accepted records, window boundaries, and coverage metadata.
 - [Implementation checklist](../IMPLEMENTATION_CHECKLIST.md) — required scenarios and truth separation.
-- [Architecture](../ARCHITECTURE.md) — generator, input validation, and evaluation boundaries.
+- [Architecture](../../ARCHITECTURE.md) — generator, input validation, and evaluation boundaries.

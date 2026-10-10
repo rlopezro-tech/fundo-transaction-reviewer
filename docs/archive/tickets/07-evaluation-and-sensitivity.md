@@ -45,7 +45,7 @@ Do **not** present synthetic accuracy as production performance, retrain the ris
 
 ## References
 
-- [Original challenge](../CHALLENGE.md) — dollar revenue error, hard negatives, credit impact, and 2%/5%/10% scenarios.
+- [Original challenge](../../CHALLENGE.md) — dollar revenue error, hard negatives, credit impact, and 2%/5%/10% scenarios.
 - [Ticket 02](02-synthetic-dataset-and-ground-truth.md) — independent truth and hard-negative inventory.
 - [Ticket 05](05-cache-provider-and-cli.md) — replayed reviewer outcomes and cost records.
 - [Ticket 06](06-credit-features-and-offer.md) — shared feature and offer arithmetic.

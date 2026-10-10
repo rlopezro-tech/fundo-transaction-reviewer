@@ -45,7 +45,7 @@ Do **not** calculate the full credit report or claim reviewer improvement in thi
 
 ## References
 
-- [Original challenge](../CHALLENGE.md) — one command, committed response cache, no-key replay, and US$10 cap.
+- [Original challenge](../../CHALLENGE.md) — one command, committed response cache, no-key replay, and US$10 cap.
 - [Ticket 04](04-llm-label-reviewer.md) — review request, validated response, and online failure policy.
-- [Architecture](../ARCHITECTURE.md) — canonical keys, replay modes, and run manifest.
+- [Architecture](../../ARCHITECTURE.md) — canonical keys, replay modes, and run manifest.
 - [Implementation checklist](../IMPLEMENTATION_CHECKLIST.md) — delivery acceptance and cost evidence.

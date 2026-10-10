@@ -43,7 +43,7 @@ Define and implement the smallest reproducible input contract for **Plaid-shaped
 ## Completion evidence
 
 - `src/fundo_reviewer/data.py` implements the versioned `input-v1` contract, Decimal parsing, inclusive coverage intersection, posted-only filtering, validation and stable output order.
-- [Input contract](../INPUT_CONTRACT.md) documents the exact JSON envelope and approved policies without presenting them as Fundo rules.
+- [Input contract](../../reference/INPUT_CONTRACT.md) documents the exact JSON envelope and approved policies without presenting them as Fundo rules.
 - `tests/fixtures/input_90_days.json` and `tests/fixtures/input_61_days.json` are small truth-free examples; `tests/test_data.py` covers the acceptance criteria and error paths.
 - `uv run --group dev pytest -q` passed **34 tests**. This does **not** claim that the full reviewer CLI, dataset or reports exist.
 
@@ -53,7 +53,7 @@ Do **not** connect Plaid Sandbox or its API; generate the full synthetic dataset
 
 ## References
 
-- [Original challenge](../CHALLENGE.md) — Plaid-shaped data, approximately 90 days, no real customer data, and the 61-day coverage question.
+- [Original challenge](../../CHALLENGE.md) — Plaid-shaped data, approximately 90 days, no real customer data, and the 61-day coverage question.
 - [Implementation checklist](../IMPLEMENTATION_CHECKLIST.md) — data-contract decisions and validation evidence.
-- [Architecture](../ARCHITECTURE.md) — input-module boundary and raw-versus-normalized records.
-- [Financial glossary](../FINANCIAL_GLOSSARY.md) — sign convention and deposit-versus-revenue distinction.
+- [Architecture](../../ARCHITECTURE.md) — input-module boundary and raw-versus-normalized records.
+- [Financial glossary](../../reference/FINANCIAL_GLOSSARY.md) — sign convention and deposit-versus-revenue distinction.

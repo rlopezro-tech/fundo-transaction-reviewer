@@ -35,9 +35,9 @@ Build a small, **deliberately imperfect** keyword engine that assigns one legacy
 - [x] `LegacyLabel` carries `legacy-v1`, group, status, derived revenue, matched rule IDs, field/keyword/rank trace, and personal-marker IDs. **Evidence:** `src/fundo_reviewer/legacy.py`.
 - [x] Ordering is stable across reversed transaction input and reversed rule tuple; fixed precedence is independent of map iteration. **Evidence:** deterministic/collision tests.
 - [x] Collision and no-match tests verify explicit precedence and `unmatched` behavior. **Evidence:** `tests/test_legacy.py`.
-- [x] `SQUARE INC` versus `SQUARE CAPITAL`, `UCC 1`, `OD-FEE`, and the `nsf`/`transfer` collision expose known v1 errors without modifying truth. **Evidence:** [policy note](../LEGACY_POLICY.md), tests.
+- [x] `SQUARE INC` versus `SQUARE CAPITAL`, `UCC 1`, `OD-FEE`, and the `nsf`/`transfer` collision expose known v1 errors without modifying truth. **Evidence:** [policy note](../../reference/LEGACY_POLICY.md), tests.
 - [x] One `revenue-v1` function rejects positive amounts, personal credits, transfer/funder groups, and allows eligible business credits. **Evidence:** `src/fundo_reviewer/revenue.py`, tests.
-- [x] `Auto deposit` and `Revenue verification` are non-excluding by name; this is documented and tested. **Evidence:** [policy note](../LEGACY_POLICY.md), tests.
+- [x] `Auto deposit` and `Revenue verification` are non-excluding by name; this is documented and tested. **Evidence:** [policy note](../../reference/LEGACY_POLICY.md), tests.
 - [x] The implementation uses no Plaid API, LLM, feature or offer calculation.
 
 ## Out of scope
@@ -46,8 +46,8 @@ Do **not** correct labels with an LLM, optimize keyword rules until the syntheti
 
 ## References
 
-- [Original challenge](../CHALLENGE.md) — 13 groups, keyword precedence, business/personal flag, and revenue condition.
+- [Original challenge](../../CHALLENGE.md) — 13 groups, keyword precedence, business/personal flag, and revenue condition.
 - [Ticket 01](01-transaction-data-contract.md) — normalized transaction input and Plaid sign convention.
 - [Ticket 02](02-synthetic-dataset-and-ground-truth.md) — synthetic cases and independent evaluation truth.
 - [Implementation checklist](../IMPLEMENTATION_CHECKLIST.md) — open rule-policy decisions and required tests.
-- [Architecture](../ARCHITECTURE.md) — legacy and revenue module boundaries.
+- [Architecture](../../ARCHITECTURE.md) — legacy and revenue module boundaries.

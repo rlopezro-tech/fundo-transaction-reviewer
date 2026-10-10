@@ -1,0 +1,1864 @@
+{
+  "aggregate_absolute_amr_error_usd": {
+    "legacy": "153343.3266666666666666666666",
+    "reviewed": "90146.95333333333333333333331"
+  },
+  "businesses": [
+    {
+      "amr_error_usd": {
+        "legacy_absolute": "14754.25333333333333333333333",
+        "legacy_signed": "-14754.25333333333333333333333",
+        "reviewed_absolute": "1740.99666666666666666666667",
+        "reviewed_signed": "-1740.99666666666666666666667"
+      },
+      "business_id": "biz_01",
+      "coverage_days": 90,
+      "evaluation_split": "development",
+      "label_counts": {
+        "ambiguous_scenarios": 6,
+        "changed_but_still_wrong": 14,
+        "degraded": 40,
+        "false_changes": 0,
+        "flags": 43,
+        "hard_negative_false_flags": 0,
+        "hard_negatives": 27,
+        "legacy_group_correct": 138,
+        "legacy_group_status_correct": 138,
+        "legacy_revenue_correct": 160,
+        "legacy_status_correct": 200,
+        "missed_mistakes": 19,
+        "reviewed_group_correct": 167,
+        "reviewed_group_status_correct": 167,
+        "reviewed_revenue_correct": 196,
+        "reviewed_status_correct": 200,
+        "transactions": 200,
+        "true_corrections": 29
+      },
+      "legacy": {
+        "average_monthly_revenue_usd": "23087.04666666666666666666667",
+        "deposit_total_usd": "160142.78",
+        "eligible_revenue_total_usd": "69261.14",
+        "high_risk_debit_share": {
+          "denominator_usd": "84745.19",
+          "numerator_usd": "2471.61",
+          "ratio": "0.02916519509838847490931343714",
+          "undefined_reason": null
+        },
+        "nsf_count": 22,
+        "offer": {
+          "after_nonnegative_floor_usd": "0",
+          "after_nsf_cutoff_usd": "0",
+          "final_usd": "0.00",
+          "is_live_funding_decision": false,
+          "nsf_cutoff_applied": true,
+          "policy_version": "illustrative-offer-v1",
+          "raw_usd": "27366.60711111111111111111111"
+        },
+        "other_funder_payments": {
+          "coverage_days": 90,
+          "daily_usd": "16.89244444444444444444444444",
+          "repayment_total_usd": "1520.32"
+        },
+        "overdraft_count": 1,
+        "revenue_to_deposits": {
+          "denominator_usd": "160142.78",
+          "numerator_usd": "69261.14",
+          "ratio": "0.4324961762247414463518118019",
+          "undefined_reason": null
+        },
+        "transaction_count": 200
+      },
+      "nsf_fee_observable": true,
+      "offer_delta_usd": {
+        "legacy_minus_truth": "-45160.26",
+        "reviewed_minus_legacy": "0.00",
+        "reviewed_minus_truth": "-45160.26"
+      },
+      "reviewed": {
+        "average_monthly_revenue_usd": "36100.30333333333333333333333",
+        "deposit_total_usd": "160142.78",
+        "eligible_revenue_total_usd": "108300.91",
+        "high_risk_debit_share": {
+          "denominator_usd": "84745.19",
+          "numerator_usd": "3814.04",
+          "ratio": "0.04500597615038682431415871508",
+          "undefined_reason": null
+        },
+        "nsf_count": 6,
+        "offer": {
+          "after_nonnegative_floor_usd": "0",
+          "after_nsf_cutoff_usd": "0",
+          "final_usd": "0.00",
+          "is_live_funding_decision": false,
+          "nsf_cutoff_applied": true,
+          "policy_version": "illustrative-offer-v1",
+          "raw_usd": "43071.05955555555555555555556"
+        },
+        "other_funder_payments": {
+          "coverage_days": 90,
+          "daily_usd": "12.46522222222222222222222222",
+          "repayment_total_usd": "1121.87"
+        },
+        "overdraft_count": 2,
+        "revenue_to_deposits": {
+          "denominator_usd": "160142.78",
+          "numerator_usd": "108300.91",
+          "ratio": "0.6762771946384345269889782106",
+          "undefined_reason": null
+        },
+        "transaction_count": 200
+      },
+      "truth": {
+        "average_monthly_revenue_usd": "37841.30",
+        "deposit_total_usd": "160142.78",
+        "eligible_revenue_total_usd": "113523.90",
+        "high_risk_debit_share": {
+          "denominator_usd": "84745.19",
+          "numerator_usd": "3814.04",
+          "ratio": "0.04500597615038682431415871508",
+          "undefined_reason": null
+        },
+        "nsf_count": 5,
+        "offer": {
+          "after_nonnegative_floor_usd": "45160.25555555555555555555556",
+          "after_nsf_cutoff_usd": "45160.25555555555555555555556",
+          "final_usd": "45160.26",
+          "is_live_funding_decision": false,
+          "nsf_cutoff_applied": false,
+          "policy_version": "illustrative-offer-v1",
+          "raw_usd": "45160.25555555555555555555556"
+        },
+        "other_funder_payments": {
+          "coverage_days": 90,
+          "daily_usd": "12.46522222222222222222222222",
+          "repayment_total_usd": "1121.87"
+        },
+        "overdraft_count": 2,
+        "revenue_to_deposits": {
+          "denominator_usd": "160142.78",
+          "numerator_usd": "113523.90",
+          "ratio": "0.7088917776998750739808563333",
+          "undefined_reason": null
+        },
+        "transaction_count": 200
+      }
+    },
+    {
+      "amr_error_usd": {
+        "legacy_absolute": "16240.94000000000000000000000",
+        "legacy_signed": "-16240.94000000000000000000000",
+        "reviewed_absolute": "1950.20666666666666666666666",
+        "reviewed_signed": "-1950.20666666666666666666666"
+      },
+      "business_id": "biz_02",
+      "coverage_days": 90,
+      "evaluation_split": "development",
+      "label_counts": {
+        "ambiguous_scenarios": 6,
+        "changed_but_still_wrong": 14,
+        "degraded": 40,
+        "false_changes": 0,
+        "flags": 41,
+        "hard_negative_false_flags": 0,
+        "hard_negatives": 27,
+        "legacy_group_correct": 138,
+        "legacy_group_status_correct": 138,
+        "legacy_revenue_correct": 155,
+        "legacy_status_correct": 200,
+        "missed_mistakes": 21,
+        "reviewed_group_correct": 165,
+        "reviewed_group_status_correct": 165,
+        "reviewed_revenue_correct": 192,
+        "reviewed_status_correct": 200,
+        "transactions": 200,
+        "true_corrections": 27
+      },
+      "legacy": {
+        "average_monthly_revenue_usd": "20462.18333333333333333333333",
+        "deposit_total_usd": "141786.53",
+        "eligible_revenue_total_usd": "61386.55",
+        "high_risk_debit_share": {
+          "denominator_usd": "77589.42",
+          "numerator_usd": "2411.00",
+          "ratio": "0.03107382424046989911768898388",
+          "undefined_reason": null
+        },
+        "nsf_count": 28,
+        "offer": {
+          "after_nonnegative_floor_usd": "0",
+          "after_nsf_cutoff_usd": "0",
+          "final_usd": "0.00",
+          "is_live_funding_decision": false,
+          "nsf_cutoff_applied": true,
+          "policy_version": "illustrative-offer-v1",
+          "raw_usd": "24048.09555555555555555555556"
+        },
+        "other_funder_payments": {
+          "coverage_days": 90,
+          "daily_usd": "25.32622222222222222222222222",
+          "repayment_total_usd": "2279.36"
+        },
+        "overdraft_count": 1,
+        "revenue_to_deposits": {
+          "denominator_usd": "141786.53",
+          "numerator_usd": "61386.55",
+          "ratio": "0.4329505066525007699955701011",
+          "undefined_reason": null
+        },
+        "transaction_count": 200
+      },
+      "nsf_fee_observable": true,
+      "offer_delta_usd": {
+        "legacy_minus_truth": "0.00",
+        "reviewed_minus_legacy": "0.00",
+        "reviewed_minus_truth": "0.00"
+      },
+      "reviewed": {
+        "average_monthly_revenue_usd": "34752.91666666666666666666667",
+        "deposit_total_usd": "141786.53",
+        "eligible_revenue_total_usd": "104258.75",
+        "high_risk_debit_share": {
+          "denominator_usd": "77589.42",
+          "numerator_usd": "2411.00",
+          "ratio": "0.03107382424046989911768898388",
+          "undefined_reason": null
+        },
+        "nsf_count": 12,
+        "offer": {
+          "after_nonnegative_floor_usd": "0",
+          "after_nsf_cutoff_usd": "0",
+          "final_usd": "0.00",
+          "is_live_funding_decision": false,
+          "nsf_cutoff_applied": true,
+          "policy_version": "illustrative-offer-v1",
+          "raw_usd": "41457.33333333333333333333333"
+        },
+        "other_funder_payments": {
+          "coverage_days": 90,
+          "daily_usd": "12.30833333333333333333333333",
+          "repayment_total_usd": "1107.75"
+        },
+        "overdraft_count": 2,
+        "revenue_to_deposits": {
+          "denominator_usd": "141786.53",
+          "numerator_usd": "104258.75",
+          "ratio": "0.7353219660570013244558562792",
+          "undefined_reason": null
+        },
+        "transaction_count": 200
+      },
+      "truth": {
+        "average_monthly_revenue_usd": "36703.12333333333333333333333",
+        "deposit_total_usd": "141786.53",
+        "eligible_revenue_total_usd": "110109.37",
+        "high_risk_debit_share": {
+          "denominator_usd": "77589.42",
+          "numerator_usd": "3050.46",
+          "ratio": "0.03931541181774525444319599244",
+          "undefined_reason": null
+        },
+        "nsf_count": 6,
+        "offer": {
+          "after_nonnegative_floor_usd": "0",
+          "after_nsf_cutoff_usd": "0",
+          "final_usd": "0.00",
+          "is_live_funding_decision": false,
+          "nsf_cutoff_applied": true,
+          "policy_version": "illustrative-offer-v1",
+          "raw_usd": "43797.58133333333333333333333"
+        },
+        "other_funder_payments": {
+          "coverage_days": 90,
+          "daily_usd": "12.30833333333333333333333333",
+          "repayment_total_usd": "1107.75"
+        },
+        "overdraft_count": 2,
+        "revenue_to_deposits": {
+          "denominator_usd": "141786.53",
+          "numerator_usd": "110109.37",
+          "ratio": "0.7765855473012845437433302021",
+          "undefined_reason": null
+        },
+        "transaction_count": 200
+      }
+    },
+    {
+      "amr_error_usd": {
+        "legacy_absolute": "13824.40333333333333333333333",
+        "legacy_signed": "-13824.40333333333333333333333",
+        "reviewed_absolute": "0.00",
+        "reviewed_signed": "0.00"
+      },
+      "business_id": "biz_03",
+      "coverage_days": 90,
+      "evaluation_split": "development",
+      "label_counts": {
+        "ambiguous_scenarios": 6,
+        "changed_but_still_wrong": 15,
+        "degraded": 1,
+        "false_changes": 0,
+        "flags": 48,
+        "hard_negative_false_flags": 1,
+        "hard_negatives": 28,
+        "legacy_group_correct": 136,
+        "legacy_group_status_correct": 136,
+        "legacy_revenue_correct": 160,
+        "legacy_status_correct": 200,
+        "missed_mistakes": 16,
+        "reviewed_group_correct": 169,
+        "reviewed_group_status_correct": 169,
+        "reviewed_revenue_correct": 200,
+        "reviewed_status_correct": 200,
+        "transactions": 200,
+        "true_corrections": 33
+      },
+      "legacy": {
+        "average_monthly_revenue_usd": "23861.31666666666666666666667",
+        "deposit_total_usd": "171333.99",
+        "eligible_revenue_total_usd": "71583.95",
+        "high_risk_debit_share": {
+          "denominator_usd": "90427.22",
+          "numerator_usd": "2456.03",
+          "ratio": "0.02716029531815751938409695665",
+          "undefined_reason": null
+        },
+        "nsf_count": 19,
+        "offer": {
+          "after_nonnegative_floor_usd": "0",
+          "after_nsf_cutoff_usd": "0",
+          "final_usd": "0.00",
+          "is_live_funding_decision": false,
+          "nsf_cutoff_applied": true,
+          "policy_version": "illustrative-offer-v1",
+          "raw_usd": "27929.30222222222222222222222"
+        },
+        "other_funder_payments": {
+          "coverage_days": 90,
+          "daily_usd": "35.21388888888888888888888889",
+          "repayment_total_usd": "3169.25"
+        },
+        "overdraft_count": 1,
+        "revenue_to_deposits": {
+          "denominator_usd": "171333.99",
+          "numerator_usd": "71583.95",
+          "ratio": "0.4178035543326808650169181258",
+          "undefined_reason": null
+        },
+        "transaction_count": 200
+      },
+      "nsf_fee_observable": true,
+      "offer_delta_usd": {
+        "legacy_minus_truth": "-45013.17",
+        "reviewed_minus_legacy": "45013.17",
+        "reviewed_minus_truth": "0.00"
+      },
+      "reviewed": {
+        "average_monthly_revenue_usd": "37685.72",
+        "deposit_total_usd": "171333.99",
+        "eligible_revenue_total_usd": "113057.16",
+        "high_risk_debit_share": {
+          "denominator_usd": "90427.22",
+          "numerator_usd": "3612.19",
+          "ratio": "0.03994582604662622604122962090",
+          "undefined_reason": null
+        },
+        "nsf_count": 1,
+        "offer": {
+          "after_nonnegative_floor_usd": "45013.16622222222222222222222",
+          "after_nsf_cutoff_usd": "45013.16622222222222222222222",
+          "final_usd": "45013.17",
+          "is_live_funding_decision": false,
+          "nsf_cutoff_applied": false,
+          "policy_version": "illustrative-offer-v1",
+          "raw_usd": "45013.16622222222222222222222"
+        },
+        "other_funder_payments": {
+          "coverage_days": 90,
+          "daily_usd": "10.48488888888888888888888889",
+          "repayment_total_usd": "943.64"
+        },
+        "overdraft_count": 2,
+        "revenue_to_deposits": {
+          "denominator_usd": "171333.99",
+          "numerator_usd": "113057.16",
+          "ratio": "0.6598641635556377342289174495",
+          "undefined_reason": null
+        },
+        "transaction_count": 200
+      },
+      "truth": {
+        "average_monthly_revenue_usd": "37685.72",
+        "deposit_total_usd": "171333.99",
+        "eligible_revenue_total_usd": "113057.16",
+        "high_risk_debit_share": {
+          "denominator_usd": "90427.22",
+          "numerator_usd": "3612.19",
+          "ratio": "0.03994582604662622604122962090",
+          "undefined_reason": null
+        },
+        "nsf_count": 1,
+        "offer": {
+          "after_nonnegative_floor_usd": "45013.16622222222222222222222",
+          "after_nsf_cutoff_usd": "45013.16622222222222222222222",
+          "final_usd": "45013.17",
+          "is_live_funding_decision": false,
+          "nsf_cutoff_applied": false,
+          "policy_version": "illustrative-offer-v1",
+          "raw_usd": "45013.16622222222222222222222"
+        },
+        "other_funder_payments": {
+          "coverage_days": 90,
+          "daily_usd": "10.48488888888888888888888889",
+          "repayment_total_usd": "943.64"
+        },
+        "overdraft_count": 2,
+        "revenue_to_deposits": {
+          "denominator_usd": "171333.99",
+          "numerator_usd": "113057.16",
+          "ratio": "0.6598641635556377342289174495",
+          "undefined_reason": null
+        },
+        "transaction_count": 200
+      }
+    },
+    {
+      "amr_error_usd": {
+        "legacy_absolute": "18354.24666666666666666666667",
+        "legacy_signed": "-18354.24666666666666666666667",
+        "reviewed_absolute": "7345.77333333333333333333333",
+        "reviewed_signed": "-7345.77333333333333333333333"
+      },
+      "business_id": "biz_04",
+      "coverage_days": 90,
+      "evaluation_split": "development",
+      "label_counts": {
+        "ambiguous_scenarios": 6,
+        "changed_but_still_wrong": 12,
+        "degraded": 80,
+        "false_changes": 0,
+        "flags": 31,
+        "hard_negative_false_flags": 2,
+        "hard_negatives": 28,
+        "legacy_group_correct": 136,
+        "legacy_group_status_correct": 136,
+        "legacy_revenue_correct": 157,
+        "legacy_status_correct": 200,
+        "missed_mistakes": 33,
+        "reviewed_group_correct": 155,
+        "reviewed_group_status_correct": 155,
+        "reviewed_revenue_correct": 182,
+        "reviewed_status_correct": 200,
+        "transactions": 200,
+        "true_corrections": 19
+      },
+      "legacy": {
+        "average_monthly_revenue_usd": "35227.44333333333333333333333",
+        "deposit_total_usd": "218031.30",
+        "eligible_revenue_total_usd": "105682.33",
+        "high_risk_debit_share": {
+          "denominator_usd": "97240.80",
+          "numerator_usd": "2214.06",
+          "ratio": "0.02276883777179949157143914900",
+          "undefined_reason": null
+        },
+        "nsf_count": 22,
+        "offer": {
+          "after_nonnegative_floor_usd": "0",
+          "after_nsf_cutoff_usd": "0",
+          "final_usd": "0.00",
+          "is_live_funding_decision": false,
+          "nsf_cutoff_applied": true,
+          "policy_version": "illustrative-offer-v1",
+          "raw_usd": "41374.86755555555555555555556"
+        },
+        "other_funder_payments": {
+          "coverage_days": 90,
+          "daily_usd": "44.90322222222222222222222222",
+          "repayment_total_usd": "4041.29"
+        },
+        "overdraft_count": 1,
+        "revenue_to_deposits": {
+          "denominator_usd": "218031.30",
+          "numerator_usd": "105682.33",
+          "ratio": "0.4847117363424425759053860615",
+          "undefined_reason": null
+        },
+        "transaction_count": 200
+      },
+      "nsf_fee_observable": true,
+      "offer_delta_usd": {
+        "legacy_minus_truth": "-64143.90",
+        "reviewed_minus_legacy": "0.00",
+        "reviewed_minus_truth": "-64143.90"
+      },
+      "reviewed": {
+        "average_monthly_revenue_usd": "46235.91666666666666666666667",
+        "deposit_total_usd": "218031.30",
+        "eligible_revenue_total_usd": "138707.75",
+        "high_risk_debit_share": {
+          "denominator_usd": "97240.80",
+          "numerator_usd": "2214.06",
+          "ratio": "0.02276883777179949157143914900",
+          "undefined_reason": null
+        },
+        "nsf_count": 9,
+        "offer": {
+          "after_nonnegative_floor_usd": "0",
+          "after_nsf_cutoff_usd": "0",
+          "final_usd": "0.00",
+          "is_live_funding_decision": false,
+          "nsf_cutoff_applied": true,
+          "policy_version": "illustrative-offer-v1",
+          "raw_usd": "55328.97111111111111111111111"
+        },
+        "other_funder_payments": {
+          "coverage_days": 90,
+          "daily_usd": "7.706444444444444444444444444",
+          "repayment_total_usd": "693.58"
+        },
+        "overdraft_count": 2,
+        "revenue_to_deposits": {
+          "denominator_usd": "218031.30",
+          "numerator_usd": "138707.75",
+          "ratio": "0.6361827407349311773126152071",
+          "undefined_reason": null
+        },
+        "transaction_count": 200
+      },
+      "truth": {
+        "average_monthly_revenue_usd": "53581.69",
+        "deposit_total_usd": "218031.30",
+        "eligible_revenue_total_usd": "160745.07",
+        "high_risk_debit_share": {
+          "denominator_usd": "97240.80",
+          "numerator_usd": "3465.76",
+          "ratio": "0.03564100665564248751552846130",
+          "undefined_reason": null
+        },
+        "nsf_count": 1,
+        "offer": {
+          "after_nonnegative_floor_usd": "64143.89911111111111111111111",
+          "after_nsf_cutoff_usd": "64143.89911111111111111111111",
+          "final_usd": "64143.90",
+          "is_live_funding_decision": false,
+          "nsf_cutoff_applied": false,
+          "policy_version": "illustrative-offer-v1",
+          "raw_usd": "64143.89911111111111111111111"
+        },
+        "other_funder_payments": {
+          "coverage_days": 90,
+          "daily_usd": "7.706444444444444444444444444",
+          "repayment_total_usd": "693.58"
+        },
+        "overdraft_count": 2,
+        "revenue_to_deposits": {
+          "denominator_usd": "218031.30",
+          "numerator_usd": "160745.07",
+          "ratio": "0.7372568525711675342026580587",
+          "undefined_reason": null
+        },
+        "transaction_count": 200
+      }
+    },
+    {
+      "amr_error_usd": {
+        "legacy_absolute": "17139.94",
+        "legacy_signed": "-17139.94",
+        "reviewed_absolute": "6080.43333333333333333333333",
+        "reviewed_signed": "-6080.43333333333333333333333"
+      },
+      "business_id": "biz_05",
+      "coverage_days": 90,
+      "evaluation_split": "development",
+      "label_counts": {
+        "ambiguous_scenarios": 6,
+        "changed_but_still_wrong": 6,
+        "degraded": 40,
+        "false_changes": 0,
+        "flags": 33,
+        "hard_negative_false_flags": 0,
+        "hard_negatives": 28,
+        "legacy_group_correct": 136,
+        "legacy_group_status_correct": 136,
+        "legacy_revenue_correct": 156,
+        "legacy_status_correct": 200,
+        "missed_mistakes": 31,
+        "reviewed_group_correct": 163,
+        "reviewed_group_status_correct": 163,
+        "reviewed_revenue_correct": 183,
+        "reviewed_status_correct": 200,
+        "transactions": 200,
+        "true_corrections": 27
+      },
+      "legacy": {
+        "average_monthly_revenue_usd": "20513.06",
+        "deposit_total_usd": "169265.47",
+        "eligible_revenue_total_usd": "61539.18",
+        "high_risk_debit_share": {
+          "denominator_usd": "98361.67",
+          "numerator_usd": "3412.95",
+          "ratio": "0.03469796720612815947512887896",
+          "undefined_reason": null
+        },
+        "nsf_count": 23,
+        "offer": {
+          "after_nonnegative_floor_usd": "0",
+          "after_nsf_cutoff_usd": "0",
+          "final_usd": "0.00",
+          "is_live_funding_decision": false,
+          "nsf_cutoff_applied": true,
+          "policy_version": "illustrative-offer-v1",
+          "raw_usd": "23578.83422222222222222222222"
+        },
+        "other_funder_payments": {
+          "coverage_days": 90,
+          "daily_usd": "51.84188888888888888888888889",
+          "repayment_total_usd": "4665.77"
+        },
+        "overdraft_count": 1,
+        "revenue_to_deposits": {
+          "denominator_usd": "169265.47",
+          "numerator_usd": "61539.18",
+          "ratio": "0.3635660598703326791932223389",
+          "undefined_reason": null
+        },
+        "transaction_count": 200
+      },
+      "nsf_fee_observable": true,
+      "offer_delta_usd": {
+        "legacy_minus_truth": "-44962.00",
+        "reviewed_minus_legacy": "0.00",
+        "reviewed_minus_truth": "-44962.00"
+      },
+      "reviewed": {
+        "average_monthly_revenue_usd": "31572.56666666666666666666667",
+        "deposit_total_usd": "169265.47",
+        "eligible_revenue_total_usd": "94717.70",
+        "high_risk_debit_share": {
+          "denominator_usd": "98361.67",
+          "numerator_usd": "4037.30",
+          "ratio": "0.04104546008623074415064323328",
+          "undefined_reason": null
+        },
+        "nsf_count": 14,
+        "offer": {
+          "after_nonnegative_floor_usd": "0",
+          "after_nsf_cutoff_usd": "0",
+          "final_usd": "0.00",
+          "is_live_funding_decision": false,
+          "nsf_cutoff_applied": true,
+          "policy_version": "illustrative-offer-v1",
+          "raw_usd": "37255.69777777777777777777778"
+        },
+        "other_funder_payments": {
+          "coverage_days": 90,
+          "daily_usd": "31.56911111111111111111111111",
+          "repayment_total_usd": "2841.22"
+        },
+        "overdraft_count": 2,
+        "revenue_to_deposits": {
+          "denominator_usd": "169265.47",
+          "numerator_usd": "94717.70",
+          "ratio": "0.5595807579655791579936534014",
+          "undefined_reason": null
+        },
+        "transaction_count": 200
+      },
+      "truth": {
+        "average_monthly_revenue_usd": "37653.00",
+        "deposit_total_usd": "169265.47",
+        "eligible_revenue_total_usd": "112959.00",
+        "high_risk_debit_share": {
+          "denominator_usd": "98361.67",
+          "numerator_usd": "4037.30",
+          "ratio": "0.04104546008623074415064323328",
+          "undefined_reason": null
+        },
+        "nsf_count": 1,
+        "offer": {
+          "after_nonnegative_floor_usd": "44962.00444444444444444444444",
+          "after_nsf_cutoff_usd": "44962.00444444444444444444444",
+          "final_usd": "44962.00",
+          "is_live_funding_decision": false,
+          "nsf_cutoff_applied": false,
+          "policy_version": "illustrative-offer-v1",
+          "raw_usd": "44962.00444444444444444444444"
+        },
+        "other_funder_payments": {
+          "coverage_days": 90,
+          "daily_usd": "11.07977777777777777777777778",
+          "repayment_total_usd": "997.18"
+        },
+        "overdraft_count": 2,
+        "revenue_to_deposits": {
+          "denominator_usd": "169265.47",
+          "numerator_usd": "112959.00",
+          "ratio": "0.6673481602597387405712458660",
+          "undefined_reason": null
+        },
+        "transaction_count": 200
+      }
+    },
+    {
+      "amr_error_usd": {
+        "legacy_absolute": "15137.31666666666666666666667",
+        "legacy_signed": "-15137.31666666666666666666667",
+        "reviewed_absolute": "15137.31666666666666666666667",
+        "reviewed_signed": "-15137.31666666666666666666667"
+      },
+      "business_id": "biz_06",
+      "coverage_days": 90,
+      "evaluation_split": "development",
+      "label_counts": {
+        "ambiguous_scenarios": 6,
+        "changed_but_still_wrong": 0,
+        "degraded": 200,
+        "false_changes": 0,
+        "flags": 0,
+        "hard_negative_false_flags": 0,
+        "hard_negatives": 28,
+        "legacy_group_correct": 136,
+        "legacy_group_status_correct": 136,
+        "legacy_revenue_correct": 157,
+        "legacy_status_correct": 200,
+        "missed_mistakes": 64,
+        "reviewed_group_correct": 136,
+        "reviewed_group_status_correct": 136,
+        "reviewed_revenue_correct": 157,
+        "reviewed_status_correct": 200,
+        "transactions": 200,
+        "true_corrections": 0
+      },
+      "legacy": {
+        "average_monthly_revenue_usd": "23668.20333333333333333333333",
+        "deposit_total_usd": "155316.99",
+        "eligible_revenue_total_usd": "71004.61",
+        "high_risk_debit_share": {
+          "denominator_usd": "89466.35",
+          "numerator_usd": "3326.09",
+          "ratio": "0.03717699447892978756817507365",
+          "undefined_reason": null
+        },
+        "nsf_count": 22,
+        "offer": {
+          "after_nonnegative_floor_usd": "0",
+          "after_nsf_cutoff_usd": "0",
+          "final_usd": "0.00",
+          "is_live_funding_decision": false,
+          "nsf_cutoff_applied": true,
+          "policy_version": "illustrative-offer-v1",
+          "raw_usd": "27762.23066666666666666666667"
+        },
+        "other_funder_payments": {
+          "coverage_days": 90,
+          "daily_usd": "31.98066666666666666666666667",
+          "repayment_total_usd": "2878.26"
+        },
+        "overdraft_count": 1,
+        "revenue_to_deposits": {
+          "denominator_usd": "155316.99",
+          "numerator_usd": "71004.61",
+          "ratio": "0.4571593230077404925243529378",
+          "undefined_reason": null
+        },
+        "transaction_count": 200
+      },
+      "nsf_fee_observable": true,
+      "offer_delta_usd": {
+        "legacy_minus_truth": "-46430.80",
+        "reviewed_minus_legacy": "0.00",
+        "reviewed_minus_truth": "-46430.80"
+      },
+      "reviewed": {
+        "average_monthly_revenue_usd": "23668.20333333333333333333333",
+        "deposit_total_usd": "155316.99",
+        "eligible_revenue_total_usd": "71004.61",
+        "high_risk_debit_share": {
+          "denominator_usd": "89466.35",
+          "numerator_usd": "3326.09",
+          "ratio": "0.03717699447892978756817507365",
+          "undefined_reason": null
+        },
+        "nsf_count": 22,
+        "offer": {
+          "after_nonnegative_floor_usd": "0",
+          "after_nsf_cutoff_usd": "0",
+          "final_usd": "0.00",
+          "is_live_funding_decision": false,
+          "nsf_cutoff_applied": true,
+          "policy_version": "illustrative-offer-v1",
+          "raw_usd": "27762.23066666666666666666667"
+        },
+        "other_funder_payments": {
+          "coverage_days": 90,
+          "daily_usd": "31.98066666666666666666666667",
+          "repayment_total_usd": "2878.26"
+        },
+        "overdraft_count": 1,
+        "revenue_to_deposits": {
+          "denominator_usd": "155316.99",
+          "numerator_usd": "71004.61",
+          "ratio": "0.4571593230077404925243529378",
+          "undefined_reason": null
+        },
+        "transaction_count": 200
+      },
+      "truth": {
+        "average_monthly_revenue_usd": "38805.52",
+        "deposit_total_usd": "155316.99",
+        "eligible_revenue_total_usd": "116416.56",
+        "high_risk_debit_share": {
+          "denominator_usd": "89466.35",
+          "numerator_usd": "3469.97",
+          "ratio": "0.03878519689246292041644707759",
+          "undefined_reason": null
+        },
+        "nsf_count": 1,
+        "offer": {
+          "after_nonnegative_floor_usd": "46430.79511111111111111111111",
+          "after_nsf_cutoff_usd": "46430.79511111111111111111111",
+          "final_usd": "46430.80",
+          "is_live_funding_decision": false,
+          "nsf_cutoff_applied": false,
+          "policy_version": "illustrative-offer-v1",
+          "raw_usd": "46430.79511111111111111111111"
+        },
+        "other_funder_payments": {
+          "coverage_days": 90,
+          "daily_usd": "6.791444444444444444444444444",
+          "repayment_total_usd": "611.23"
+        },
+        "overdraft_count": 2,
+        "revenue_to_deposits": {
+          "denominator_usd": "155316.99",
+          "numerator_usd": "116416.56",
+          "ratio": "0.7495416953418940194501580284",
+          "undefined_reason": null
+        },
+        "transaction_count": 200
+      }
+    },
+    {
+      "amr_error_usd": {
+        "legacy_absolute": "14716.23666666666666666666666",
+        "legacy_signed": "-14716.23666666666666666666666",
+        "reviewed_absolute": "14716.23666666666666666666666",
+        "reviewed_signed": "-14716.23666666666666666666666"
+      },
+      "business_id": "biz_07",
+      "coverage_days": 90,
+      "evaluation_split": "development",
+      "label_counts": {
+        "ambiguous_scenarios": 6,
+        "changed_but_still_wrong": 0,
+        "degraded": 200,
+        "false_changes": 0,
+        "flags": 0,
+        "hard_negative_false_flags": 0,
+        "hard_negatives": 28,
+        "legacy_group_correct": 136,
+        "legacy_group_status_correct": 136,
+        "legacy_revenue_correct": 160,
+        "legacy_status_correct": 200,
+        "missed_mistakes": 64,
+        "reviewed_group_correct": 136,
+        "reviewed_group_status_correct": 136,
+        "reviewed_revenue_correct": 160,
+        "reviewed_status_correct": 200,
+        "transactions": 200,
+        "true_corrections": 0
+      },
+      "legacy": {
+        "average_monthly_revenue_usd": "26996.83666666666666666666667",
+        "deposit_total_usd": "174607.31",
+        "eligible_revenue_total_usd": "80990.51",
+        "high_risk_debit_share": {
+          "denominator_usd": "82486.44",
+          "numerator_usd": "1324.50",
+          "ratio": "0.01605718467180787533078164120",
+          "undefined_reason": null
+        },
+        "nsf_count": 19,
+        "offer": {
+          "after_nonnegative_floor_usd": "0",
+          "after_nsf_cutoff_usd": "0",
+          "final_usd": "0.00",
+          "is_live_funding_decision": false,
+          "nsf_cutoff_applied": true,
+          "policy_version": "illustrative-offer-v1",
+          "raw_usd": "31839.17955555555555555555556"
+        },
+        "other_funder_payments": {
+          "coverage_days": 90,
+          "daily_usd": "27.85122222222222222222222222",
+          "repayment_total_usd": "2506.61"
+        },
+        "overdraft_count": 1,
+        "revenue_to_deposits": {
+          "denominator_usd": "174607.31",
+          "numerator_usd": "80990.51",
+          "ratio": "0.4638437531624535078170553111",
+          "undefined_reason": null
+        },
+        "transaction_count": 200
+      },
+      "nsf_fee_observable": true,
+      "offer_delta_usd": {
+        "legacy_minus_truth": "-49904.86",
+        "reviewed_minus_legacy": "0.00",
+        "reviewed_minus_truth": "-49904.86"
+      },
+      "reviewed": {
+        "average_monthly_revenue_usd": "26996.83666666666666666666667",
+        "deposit_total_usd": "174607.31",
+        "eligible_revenue_total_usd": "80990.51",
+        "high_risk_debit_share": {
+          "denominator_usd": "82486.44",
+          "numerator_usd": "1324.50",
+          "ratio": "0.01605718467180787533078164120",
+          "undefined_reason": null
+        },
+        "nsf_count": 19,
+        "offer": {
+          "after_nonnegative_floor_usd": "0",
+          "after_nsf_cutoff_usd": "0",
+          "final_usd": "0.00",
+          "is_live_funding_decision": false,
+          "nsf_cutoff_applied": true,
+          "policy_version": "illustrative-offer-v1",
+          "raw_usd": "31839.17955555555555555555556"
+        },
+        "other_funder_payments": {
+          "coverage_days": 90,
+          "daily_usd": "27.85122222222222222222222222",
+          "repayment_total_usd": "2506.61"
+        },
+        "overdraft_count": 1,
+        "revenue_to_deposits": {
+          "denominator_usd": "174607.31",
+          "numerator_usd": "80990.51",
+          "ratio": "0.4638437531624535078170553111",
+          "undefined_reason": null
+        },
+        "transaction_count": 200
+      },
+      "truth": {
+        "average_monthly_revenue_usd": "41713.07333333333333333333333",
+        "deposit_total_usd": "174607.31",
+        "eligible_revenue_total_usd": "125139.22",
+        "high_risk_debit_share": {
+          "denominator_usd": "82486.44",
+          "numerator_usd": "1797.67",
+          "ratio": "0.02179352145637513268847582706",
+          "undefined_reason": null
+        },
+        "nsf_count": 1,
+        "offer": {
+          "after_nonnegative_floor_usd": "49904.86355555555555555555556",
+          "after_nsf_cutoff_usd": "49904.86355555555555555555556",
+          "final_usd": "49904.86",
+          "is_live_funding_decision": false,
+          "nsf_cutoff_applied": false,
+          "policy_version": "illustrative-offer-v1",
+          "raw_usd": "49904.86355555555555555555556"
+        },
+        "other_funder_payments": {
+          "coverage_days": 90,
+          "daily_usd": "7.541222222222222222222222222",
+          "repayment_total_usd": "678.71"
+        },
+        "overdraft_count": 2,
+        "revenue_to_deposits": {
+          "denominator_usd": "174607.31",
+          "numerator_usd": "125139.22",
+          "ratio": "0.7166894673539154803999901264",
+          "undefined_reason": null
+        },
+        "transaction_count": 200
+      }
+    },
+    {
+      "amr_error_usd": {
+        "legacy_absolute": "13241.94333333333333333333333",
+        "legacy_signed": "-13241.94333333333333333333333",
+        "reviewed_absolute": "13241.94333333333333333333333",
+        "reviewed_signed": "-13241.94333333333333333333333"
+      },
+      "business_id": "biz_08",
+      "coverage_days": 90,
+      "evaluation_split": "development",
+      "label_counts": {
+        "ambiguous_scenarios": 6,
+        "changed_but_still_wrong": 0,
+        "degraded": 200,
+        "false_changes": 0,
+        "flags": 0,
+        "hard_negative_false_flags": 0,
+        "hard_negatives": 28,
+        "legacy_group_correct": 136,
+        "legacy_group_status_correct": 136,
+        "legacy_revenue_correct": 158,
+        "legacy_status_correct": 200,
+        "missed_mistakes": 64,
+        "reviewed_group_correct": 136,
+        "reviewed_group_status_correct": 136,
+        "reviewed_revenue_correct": 158,
+        "reviewed_status_correct": 200,
+        "transactions": 200,
+        "true_corrections": 0
+      },
+      "legacy": {
+        "average_monthly_revenue_usd": "23187.25",
+        "deposit_total_usd": "172876.14",
+        "eligible_revenue_total_usd": "69561.75",
+        "high_risk_debit_share": {
+          "denominator_usd": "90075.49",
+          "numerator_usd": "2230.04",
+          "ratio": "0.02475745621811216347532497464",
+          "undefined_reason": null
+        },
+        "nsf_count": 21,
+        "offer": {
+          "after_nonnegative_floor_usd": "0",
+          "after_nsf_cutoff_usd": "0",
+          "final_usd": "0.00",
+          "is_live_funding_decision": false,
+          "nsf_cutoff_applied": true,
+          "policy_version": "illustrative-offer-v1",
+          "raw_usd": "27291.05333333333333333333333"
+        },
+        "other_funder_payments": {
+          "coverage_days": 90,
+          "daily_usd": "26.68233333333333333333333333",
+          "repayment_total_usd": "2401.41"
+        },
+        "overdraft_count": 1,
+        "revenue_to_deposits": {
+          "denominator_usd": "172876.14",
+          "numerator_usd": "69561.75",
+          "ratio": "0.4023791253090218233701886217",
+          "undefined_reason": null
+        },
+        "transaction_count": 200
+      },
+      "nsf_fee_observable": true,
+      "offer_delta_usd": {
+        "legacy_minus_truth": "-43628.51",
+        "reviewed_minus_legacy": "0.00",
+        "reviewed_minus_truth": "-43628.51"
+      },
+      "reviewed": {
+        "average_monthly_revenue_usd": "23187.25",
+        "deposit_total_usd": "172876.14",
+        "eligible_revenue_total_usd": "69561.75",
+        "high_risk_debit_share": {
+          "denominator_usd": "90075.49",
+          "numerator_usd": "2230.04",
+          "ratio": "0.02475745621811216347532497464",
+          "undefined_reason": null
+        },
+        "nsf_count": 21,
+        "offer": {
+          "after_nonnegative_floor_usd": "0",
+          "after_nsf_cutoff_usd": "0",
+          "final_usd": "0.00",
+          "is_live_funding_decision": false,
+          "nsf_cutoff_applied": true,
+          "policy_version": "illustrative-offer-v1",
+          "raw_usd": "27291.05333333333333333333333"
+        },
+        "other_funder_payments": {
+          "coverage_days": 90,
+          "daily_usd": "26.68233333333333333333333333",
+          "repayment_total_usd": "2401.41"
+        },
+        "overdraft_count": 1,
+        "revenue_to_deposits": {
+          "denominator_usd": "172876.14",
+          "numerator_usd": "69561.75",
+          "ratio": "0.4023791253090218233701886217",
+          "undefined_reason": null
+        },
+        "transaction_count": 200
+      },
+      "truth": {
+        "average_monthly_revenue_usd": "36429.19333333333333333333333",
+        "deposit_total_usd": "172876.14",
+        "eligible_revenue_total_usd": "109287.58",
+        "high_risk_debit_share": {
+          "denominator_usd": "90075.49",
+          "numerator_usd": "2375.74",
+          "ratio": "0.02637498835698812185201545948",
+          "undefined_reason": null
+        },
+        "nsf_count": 1,
+        "offer": {
+          "after_nonnegative_floor_usd": "43628.50977777777777777777778",
+          "after_nsf_cutoff_usd": "43628.50977777777777777777778",
+          "final_usd": "43628.51",
+          "is_live_funding_decision": false,
+          "nsf_cutoff_applied": false,
+          "policy_version": "illustrative-offer-v1",
+          "raw_usd": "43628.50977777777777777777778"
+        },
+        "other_funder_payments": {
+          "coverage_days": 90,
+          "daily_usd": "4.326111111111111111111111111",
+          "repayment_total_usd": "389.35"
+        },
+        "overdraft_count": 2,
+        "revenue_to_deposits": {
+          "denominator_usd": "172876.14",
+          "numerator_usd": "109287.58",
+          "ratio": "0.6321727220424981723909383909",
+          "undefined_reason": null
+        },
+        "transaction_count": 200
+      }
+    },
+    {
+      "amr_error_usd": {
+        "legacy_absolute": "15808.31333333333333333333333",
+        "legacy_signed": "-15808.31333333333333333333333",
+        "reviewed_absolute": "15808.31333333333333333333333",
+        "reviewed_signed": "-15808.31333333333333333333333"
+      },
+      "business_id": "biz_09",
+      "coverage_days": 90,
+      "evaluation_split": "held_out",
+      "label_counts": {
+        "ambiguous_scenarios": 6,
+        "changed_but_still_wrong": 0,
+        "degraded": 200,
+        "false_changes": 0,
+        "flags": 0,
+        "hard_negative_false_flags": 0,
+        "hard_negatives": 28,
+        "legacy_group_correct": 136,
+        "legacy_group_status_correct": 136,
+        "legacy_revenue_correct": 156,
+        "legacy_status_correct": 200,
+        "missed_mistakes": 64,
+        "reviewed_group_correct": 136,
+        "reviewed_group_status_correct": 136,
+        "reviewed_revenue_correct": 156,
+        "reviewed_status_correct": 200,
+        "transactions": 200,
+        "true_corrections": 0
+      },
+      "legacy": {
+        "average_monthly_revenue_usd": "23714.81666666666666666666667",
+        "deposit_total_usd": "177295.05",
+        "eligible_revenue_total_usd": "71144.45",
+        "high_risk_debit_share": {
+          "denominator_usd": "91155.96",
+          "numerator_usd": "2063.56",
+          "ratio": "0.02263768600539119987327213712",
+          "undefined_reason": null
+        },
+        "nsf_count": 23,
+        "offer": {
+          "after_nonnegative_floor_usd": "0",
+          "after_nsf_cutoff_usd": "0",
+          "final_usd": "0.00",
+          "is_live_funding_decision": false,
+          "nsf_cutoff_applied": true,
+          "policy_version": "illustrative-offer-v1",
+          "raw_usd": "27747.18666666666666666666667"
+        },
+        "other_funder_payments": {
+          "coverage_days": 90,
+          "daily_usd": "35.52966666666666666666666667",
+          "repayment_total_usd": "3197.67"
+        },
+        "overdraft_count": 1,
+        "revenue_to_deposits": {
+          "denominator_usd": "177295.05",
+          "numerator_usd": "71144.45",
+          "ratio": "0.4012771366149252333892006573",
+          "undefined_reason": null
+        },
+        "transaction_count": 200
+      },
+      "nsf_fee_observable": true,
+      "offer_delta_usd": {
+        "legacy_minus_truth": "-47324.48",
+        "reviewed_minus_legacy": "0.00",
+        "reviewed_minus_truth": "-47324.48"
+      },
+      "reviewed": {
+        "average_monthly_revenue_usd": "23714.81666666666666666666667",
+        "deposit_total_usd": "177295.05",
+        "eligible_revenue_total_usd": "71144.45",
+        "high_risk_debit_share": {
+          "denominator_usd": "91155.96",
+          "numerator_usd": "2063.56",
+          "ratio": "0.02263768600539119987327213712",
+          "undefined_reason": null
+        },
+        "nsf_count": 23,
+        "offer": {
+          "after_nonnegative_floor_usd": "0",
+          "after_nsf_cutoff_usd": "0",
+          "final_usd": "0.00",
+          "is_live_funding_decision": false,
+          "nsf_cutoff_applied": true,
+          "policy_version": "illustrative-offer-v1",
+          "raw_usd": "27747.18666666666666666666667"
+        },
+        "other_funder_payments": {
+          "coverage_days": 90,
+          "daily_usd": "35.52966666666666666666666667",
+          "repayment_total_usd": "3197.67"
+        },
+        "overdraft_count": 1,
+        "revenue_to_deposits": {
+          "denominator_usd": "177295.05",
+          "numerator_usd": "71144.45",
+          "ratio": "0.4012771366149252333892006573",
+          "undefined_reason": null
+        },
+        "transaction_count": 200
+      },
+      "truth": {
+        "average_monthly_revenue_usd": "39523.13",
+        "deposit_total_usd": "177295.05",
+        "eligible_revenue_total_usd": "118569.39",
+        "high_risk_debit_share": {
+          "denominator_usd": "91155.96",
+          "numerator_usd": "2535.30",
+          "ratio": "0.02781277274683959227679682162",
+          "undefined_reason": null
+        },
+        "nsf_count": 1,
+        "offer": {
+          "after_nonnegative_floor_usd": "47324.48266666666666666666667",
+          "after_nsf_cutoff_usd": "47324.48266666666666666666667",
+          "final_usd": "47324.48",
+          "is_live_funding_decision": false,
+          "nsf_cutoff_applied": false,
+          "policy_version": "illustrative-offer-v1",
+          "raw_usd": "47324.48266666666666666666667"
+        },
+        "other_funder_payments": {
+          "coverage_days": 90,
+          "daily_usd": "5.163666666666666666666666667",
+          "repayment_total_usd": "464.73"
+        },
+        "overdraft_count": 2,
+        "revenue_to_deposits": {
+          "denominator_usd": "177295.05",
+          "numerator_usd": "118569.39",
+          "ratio": "0.6687687558112874555719406718",
+          "undefined_reason": null
+        },
+        "transaction_count": 200
+      }
+    },
+    {
+      "amr_error_usd": {
+        "legacy_absolute": "14125.73333333333333333333333",
+        "legacy_signed": "-14125.73333333333333333333333",
+        "reviewed_absolute": "14125.73333333333333333333333",
+        "reviewed_signed": "-14125.73333333333333333333333"
+      },
+      "business_id": "biz_10",
+      "coverage_days": 90,
+      "evaluation_split": "held_out",
+      "label_counts": {
+        "ambiguous_scenarios": 6,
+        "changed_but_still_wrong": 0,
+        "degraded": 200,
+        "false_changes": 0,
+        "flags": 0,
+        "hard_negative_false_flags": 0,
+        "hard_negatives": 28,
+        "legacy_group_correct": 136,
+        "legacy_group_status_correct": 136,
+        "legacy_revenue_correct": 158,
+        "legacy_status_correct": 200,
+        "missed_mistakes": 64,
+        "reviewed_group_correct": 136,
+        "reviewed_group_status_correct": 136,
+        "reviewed_revenue_correct": 158,
+        "reviewed_status_correct": 200,
+        "transactions": 200,
+        "true_corrections": 0
+      },
+      "legacy": {
+        "average_monthly_revenue_usd": "21831.89",
+        "deposit_total_usd": "183045.83",
+        "eligible_revenue_total_usd": "65495.67",
+        "high_risk_debit_share": {
+          "denominator_usd": "89464.73",
+          "numerator_usd": "2029.40",
+          "ratio": "0.02268379952636083515816791712",
+          "undefined_reason": null
+        },
+        "nsf_count": 20,
+        "offer": {
+          "after_nonnegative_floor_usd": "0",
+          "after_nsf_cutoff_usd": "0",
+          "final_usd": "0.00",
+          "is_live_funding_decision": false,
+          "nsf_cutoff_applied": true,
+          "policy_version": "illustrative-offer-v1",
+          "raw_usd": "25502.43688888888888888888889"
+        },
+        "other_funder_payments": {
+          "coverage_days": 90,
+          "daily_usd": "34.79155555555555555555555556",
+          "repayment_total_usd": "3131.24"
+        },
+        "overdraft_count": 1,
+        "revenue_to_deposits": {
+          "denominator_usd": "183045.83",
+          "numerator_usd": "65495.67",
+          "ratio": "0.3578102270890301079243378557",
+          "undefined_reason": null
+        },
+        "transaction_count": 200
+      },
+      "nsf_fee_observable": false,
+      "offer_delta_usd": {
+        "legacy_minus_truth": "-43062.86",
+        "reviewed_minus_legacy": "0.00",
+        "reviewed_minus_truth": "-43062.86"
+      },
+      "reviewed": {
+        "average_monthly_revenue_usd": "21831.89",
+        "deposit_total_usd": "183045.83",
+        "eligible_revenue_total_usd": "65495.67",
+        "high_risk_debit_share": {
+          "denominator_usd": "89464.73",
+          "numerator_usd": "2029.40",
+          "ratio": "0.02268379952636083515816791712",
+          "undefined_reason": null
+        },
+        "nsf_count": 20,
+        "offer": {
+          "after_nonnegative_floor_usd": "0",
+          "after_nsf_cutoff_usd": "0",
+          "final_usd": "0.00",
+          "is_live_funding_decision": false,
+          "nsf_cutoff_applied": true,
+          "policy_version": "illustrative-offer-v1",
+          "raw_usd": "25502.43688888888888888888889"
+        },
+        "other_funder_payments": {
+          "coverage_days": 90,
+          "daily_usd": "34.79155555555555555555555556",
+          "repayment_total_usd": "3131.24"
+        },
+        "overdraft_count": 1,
+        "revenue_to_deposits": {
+          "denominator_usd": "183045.83",
+          "numerator_usd": "65495.67",
+          "ratio": "0.3578102270890301079243378557",
+          "undefined_reason": null
+        },
+        "transaction_count": 200
+      },
+      "truth": {
+        "average_monthly_revenue_usd": "35957.62333333333333333333333",
+        "deposit_total_usd": "183045.83",
+        "eligible_revenue_total_usd": "107872.87",
+        "high_risk_debit_share": {
+          "denominator_usd": "89464.73",
+          "numerator_usd": "3159.95",
+          "ratio": "0.03532062299858279346508953864",
+          "undefined_reason": null
+        },
+        "nsf_count": 0,
+        "offer": {
+          "after_nonnegative_floor_usd": "43062.85911111111111111111111",
+          "after_nsf_cutoff_usd": "43062.85911111111111111111111",
+          "final_usd": "43062.86",
+          "is_live_funding_decision": false,
+          "nsf_cutoff_applied": false,
+          "policy_version": "illustrative-offer-v1",
+          "raw_usd": "43062.85911111111111111111111"
+        },
+        "other_funder_payments": {
+          "coverage_days": 90,
+          "daily_usd": "4.314444444444444444444444444",
+          "repayment_total_usd": "388.30"
+        },
+        "overdraft_count": 2,
+        "revenue_to_deposits": {
+          "denominator_usd": "183045.83",
+          "numerator_usd": "107872.87",
+          "ratio": "0.5893216469339946176320979287",
+          "undefined_reason": null
+        },
+        "transaction_count": 200
+      }
+    }
+  ],
+  "counts": {
+    "ambiguous_scenarios": 60,
+    "changed_but_still_wrong": 61,
+    "degraded": 1201,
+    "false_changes": 0,
+    "flags": 196,
+    "hard_negative_false_flags": 3,
+    "hard_negatives": 278,
+    "legacy_group_correct": 1364,
+    "legacy_group_status_correct": 1364,
+    "legacy_revenue_correct": 1577,
+    "legacy_status_correct": 2000,
+    "missed_mistakes": 440,
+    "reviewed_group_correct": 1499,
+    "reviewed_group_status_correct": 1499,
+    "reviewed_revenue_correct": 1742,
+    "reviewed_status_correct": 2000,
+    "transactions": 2000,
+    "true_corrections": 135
+  },
+  "evaluation_version": "synthetic-evaluation-v1",
+  "feature_policy_version": "credit-features-v1",
+  "input_sha256": "c5d09a0703be1c8a30f785752c91f547256ed870ddd045d33b9896252d434230",
+  "limitations": [
+    "Synthetic scenario intent is not verified real-world ground truth.",
+    "Ambiguous bank descriptions cannot establish sales purpose, legal event, or failed payment.",
+    "Self-reported model confidence is not calibrated probability."
+  ],
+  "measurement_type": "measured_against_independent_synthetic_scenario_intent_not_real_world_accuracy",
+  "offer_policy_version": "illustrative-offer-v1",
+  "representative_examples": [
+    {
+      "actual_reviewed_marginal_effect": {
+        "amr_delta_usd": "0",
+        "daily_funder_payment_delta_usd": "0E-26",
+        "final_offer_delta_usd": "0.00",
+        "nsf_count_delta": 0,
+        "revenue_delta_usd": "0"
+      },
+      "ambiguous": false,
+      "amount_usd": "-14955.20",
+      "business_id": "biz_10",
+      "category": "missed_mistakes",
+      "legacy": {
+        "group": "NSFs",
+        "status": "business"
+      },
+      "review_reason": null,
+      "reviewed": {
+        "group": "NSFs",
+        "status": "business"
+      },
+      "scenario_id": "internal_in",
+      "synthetic_description": "INTERNAL TRANSFER FROM RESERVE",
+      "transaction_id": "tx_biz_10_0167",
+      "truth": {
+        "group": "Internal transfer",
+        "status": "business"
+      },
+      "truth_correction_marginal_effect": {
+        "amr_delta_usd": "0",
+        "daily_funder_payment_delta_usd": "0E-26",
+        "final_offer_delta_usd": "0.00",
+        "nsf_count_delta": -1,
+        "revenue_delta_usd": "0"
+      }
+    },
+    {
+      "actual_reviewed_marginal_effect": {
+        "amr_delta_usd": "0",
+        "daily_funder_payment_delta_usd": "0E-26",
+        "final_offer_delta_usd": "0.00",
+        "nsf_count_delta": 0,
+        "revenue_delta_usd": "0"
+      },
+      "ambiguous": false,
+      "amount_usd": "-14642.81",
+      "business_id": "biz_10",
+      "category": "missed_mistakes",
+      "legacy": {
+        "group": "NSFs",
+        "status": "business"
+      },
+      "review_reason": null,
+      "reviewed": {
+        "group": "NSFs",
+        "status": "business"
+      },
+      "scenario_id": "internal_in",
+      "synthetic_description": "INTERNAL TRANSFER FROM RESERVE",
+      "transaction_id": "tx_biz_10_0170",
+      "truth": {
+        "group": "Internal transfer",
+        "status": "business"
+      },
+      "truth_correction_marginal_effect": {
+        "amr_delta_usd": "0",
+        "daily_funder_payment_delta_usd": "0E-26",
+        "final_offer_delta_usd": "0.00",
+        "nsf_count_delta": -1,
+        "revenue_delta_usd": "0"
+      }
+    },
+    {
+      "actual_reviewed_marginal_effect": {
+        "amr_delta_usd": "0",
+        "daily_funder_payment_delta_usd": "0E-26",
+        "final_offer_delta_usd": "0.00",
+        "nsf_count_delta": 0,
+        "revenue_delta_usd": "0"
+      },
+      "ambiguous": false,
+      "amount_usd": "-14441.53",
+      "business_id": "biz_09",
+      "category": "missed_mistakes",
+      "legacy": {
+        "group": "NSFs",
+        "status": "business"
+      },
+      "review_reason": null,
+      "reviewed": {
+        "group": "NSFs",
+        "status": "business"
+      },
+      "scenario_id": "internal_in",
+      "synthetic_description": "INTERNAL TRANSFER FROM RESERVE",
+      "transaction_id": "tx_biz_09_0184",
+      "truth": {
+        "group": "Internal transfer",
+        "status": "business"
+      },
+      "truth_correction_marginal_effect": {
+        "amr_delta_usd": "0",
+        "daily_funder_payment_delta_usd": "0E-26",
+        "final_offer_delta_usd": "0.00",
+        "nsf_count_delta": -1,
+        "revenue_delta_usd": "0"
+      }
+    },
+    {
+      "actual_reviewed_marginal_effect": {
+        "amr_delta_usd": "0",
+        "daily_funder_payment_delta_usd": "0E-26",
+        "final_offer_delta_usd": "0.00",
+        "nsf_count_delta": -1,
+        "revenue_delta_usd": "0"
+      },
+      "ambiguous": false,
+      "amount_usd": "-9389.86",
+      "business_id": "biz_03",
+      "category": "true_corrections",
+      "legacy": {
+        "group": "NSFs",
+        "status": "business"
+      },
+      "review_reason": "Internal transfer description supports transfer classification; no standalone NSF evidence.",
+      "reviewed": {
+        "group": "Internal transfer",
+        "status": "business"
+      },
+      "scenario_id": "internal_in",
+      "synthetic_description": "INTERNAL TRANSFER FROM RESERVE",
+      "transaction_id": "tx_biz_03_0125",
+      "truth": {
+        "group": "Internal transfer",
+        "status": "business"
+      },
+      "truth_correction_marginal_effect": {
+        "amr_delta_usd": "0",
+        "daily_funder_payment_delta_usd": "0E-26",
+        "final_offer_delta_usd": "0.00",
+        "nsf_count_delta": -1,
+        "revenue_delta_usd": "0"
+      }
+    },
+    {
+      "actual_reviewed_marginal_effect": {
+        "amr_delta_usd": "0",
+        "daily_funder_payment_delta_usd": "0E-26",
+        "final_offer_delta_usd": "0.00",
+        "nsf_count_delta": -1,
+        "revenue_delta_usd": "0"
+      },
+      "ambiguous": false,
+      "amount_usd": "-8698.72",
+      "business_id": "biz_05",
+      "category": "true_corrections",
+      "legacy": {
+        "group": "NSFs",
+        "status": "business"
+      },
+      "review_reason": "Explicit internal transfer supports that group; embedded 'nsf' is not an NSF indicator.",
+      "reviewed": {
+        "group": "Internal transfer",
+        "status": "business"
+      },
+      "scenario_id": "internal_in",
+      "synthetic_description": "INTERNAL TRANSFER FROM RESERVE",
+      "transaction_id": "tx_biz_05_0051",
+      "truth": {
+        "group": "Internal transfer",
+        "status": "business"
+      },
+      "truth_correction_marginal_effect": {
+        "amr_delta_usd": "0",
+        "daily_funder_payment_delta_usd": "0E-26",
+        "final_offer_delta_usd": "0.00",
+        "nsf_count_delta": -1,
+        "revenue_delta_usd": "0"
+      }
+    },
+    {
+      "actual_reviewed_marginal_effect": {
+        "amr_delta_usd": "0",
+        "daily_funder_payment_delta_usd": "0E-26",
+        "final_offer_delta_usd": "0.00",
+        "nsf_count_delta": -1,
+        "revenue_delta_usd": "0"
+      },
+      "ambiguous": false,
+      "amount_usd": "-7620.56",
+      "business_id": "biz_04",
+      "category": "true_corrections",
+      "legacy": {
+        "group": "NSFs",
+        "status": "business"
+      },
+      "review_reason": "Internal transfer from reserve supports Internal transfer, not NSFs.",
+      "reviewed": {
+        "group": "Internal transfer",
+        "status": "business"
+      },
+      "scenario_id": "internal_in",
+      "synthetic_description": "INTERNAL TRANSFER FROM RESERVE",
+      "transaction_id": "tx_biz_04_0135",
+      "truth": {
+        "group": "Internal transfer",
+        "status": "business"
+      },
+      "truth_correction_marginal_effect": {
+        "amr_delta_usd": "0",
+        "daily_funder_payment_delta_usd": "0E-26",
+        "final_offer_delta_usd": "0.00",
+        "nsf_count_delta": -1,
+        "revenue_delta_usd": "0"
+      }
+    },
+    {
+      "actual_reviewed_marginal_effect": {
+        "amr_delta_usd": "786.37",
+        "daily_funder_payment_delta_usd": "0E-26",
+        "final_offer_delta_usd": "0.00",
+        "nsf_count_delta": 0,
+        "revenue_delta_usd": "2359.11"
+      },
+      "ambiguous": false,
+      "amount_usd": "-2359.11",
+      "business_id": "biz_04",
+      "category": "changed_but_still_wrong",
+      "legacy": {
+        "group": "Active advance",
+        "status": "business"
+      },
+      "review_reason": "Square Inc sales credit indicates merchant activity, not Square Capital funding.",
+      "reviewed": {
+        "group": "unmatched",
+        "status": "business"
+      },
+      "scenario_id": "processor_square",
+      "synthetic_description": "ACH CREDIT SQUARE INC SALES",
+      "transaction_id": "tx_biz_04_0017",
+      "truth": {
+        "group": "Revenue verification",
+        "status": "business"
+      },
+      "truth_correction_marginal_effect": {
+        "amr_delta_usd": "786.37",
+        "daily_funder_payment_delta_usd": "0E-26",
+        "final_offer_delta_usd": "0.00",
+        "nsf_count_delta": 0,
+        "revenue_delta_usd": "2359.11"
+      }
+    },
+    {
+      "actual_reviewed_marginal_effect": {
+        "amr_delta_usd": "750.43",
+        "daily_funder_payment_delta_usd": "0E-26",
+        "final_offer_delta_usd": "0.00",
+        "nsf_count_delta": 0,
+        "revenue_delta_usd": "2251.29"
+      },
+      "ambiguous": false,
+      "amount_usd": "-2251.29",
+      "business_id": "biz_04",
+      "category": "changed_but_still_wrong",
+      "legacy": {
+        "group": "Active advance",
+        "status": "business"
+      },
+      "review_reason": "Square Inc sales credit indicates merchant activity, not Square Capital funding.",
+      "reviewed": {
+        "group": "unmatched",
+        "status": "business"
+      },
+      "scenario_id": "processor_square",
+      "synthetic_description": "ACH CREDIT SQUARE INC SALES",
+      "transaction_id": "tx_biz_04_0027",
+      "truth": {
+        "group": "Revenue verification",
+        "status": "business"
+      },
+      "truth_correction_marginal_effect": {
+        "amr_delta_usd": "750.43",
+        "daily_funder_payment_delta_usd": "0E-26",
+        "final_offer_delta_usd": "0.00",
+        "nsf_count_delta": 0,
+        "revenue_delta_usd": "2251.29"
+      }
+    },
+    {
+      "actual_reviewed_marginal_effect": {
+        "amr_delta_usd": "549.6533333333333333333333333",
+        "daily_funder_payment_delta_usd": "0E-26",
+        "final_offer_delta_usd": "0.00",
+        "nsf_count_delta": -1,
+        "revenue_delta_usd": "1648.96"
+      },
+      "ambiguous": false,
+      "amount_usd": "-1648.96",
+      "business_id": "biz_04",
+      "category": "changed_but_still_wrong",
+      "legacy": {
+        "group": "NSFs",
+        "status": "business"
+      },
+      "review_reason": "Transfer wording does not support an NSF classification; no failed-payment evidence.",
+      "reviewed": {
+        "group": "unmatched",
+        "status": "business"
+      },
+      "scenario_id": "processor_noisy",
+      "synthetic_description": "CRAFTCART CO ENTRY DESCR:TRANSFER",
+      "transaction_id": "tx_biz_04_0165",
+      "truth": {
+        "group": "Revenue verification",
+        "status": "business"
+      },
+      "truth_correction_marginal_effect": {
+        "amr_delta_usd": "549.6533333333333333333333333",
+        "daily_funder_payment_delta_usd": "0E-26",
+        "final_offer_delta_usd": "0.00",
+        "nsf_count_delta": -1,
+        "revenue_delta_usd": "1648.96"
+      }
+    },
+    {
+      "actual_reviewed_marginal_effect": {
+        "amr_delta_usd": "786.37",
+        "daily_funder_payment_delta_usd": "0E-26",
+        "final_offer_delta_usd": "0.00",
+        "nsf_count_delta": 0,
+        "revenue_delta_usd": "2359.11"
+      },
+      "ambiguous": false,
+      "amount_usd": "-2359.11",
+      "business_id": "biz_04",
+      "category": "hard_negative_false_flags",
+      "legacy": {
+        "group": "Active advance",
+        "status": "business"
+      },
+      "review_reason": "Square Inc sales credit indicates merchant activity, not Square Capital funding.",
+      "reviewed": {
+        "group": "unmatched",
+        "status": "business"
+      },
+      "scenario_id": "processor_square",
+      "synthetic_description": "ACH CREDIT SQUARE INC SALES",
+      "transaction_id": "tx_biz_04_0017",
+      "truth": {
+        "group": "Revenue verification",
+        "status": "business"
+      },
+      "truth_correction_marginal_effect": {
+        "amr_delta_usd": "786.37",
+        "daily_funder_payment_delta_usd": "0E-26",
+        "final_offer_delta_usd": "0.00",
+        "nsf_count_delta": 0,
+        "revenue_delta_usd": "2359.11"
+      }
+    },
+    {
+      "actual_reviewed_marginal_effect": {
+        "amr_delta_usd": "750.43",
+        "daily_funder_payment_delta_usd": "0E-26",
+        "final_offer_delta_usd": "0.00",
+        "nsf_count_delta": 0,
+        "revenue_delta_usd": "2251.29"
+      },
+      "ambiguous": false,
+      "amount_usd": "-2251.29",
+      "business_id": "biz_04",
+      "category": "hard_negative_false_flags",
+      "legacy": {
+        "group": "Active advance",
+        "status": "business"
+      },
+      "review_reason": "Square Inc sales credit indicates merchant activity, not Square Capital funding.",
+      "reviewed": {
+        "group": "unmatched",
+        "status": "business"
+      },
+      "scenario_id": "processor_square",
+      "synthetic_description": "ACH CREDIT SQUARE INC SALES",
+      "transaction_id": "tx_biz_04_0027",
+      "truth": {
+        "group": "Revenue verification",
+        "status": "business"
+      },
+      "truth_correction_marginal_effect": {
+        "amr_delta_usd": "750.43",
+        "daily_funder_payment_delta_usd": "0E-26",
+        "final_offer_delta_usd": "0.00",
+        "nsf_count_delta": 0,
+        "revenue_delta_usd": "2251.29"
+      }
+    },
+    {
+      "actual_reviewed_marginal_effect": {
+        "amr_delta_usd": "87.18",
+        "daily_funder_payment_delta_usd": "0E-26",
+        "final_offer_delta_usd": "0.00",
+        "nsf_count_delta": 0,
+        "revenue_delta_usd": "261.54"
+      },
+      "ambiguous": false,
+      "amount_usd": "-261.54",
+      "business_id": "biz_03",
+      "category": "hard_negative_false_flags",
+      "legacy": {
+        "group": "Active advance",
+        "status": "business"
+      },
+      "review_reason": "Square Inc sales credit indicates merchant activity, not Square Capital funding.",
+      "reviewed": {
+        "group": "unmatched",
+        "status": "business"
+      },
+      "scenario_id": "processor_square",
+      "synthetic_description": "ACH CREDIT SQUARE INC SALES",
+      "transaction_id": "tx_biz_03_0087",
+      "truth": {
+        "group": "Revenue verification",
+        "status": "business"
+      },
+      "truth_correction_marginal_effect": {
+        "amr_delta_usd": "87.18",
+        "daily_funder_payment_delta_usd": "0E-26",
+        "final_offer_delta_usd": "0.00",
+        "nsf_count_delta": 0,
+        "revenue_delta_usd": "261.54"
+      }
+    }
+  ],
+  "review_manifest_input_sha256": "c5d09a0703be1c8a30f785752c91f547256ed870ddd045d33b9896252d434230",
+  "truth_sha256": "ab0ab78968383da65f9acd4df12970bbc3945a086ff8d33ce741740264d859d5"
+}

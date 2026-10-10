@@ -1,6 +1,6 @@
 # Credit features and illustrative offer — Ticket 06
 
-`credit-features-v1` and `illustrative-offer-v1` implement the approved [business rules](rules/BUSINESS_RULES.md#5-credit-features-and-offer). **Fundo supplies only the simplified formula and the `NSF_count > 5` cutoff.** The denominators, 30-day AMR normalization, zero-denominator handling, negative floor and cent rounding are our versioned V1 choices, not Fundo underwriting policy.
+`credit-features-v1` and `illustrative-offer-v1` implement the approved [business rules](../archive/rules/BUSINESS_RULES.md#5-credit-features-and-offer). **Fundo supplies only the simplified formula and the `NSF_count > 5` cutoff.** The denominators, 30-day AMR normalization, zero-denominator handling, negative floor and cent rounding are our versioned V1 choices, not Fundo underwriting policy.
 
 The CLI uses exactly the accepted posted transactions and account-coverage intersection from Ticket 01 for both legacy and reviewed calculations. Only validated semantic labels differ; it never changes dates, signs or amounts. `credit_report.json` has one business entry with both feature sets and `reviewed_minus_legacy` deltas. Each includes the transaction count, common coverage dates/days, denominators, raw offer terms and policy versions. The run manifest includes a SHA-256 of the report. This remains an **illustrative counterfactual**, not a live funding decision.
 

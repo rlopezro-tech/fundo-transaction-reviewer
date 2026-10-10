@@ -1,6 +1,6 @@
 # Financial Glossary for Developers
 
-> **Purpose:** A plain-English guide to the financial terms and data conventions used in this project. This is not financial or legal advice. [Fundo's challenge](CHALLENGE.md) is the source of truth for requirements; [BUSINESS_RULES.md](rules/BUSINESS_RULES.md) records our approved V1 choices and [IMPLEMENTATION_CHECKLIST.md](IMPLEMENTATION_CHECKLIST.md) tracks implementation evidence. **Not specified** means Fundo did not define a rule, even if our V1 policy now does. Do not treat our interpretation as Fundo policy.
+> **Purpose:** A plain-English guide to the financial terms and data conventions used in this project. This is not financial or legal advice. [Fundo's challenge](../CHALLENGE.md) is the source of truth for requirements; [BUSINESS_RULES.md](../archive/rules/BUSINESS_RULES.md) records our approved V1 choices and [IMPLEMENTATION_CHECKLIST.md](../archive/IMPLEMENTATION_CHECKLIST.md) tracks implementation evidence. **Not specified** means Fundo did not define a rule, even if our V1 policy now does. Do not treat our interpretation as Fundo policy.
 
 ## The project in one minute
 
@@ -47,7 +47,7 @@ Three distinctions drive nearly every calculation:
 
 ## 3. Labels and revenue
 
-The **legacy keyword engine** searches transaction descriptions using keyword lists. If several groups match, an explicit **precedence rule** chooses one winning group. Every transaction also receives a business/personal flag. The challenge names **13 groups**, but does not supply exhaustive definitions, keyword lists, precedence, or a complete revenue-exclusion list. Those V1 choices are recorded in [Business rules](rules/BUSINESS_RULES.md) and still need implementation tests.
+The **legacy keyword engine** searches transaction descriptions using keyword lists. If several groups match, an explicit **precedence rule** chooses one winning group. Every transaction also receives a business/personal flag. The challenge names **13 groups**, but does not supply exhaustive definitions, keyword lists, precedence, or a complete revenue-exclusion list. Those V1 choices are recorded in [Business rules](../archive/rules/BUSINESS_RULES.md) and still need implementation tests.
 
 | Group or concept | Plain-English interpretation | Important boundary |
 | --- | --- | --- |
@@ -59,7 +59,7 @@ The **legacy keyword engine** searches transaction descriptions using keyword li
 
 The other nine named groups describe funding obligations or potential risk signals: `NSFs`, `Overdraft`, `UCC`, `Active advance`, and the five `High risk` groups below. A group label does **not** independently establish that the underlying event really occurred.
 
-**Reviewer vs. code:** The LLM reviews the existing group and business/personal label and may propose a correction with confidence and a brief reason. Code validates that proposal and derives the final revenue flag from transaction direction, business/personal status, and the configured exclusion list. The LLM's revenue answer is not authoritative. [Architecture and failure behavior](ARCHITECTURE.md#6-rules-model-boundary-and-failure-policy).
+**Reviewer vs. code:** The LLM reviews the existing group and business/personal label and may propose a correction with confidence and a brief reason. Code validates that proposal and derives the final revenue flag from transaction direction, business/personal status, and the configured exclusion list. The LLM's revenue answer is not authoritative. [Architecture and failure behavior](../ARCHITECTURE.md#6-rules-model-boundary-and-failure-policy).
 
 ## 4. Cash constraints and risk signals
 
@@ -109,4 +109,4 @@ The cutoff is strictly **greater than 5**: five labeled NSFs do not trigger the 
 
 ## How to use this glossary
 
-When investigating a flag, ask in order: **What did the bank record show? What did the keyword engine infer? What did the reviewer propose? What can an underwriter verify?** Keep those four levels separate. If a rule above is marked **not specified**, consult the approved V1 decision in [Business rules](rules/BUSINESS_RULES.md), implement and test it, and never present it as a Fundo requirement.
+When investigating a flag, ask in order: **What did the bank record show? What did the keyword engine infer? What did the reviewer propose? What can an underwriter verify?** Keep those four levels separate. If a rule above is marked **not specified**, consult the approved V1 decision in [Business rules](../archive/rules/BUSINESS_RULES.md), implement and test it, and never present it as a Fundo requirement.

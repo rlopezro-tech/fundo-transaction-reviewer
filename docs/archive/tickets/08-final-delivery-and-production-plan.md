@@ -47,9 +47,9 @@ Do **not** add a frontend, Plaid API/Sandbox integration, production HTTP servic
 
 ## References
 
-- [Original challenge](../CHALLENGE.md) — submission format, debrief, and evaluation criteria.
+- [Original challenge](../../CHALLENGE.md) — submission format, debrief, and evaluation criteria.
 - [Ticket 05](05-cache-provider-and-cli.md) — replay, budget, CLI, and manifest.
 - [Ticket 06](06-credit-features-and-offer.md) — feature/offer definitions.
 - [Ticket 07](07-evaluation-and-sensitivity.md) — measured results and sensitivity.
-- [Architecture](../ARCHITECTURE.md) — proposed production controls and verification plan.
+- [Architecture](../../ARCHITECTURE.md) — proposed production controls and verification plan.
 - [Implementation checklist](../IMPLEMENTATION_CHECKLIST.md) — final evidence audit.

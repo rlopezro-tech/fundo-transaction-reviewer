@@ -34,7 +34,7 @@ Build the reviewer that inspects **each existing legacy label** and either keeps
 - [x] Valid changes carry group/status, code-derived revenue, confidence and ≤160-character reason; confidence 0 still flags. **Evidence:** `ReviewOutcome`, tests.
 - [x] Schema rejects source edits/extra fields and code alone recomputes revenue from original signed amount. Feature/offer logic is absent here. **Evidence:** `reviewer.py`, invalid-proposal tests.
 - [x] Request is an explicit allowlist and provider receives a sanitized transaction without raw/truth fields; proposal schema rejects extras. **Evidence:** injection/truth-boundary tests.
-- [x] Instruction-like text is JSON data, not system text; the fake observed `keep`, while real-model safety remains to be measured. **Evidence:** [boundary note](../REVIEWER_BOUNDARY.md), test.
+- [x] Instruction-like text is JSON data, not system text; the fake observed `keep`, while real-model safety remains to be measured. **Evidence:** [boundary note](../../reference/REVIEWER_BOUNDARY.md), test.
 - [x] Refused/incomplete/invalid/failed online results visibly degrade and retain legacy, distinct from valid `keep`. **Evidence:** failure tests.
 - [x] Prompt/schema/flag-policy version constants are exposed for cache/replay. **Evidence:** `reviewer.py`.
 
@@ -44,8 +44,8 @@ Do **not** run the full live dataset without Ticket 05's cache and spend guard; 
 
 ## References
 
-- [Original challenge](../CHALLENGE.md) — review existing labels, hard negatives, untrusted text, and underwriter-readable reasons.
+- [Original challenge](../../CHALLENGE.md) — review existing labels, hard negatives, untrusted text, and underwriter-readable reasons.
 - [Ticket 02](02-synthetic-dataset-and-ground-truth.md) — adversarial cases and truth isolation.
 - [Ticket 03](03-legacy-keyword-labels-and-revenue.md) — input labels and authoritative revenue rule.
 - [Implementation checklist](../IMPLEMENTATION_CHECKLIST.md) — reviewer requirements and failure tests.
-- [Architecture](../ARCHITECTURE.md) — model/code boundary and provenance.
+- [Architecture](../../ARCHITECTURE.md) — model/code boundary and provenance.

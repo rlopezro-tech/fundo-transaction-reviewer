@@ -45,8 +45,8 @@ Do **not** train or change a risk model, approve a business, run the 2%/5%/10% s
 
 ## References
 
-- [Original challenge](../CHALLENGE.md) — required features, supplied offer formula, NSF cutoff, and 61-day question.
+- [Original challenge](../../CHALLENGE.md) — required features, supplied offer formula, NSF cutoff, and 61-day question.
 - [Ticket 01](01-transaction-data-contract.md) — accepted records and explicit coverage.
 - [Ticket 03](03-legacy-keyword-labels-and-revenue.md) — revenue and active-advance labels.
 - [Implementation checklist](../IMPLEMENTATION_CHECKLIST.md) — open metric policies and boundary tests.
-- [Financial glossary](../FINANCIAL_GLOSSARY.md) — feature meanings and interpretation limits.
+- [Financial glossary](../../reference/FINANCIAL_GLOSSARY.md) — feature meanings and interpretation limits.

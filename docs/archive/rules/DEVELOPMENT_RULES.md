@@ -1,6 +1,6 @@
 # Development rules and delivery limits — approved v1 decisions
 
-> **Status:** all 17 planning blocks are approved across this file and [BUSINESS_RULES.md](BUSINESS_RULES.md); implementation and measured results are still pending. [CHALLENGE.md](../CHALLENGE.md) wins over this document. Business rules own financial meaning; this file owns implementation, tests, execution, reproducibility, and scope. A ticket is not complete because its document exists.
+> **Status:** all 17 planning blocks are approved across this file and [BUSINESS_RULES.md](BUSINESS_RULES.md); implementation and measured results are still pending. [CHALLENGE.md](../../CHALLENGE.md) wins over this document. Business rules own financial meaning; this file owns implementation, tests, execution, reproducibility, and scope. A ticket is not complete because its document exists.
 
 ## 1. Scope and timebox
 
@@ -26,7 +26,7 @@
 
 Decision blocks **02–10 and 14–16** are detailed in `BUSINESS_RULES.md`; block **17** spans evaluation there and production/delivery here. The 17 blocks define policy, not 17 completed implementation tickets.
 
-**Source trace:** blocks 02–09 derive from the challenge's [Data](../CHALLENGE.md#data) and [reviewer](../CHALLENGE.md#1-the-reviewer) sections; blocks 10–13 from [reviewer](../CHALLENGE.md#1-the-reviewer) and [Environment](../CHALLENGE.md#environment); blocks 14–16 from [Credit impact](../CHALLENGE.md#2-credit-impact); block 17 from [Credit impact](../CHALLENGE.md#2-credit-impact), [Production](../CHALLENGE.md#3-production), [Deliverables](../CHALLENGE.md#deliverables) and [Debrief](../CHALLENGE.md#the-debrief). The tables explicitly separate what those sections require from the V1 choices used to fill gaps.
+**Source trace:** blocks 02–09 derive from the challenge's [Data](../../CHALLENGE.md#data) and [reviewer](../../CHALLENGE.md#1-the-reviewer) sections; blocks 10–13 from [reviewer](../../CHALLENGE.md#1-the-reviewer) and [Environment](../../CHALLENGE.md#environment); blocks 14–16 from [Credit impact](../../CHALLENGE.md#2-credit-impact); block 17 from [Credit impact](../../CHALLENGE.md#2-credit-impact), [Production](../../CHALLENGE.md#3-production), [Deliverables](../../CHALLENGE.md#deliverables) and [Debrief](../../CHALLENGE.md#the-debrief). The tables explicitly separate what those sections require from the V1 choices used to fill gaps.
 
 Every rule we invent must be labeled as a project choice, versioned if it changes outputs, and backed by at least one test. Never attribute a v1 policy to Fundo. No measured-performance claim before a report exists.
 

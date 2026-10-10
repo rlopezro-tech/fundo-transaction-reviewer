@@ -1,6 +1,6 @@
 # Input contract v1 — Ticket 01
 
-> **Status:** implemented input boundary, not an end-to-end reviewer. Fundo requires Plaid-shaped transaction data; the single-envelope format and validation policies are our approved choices in [Business rules](rules/BUSINESS_RULES.md). No Plaid API, Sandbox, ground truth, or API key is needed here.
+> **Status:** implemented input boundary, not an end-to-end reviewer. Fundo requires Plaid-shaped transaction data; the single-envelope format and validation policies are our approved choices in [Business rules](../archive/rules/BUSINESS_RULES.md). No Plaid API, Sandbox, ground truth, or API key is needed here.
 
 ## File shape
 
@@ -47,4 +47,4 @@ One UTF-8 JSON object requires these top-level keys:
 uv run --group dev pytest tests/test_data.py
 ```
 
-`load_input("tests/fixtures/input_90_days.json")` returns a `NormalizedInput` object with accepted transactions, account/business coverage, and exclusions. [The 90-day fixture](../tests/fixtures/input_90_days.json) is also a copyable example of a new input. [The separate 61-day fixture](../tests/fixtures/input_61_days.json) tests coverage shift. Ticket 02 now supplies the [full synthetic dataset](SYNTHETIC_DATA.md); the CLI, legacy labels, reviewer, and reports belong to later tickets.
+`load_input("tests/fixtures/input_90_days.json")` returns a `NormalizedInput` object with accepted transactions, account/business coverage, and exclusions. [The 90-day fixture](../../tests/fixtures/input_90_days.json) is also a copyable example of a new input. [The separate 61-day fixture](../../tests/fixtures/input_61_days.json) tests coverage shift. Ticket 02 now supplies the [full synthetic dataset](SYNTHETIC_DATA.md); the CLI, legacy labels, reviewer, and reports belong to later tickets.
