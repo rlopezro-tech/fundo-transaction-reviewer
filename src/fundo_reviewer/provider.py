@@ -2,22 +2,31 @@
 
 from __future__ import annotations
 
+import json
 import os
 import time
-import json
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from enum import Enum
-from typing import Literal
-from typing import Any
+from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict
 
-from fundo_reviewer.cache import BATCH_MAX_OUTPUT_TOKENS, MAX_OUTPUT_TOKENS, SpendLedger, batch_identity
+from fundo_reviewer.cache import (
+    BATCH_MAX_OUTPUT_TOKENS,
+    MAX_OUTPUT_TOKENS,
+    SpendLedger,
+    batch_identity,
+)
 from fundo_reviewer.model_catalog import DEFAULT_MODEL, model_spec
 from fundo_reviewer.revenue import GROUPS, UNMATCHED
-from fundo_reviewer.reviewer import BatchReviewProvider, FatalReviewError, ProviderReply, ReviewProvider, ReviewRequest
-
+from fundo_reviewer.reviewer import (
+    BatchReviewProvider,
+    FatalReviewError,
+    ProviderReply,
+    ReviewProvider,
+    ReviewRequest,
+)
 
 GroupEnum = Enum("GroupEnum", {f"GROUP_{index:02d}": group for index, group in enumerate((*GROUPS, UNMATCHED))}, type=str)
 

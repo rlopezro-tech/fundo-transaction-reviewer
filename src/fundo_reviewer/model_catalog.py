@@ -6,7 +6,6 @@ from dataclasses import dataclass
 from decimal import Decimal
 from typing import Literal
 
-
 DEFAULT_MODEL = "gpt-6-luna"
 
 

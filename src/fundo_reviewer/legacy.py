@@ -9,7 +9,6 @@ from typing import Iterable
 from fundo_reviewer.data import NormalizedTransaction
 from fundo_reviewer.revenue import GROUPS, UNMATCHED, is_revenue_eligible
 
-
 RULESET_VERSION = "legacy-v1"
 
 # Versioned priority defined by docs/reference/LEGACY_POLICY.md; never derive it from dict iteration.

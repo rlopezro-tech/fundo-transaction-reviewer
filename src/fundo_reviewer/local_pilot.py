@@ -13,10 +13,14 @@ from fundo_reviewer.artifacts import write_json_atomic
 from fundo_reviewer.cache import BatchReviewCache, CacheMiss, batch_identity
 from fundo_reviewer.data import load_input
 from fundo_reviewer.legacy import label_transaction
-from fundo_reviewer.provider import BatchProviderShape, build_batch_request
-from fundo_reviewer.reviewer import ProviderReply, ReviewOutcome, build_request, review_one
 from fundo_reviewer.pilot import PILOT_IDS
-
+from fundo_reviewer.provider import BatchProviderShape, build_batch_request
+from fundo_reviewer.reviewer import (
+    ProviderReply,
+    ReviewOutcome,
+    build_request,
+    review_one,
+)
 
 ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_MODEL = "qwen3.5:9b-q4_K_M"

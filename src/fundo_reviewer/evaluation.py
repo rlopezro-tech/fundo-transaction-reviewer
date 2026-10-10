@@ -17,14 +17,17 @@ from typing import Any, Mapping
 
 from fundo_reviewer.artifacts import artifact_set_lock, write_json_atomic
 from fundo_reviewer.credit import (
-    FEATURE_POLICY_VERSION, OFFER_POLICY_VERSION, CreditLabel, calculate_offer,
-    compute_features, feature_record,
+    FEATURE_POLICY_VERSION,
+    OFFER_POLICY_VERSION,
+    CreditLabel,
+    calculate_offer,
+    compute_features,
+    feature_record,
 )
 from fundo_reviewer.data import NormalizedInput, load_input
 from fundo_reviewer.legacy import LegacyLabel, label_transactions
 from fundo_reviewer.revenue import ALLOWED_GROUPS, is_revenue_eligible
 from fundo_reviewer.reviewer import build_request, validate_proposal
-
 
 EVALUATION_VERSION = "synthetic-evaluation-v2"
 SENSITIVITY_VERSION = "valid-alternative-sensitivity-v1"
@@ -210,20 +213,24 @@ def _quality_report(
     transaction_by_id = {item.transaction_id: item for item in normalized.transactions}
     for transaction in normalized.transactions:
         tid = transaction.transaction_id
-        t, l, r = truth[tid], legacy[tid], reviewed[tid]
+        truth_label, legacy_label, reviewed_label = truth[tid], legacy[tid], reviewed[tid]
         record = reviewed_records[tid]
-        legacy_correct = (l.group, l.status) == (t.group, t.status)
-        reviewed_correct = (r.group, r.status) == (t.group, t.status)
+        legacy_correct = (legacy_label.group, legacy_label.status) == (truth_label.group, truth_label.status)
+        reviewed_correct = (reviewed_label.group, reviewed_label.status) == (truth_label.group, truth_label.status)
         for target in (counts, per_business[transaction.business_id]):
             target["transactions"] += 1
-            target["legacy_group_correct"] += l.group == t.group
-            target["reviewed_group_correct"] += r.group == t.group
-            target["legacy_status_correct"] += l.status == t.status
-            target["reviewed_status_correct"] += r.status == t.status
+            target["legacy_group_correct"] += legacy_label.group == truth_label.group
+            target["reviewed_group_correct"] += reviewed_label.group == truth_label.group
+            target["legacy_status_correct"] += legacy_label.status == truth_label.status
+            target["reviewed_status_correct"] += reviewed_label.status == truth_label.status
             target["legacy_group_status_correct"] += legacy_correct
             target["reviewed_group_status_correct"] += reviewed_correct
-            target["legacy_revenue_correct"] += is_revenue_eligible(transaction.amount, group=l.group, status=l.status) == truth_records[tid]["revenue_eligible"]
-            target["reviewed_revenue_correct"] += is_revenue_eligible(transaction.amount, group=r.group, status=r.status) == truth_records[tid]["revenue_eligible"]
+            target["legacy_revenue_correct"] += is_revenue_eligible(
+                transaction.amount, group=legacy_label.group, status=legacy_label.status,
+            ) == truth_records[tid]["revenue_eligible"]
+            target["reviewed_revenue_correct"] += is_revenue_eligible(
+                transaction.amount, group=reviewed_label.group, status=reviewed_label.status,
+            ) == truth_records[tid]["revenue_eligible"]
             target["flags"] += record["flag"]
             target["degraded"] += record["review_status"] not in {"kept", "changed"}
             target["hard_negatives"] += truth_records[tid]["hard_negative"]
@@ -279,9 +286,9 @@ def _quality_report(
         }
         for tid in ids:
             record = reviewed_records[tid]
-            l, r, t = legacy[tid], reviewed[tid], truth[tid]
-            baseline_correct = (l.group, l.status) == (t.group, t.status)
-            final_correct = (r.group, r.status) == (t.group, t.status)
+            legacy_label, reviewed_label, truth_label = legacy[tid], reviewed[tid], truth[tid]
+            baseline_correct = (legacy_label.group, legacy_label.status) == (truth_label.group, truth_label.status)
+            final_correct = (reviewed_label.group, reviewed_label.status) == (truth_label.group, truth_label.status)
             scope_counts["legacy_group_status_correct"] += baseline_correct
             scope_counts["reviewed_group_status_correct"] += final_correct
             scope_counts["flags"] += record["flag"]
@@ -317,24 +324,40 @@ def _quality_report(
         }
     for coverage in normalized.business_coverage:
         bid = coverage.business_id
-        t, l, r = truth_features[bid], legacy_features[bid], reviewed_features[bid]
+        truth_features_for_business = truth_features[bid]
+        legacy_features_for_business = legacy_features[bid]
+        reviewed_features_for_business = reviewed_features[bid]
         businesses.append({
             "business_id": bid,
             "evaluation_split": truth_data.metadata["business_metadata"][bid]["evaluation_split"],
             "nsf_fee_observable": truth_data.metadata["business_metadata"][bid]["nsf_fee_observable"],
             "coverage_days": coverage.days,
             "label_counts": dict(sorted(per_business[bid].items())),
-            "legacy": feature_record(l), "reviewed": feature_record(r), "truth": feature_record(t),
+            "legacy": feature_record(legacy_features_for_business),
+            "reviewed": feature_record(reviewed_features_for_business),
+            "truth": feature_record(truth_features_for_business),
             "amr_error_usd": {
-                "legacy_signed": _d(l.average_monthly_revenue - t.average_monthly_revenue),
-                "legacy_absolute": _d(abs(l.average_monthly_revenue - t.average_monthly_revenue)),
-                "reviewed_signed": _d(r.average_monthly_revenue - t.average_monthly_revenue),
-                "reviewed_absolute": _d(abs(r.average_monthly_revenue - t.average_monthly_revenue)),
+                "legacy_signed": _d(
+                    legacy_features_for_business.average_monthly_revenue
+                    - truth_features_for_business.average_monthly_revenue,
+                ),
+                "legacy_absolute": _d(abs(
+                    legacy_features_for_business.average_monthly_revenue
+                    - truth_features_for_business.average_monthly_revenue,
+                )),
+                "reviewed_signed": _d(
+                    reviewed_features_for_business.average_monthly_revenue
+                    - truth_features_for_business.average_monthly_revenue,
+                ),
+                "reviewed_absolute": _d(abs(
+                    reviewed_features_for_business.average_monthly_revenue
+                    - truth_features_for_business.average_monthly_revenue,
+                )),
             },
             "offer_delta_usd": {
-                "reviewed_minus_legacy": _offer_delta(r, l),
-                "legacy_minus_truth": _offer_delta(l, t),
-                "reviewed_minus_truth": _offer_delta(r, t),
+                "reviewed_minus_legacy": _offer_delta(reviewed_features_for_business, legacy_features_for_business),
+                "legacy_minus_truth": _offer_delta(legacy_features_for_business, truth_features_for_business),
+                "reviewed_minus_truth": _offer_delta(reviewed_features_for_business, truth_features_for_business),
             },
         })
     return {

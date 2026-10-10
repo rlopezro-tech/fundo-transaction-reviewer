@@ -20,7 +20,6 @@ from typing import Any
 from fundo_reviewer.artifacts import write_bytes_atomic
 from fundo_reviewer.data import load_input
 
-
 GENERATOR_VERSION = "synthetic-v1"
 SEED = 20261008
 AS_OF = date(2026, 10, 8)

@@ -19,18 +19,34 @@ from openai import RateLimitError
 
 from fundo_reviewer import cache as cache_module
 from fundo_reviewer.cache import (
-    BatchReviewCache, BudgetExceeded, CacheCorrupt, CacheMiss, ReviewCache, SpendLedger,
-    batch_identity, pricing_version, request_key, usage_derived_cost,
+    BatchReviewCache,
+    BudgetExceeded,
+    CacheCorrupt,
+    CacheMiss,
+    ReviewCache,
+    SpendLedger,
+    batch_identity,
+    pricing_version,
+    request_key,
+    usage_derived_cost,
 )
 from fundo_reviewer.cli import _build_parser, run_pipeline
 from fundo_reviewer.data import load_input
 from fundo_reviewer.legacy import label_transaction
 from fundo_reviewer.provider import (
-    BatchProviderShape, BudgetedBatchProvider, BudgetedProvider, OpenAIProvider, build_batch_request,
+    BatchProviderShape,
+    BudgetedBatchProvider,
+    BudgetedProvider,
+    OpenAIProvider,
+    build_batch_request,
 )
-from fundo_reviewer.reviewer import FatalReviewError, ProviderReply, build_request, review_one
-from fundo_reviewer.reviewer import BatchReviewProvider
-
+from fundo_reviewer.reviewer import (
+    BatchReviewProvider,
+    FatalReviewError,
+    ProviderReply,
+    build_request,
+    review_one,
+)
 
 ROOT = Path(__file__).resolve().parents[1]
 SMALL = ROOT / "tests" / "fixtures" / "input_90_days.json"

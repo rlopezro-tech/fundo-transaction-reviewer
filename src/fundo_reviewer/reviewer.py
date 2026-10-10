@@ -14,7 +14,6 @@ from fundo_reviewer.data import NormalizedTransaction
 from fundo_reviewer.legacy import LegacyLabel
 from fundo_reviewer.revenue import ALLOWED_GROUPS, is_revenue_eligible
 
-
 PROMPT_VERSION = "review-prompt-v3"
 SCHEMA_VERSION = "review-schema-v3"
 FLAG_POLICY_VERSION = "all-valid-changes-v1"

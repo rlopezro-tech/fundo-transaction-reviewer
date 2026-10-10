@@ -22,7 +22,6 @@ from fundo_reviewer.synthetic import (
     write_files,
 )
 
-
 ROOT = Path(__file__).resolve().parents[1]
 DATA = ROOT / "data"
 EXPECTED_SHA256 = {

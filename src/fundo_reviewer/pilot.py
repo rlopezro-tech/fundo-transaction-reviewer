@@ -13,9 +13,8 @@ from fundo_reviewer.cache import CacheMiss, ReviewCache, SpendLedger, usage_deri
 from fundo_reviewer.data import load_input
 from fundo_reviewer.legacy import label_transaction
 from fundo_reviewer.model_catalog import model_spec
-from fundo_reviewer.provider import BudgetedProvider, DEFAULT_MODEL, create_provider
+from fundo_reviewer.provider import DEFAULT_MODEL, BudgetedProvider, create_provider
 from fundo_reviewer.reviewer import ProviderReply, build_request, review_one
-
 
 # Fixed before calling the provider; 20 scenarios across biz_01..biz_08.
 # biz_09 and biz_10 remain a held-out business cohort.

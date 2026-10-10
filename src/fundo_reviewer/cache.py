@@ -14,11 +14,16 @@ from decimal import Decimal
 from pathlib import Path
 from typing import Any
 
-from fundo_reviewer.revenue import REVENUE_POLICY_VERSION
 from fundo_reviewer.model_catalog import DEFAULT_MODEL, model_spec, registered_models
+from fundo_reviewer.revenue import REVENUE_POLICY_VERSION
 from fundo_reviewer.reviewer import (
-    FLAG_POLICY_VERSION, PROMPT_VERSION, SCHEMA_VERSION,
-    FatalReviewError, ProviderReply, ReviewOutcome, ReviewRequest,
+    FLAG_POLICY_VERSION,
+    PROMPT_VERSION,
+    SCHEMA_VERSION,
+    FatalReviewError,
+    ProviderReply,
+    ReviewOutcome,
+    ReviewRequest,
 )
 
 logger = logging.getLogger(__name__)

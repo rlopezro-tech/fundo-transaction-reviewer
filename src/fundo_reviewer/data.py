@@ -17,7 +17,6 @@ from decimal import Decimal
 from pathlib import Path
 from typing import Any
 
-
 INPUT_CONTRACT_VERSION = "input-v1"
 WINDOW_DAYS = 90
 _ISO_DATE = re.compile(r"\d{4}-\d{2}-\d{2}\Z")

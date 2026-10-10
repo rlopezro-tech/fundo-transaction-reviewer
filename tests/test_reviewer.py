@@ -21,7 +21,6 @@ from fundo_reviewer.reviewer import (
     review_one,
 )
 
-
 ROOT = Path(__file__).resolve().parents[1]
 
 

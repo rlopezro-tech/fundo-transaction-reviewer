@@ -4,7 +4,6 @@ from __future__ import annotations
 
 from decimal import Decimal
 
-
 REVENUE_POLICY_VERSION = "revenue-v1"
 UNMATCHED = "unmatched"
 GROUPS = (

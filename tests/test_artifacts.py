@@ -4,7 +4,11 @@ import queue
 
 import pytest
 
-from fundo_reviewer.artifacts import artifact_set_lock, write_bytes_atomic, write_json_atomic
+from fundo_reviewer.artifacts import (
+    artifact_set_lock,
+    write_bytes_atomic,
+    write_json_atomic,
+)
 
 
 def _artifact_lock_waiter(directory, events):

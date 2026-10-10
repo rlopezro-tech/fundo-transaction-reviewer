@@ -11,7 +11,6 @@ from fundo_reviewer.legacy import label_transactions
 from fundo_reviewer.provider import build_batch_request
 from fundo_reviewer.reviewer import build_request
 
-
 ROOT = Path(__file__).resolve().parents[1]
 
 

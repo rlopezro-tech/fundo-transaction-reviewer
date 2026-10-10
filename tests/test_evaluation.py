@@ -1,7 +1,7 @@
 """Tests for strict synthetic joins and reproducible financial sensitivity."""
 
-import json
 import hashlib
+import json
 import sys
 from decimal import Decimal
 from pathlib import Path
@@ -12,10 +12,12 @@ import fundo_reviewer.evaluation as evaluation_module
 from fundo_reviewer.cli import run_pipeline
 from fundo_reviewer.data import load_input
 from fundo_reviewer.evaluation import (
-    SENSITIVITY_SEED, build_sensitivity_report, load_truth, run_evaluation,
+    SENSITIVITY_SEED,
+    build_sensitivity_report,
+    load_truth,
+    run_evaluation,
 )
 from fundo_reviewer.reviewer import ProviderReply
-
 
 ROOT = Path(__file__).resolve().parents[1]
 MAIN = ROOT / "data" / "transactions" / "main_90_days.json"

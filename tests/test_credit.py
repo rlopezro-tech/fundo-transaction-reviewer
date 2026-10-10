@@ -9,7 +9,12 @@ from pathlib import Path
 import pytest
 
 from fundo_reviewer.cli import run_pipeline
-from fundo_reviewer.credit import CreditLabel, build_credit_report, calculate_offer, compute_features
+from fundo_reviewer.credit import (
+    CreditLabel,
+    build_credit_report,
+    calculate_offer,
+    compute_features,
+)
 from fundo_reviewer.data import BusinessCoverage, NormalizedInput, NormalizedTransaction
 from fundo_reviewer.legacy import label_transactions
 from fundo_reviewer.reviewer import ProviderReply, review_all

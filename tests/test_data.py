@@ -2,8 +2,8 @@
 
 from __future__ import annotations
 
-import json
 import hashlib
+import json
 from copy import deepcopy
 from datetime import date
 from decimal import Decimal
@@ -12,7 +12,6 @@ from pathlib import Path
 import pytest
 
 from fundo_reviewer.data import InputValidationError, load_input, normalize_input
-
 
 FIXTURES = Path(__file__).parent / "fixtures"
 

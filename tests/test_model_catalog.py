@@ -3,9 +3,9 @@ from pathlib import Path
 
 import pytest
 
+from fundo_reviewer import provider as provider_module
 from fundo_reviewer.cache import MODEL_PRICES, pricing_version, usage_derived_cost
 from fundo_reviewer.model_catalog import DEFAULT_MODEL, model_spec, registered_models
-from fundo_reviewer import provider as provider_module
 from fundo_reviewer.provider import BatchProviderShape, OpenRouterProvider
 
 

@@ -27,7 +27,6 @@ from fundo_reviewer.revenue import (
     is_revenue_eligible,
 )
 
-
 ROOT = Path(__file__).resolve().parents[1]
 
 

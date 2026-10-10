@@ -3,14 +3,13 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from decimal import Decimal, ROUND_HALF_UP
+from decimal import ROUND_HALF_UP, Decimal
 from typing import Mapping
 
 from fundo_reviewer.data import BusinessCoverage, NormalizedInput, NormalizedTransaction
 from fundo_reviewer.legacy import LegacyLabel
 from fundo_reviewer.revenue import is_revenue_eligible
 from fundo_reviewer.reviewer import ReviewOutcome
-
 
 FEATURE_POLICY_VERSION = "credit-features-v1"
 OFFER_POLICY_VERSION = "illustrative-offer-v1"
