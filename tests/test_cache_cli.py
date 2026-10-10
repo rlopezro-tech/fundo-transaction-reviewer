@@ -7,6 +7,7 @@ import multiprocessing
 import os
 import subprocess
 import sys
+import time
 from dataclasses import replace
 from decimal import Decimal
 from pathlib import Path
@@ -62,6 +63,36 @@ def _concurrent_batch_cache_append(path, barrier, results):
         results.put("appended")
     except ValueError:
         results.put("duplicate")
+
+
+class SharedCountingBatchProvider:
+    def __init__(self, calls):
+        self.calls = calls
+
+    def review_batch(self, batch):
+        with self.calls.get_lock():
+            self.calls.value += 1
+        time.sleep(0.2)
+        reviews = [
+            {
+                "transaction_id": request.transaction.transaction_id,
+                "decision": "keep", "group": request.legacy.group,
+                "status": request.legacy.status, "confidence": 0.8,
+                "reason": "Concurrent cache test",
+            }
+            for request in batch.requests
+        ]
+        return ProviderReply("completed", parsed=reviews, raw_response={"test": True},
+                             usage={"input_tokens": 300, "output_tokens": 100})
+
+
+def _concurrent_batched_pipeline(cache_path, ledger_path, output_path, barrier, calls, results):
+    barrier.wait()
+    manifest = run_pipeline(
+        SMALL, Path(output_path), "online", Path(cache_path), Path(ledger_path),
+        provider=SharedCountingBatchProvider(calls), batch_size=80,
+    )
+    results.put((manifest["new_api_calls"], manifest["cache_hits"]))
 
 
 def test_cli_defaults_outputs_to_main_report_folder():
@@ -360,6 +391,30 @@ def test_batch_cache_serializes_concurrent_duplicate_appends(tmp_path):
     cache = BatchReviewCache(path)
     assert len(cache.entries) == 1
     assert cache.replay({"model": "gpt-6-luna", "batch": "same-request"}).status == "completed"
+
+
+def test_concurrent_batched_runs_share_one_provider_call(tmp_path):
+    context = multiprocessing.get_context("spawn")
+    barrier, results = context.Barrier(2), context.Queue()
+    calls = context.Value("i", 0)
+    cache_path, ledger_path = tmp_path / "shared-cache.jsonl", tmp_path / "shared-ledger.jsonl"
+    processes = [
+        context.Process(
+            target=_concurrent_batched_pipeline,
+            args=(str(cache_path), str(ledger_path), str(tmp_path / f"out-{index}"), barrier, calls, results),
+        )
+        for index in range(2)
+    ]
+    for process in processes:
+        process.start()
+    outcomes = [results.get(timeout=30) for _ in processes]
+    for process in processes:
+        process.join(timeout=30)
+
+    assert all(process.exitcode == 0 for process in processes)
+    assert calls.value == 1
+    assert sorted(api_calls for api_calls, _cache_hits in outcomes) == [0, 1]
+    assert sorted(cache_hits for _api_calls, cache_hits in outcomes) == [0, 3]
 
 
 def test_unsafe_budget_blocks_provider_before_any_paid_call(tmp_path):

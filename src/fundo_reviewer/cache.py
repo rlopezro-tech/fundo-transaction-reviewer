@@ -37,6 +37,19 @@ def _exclusive_jsonl_lock(path: Path):
             fcntl.flock(lock_file.fileno(), fcntl.LOCK_UN)
 
 
+@contextmanager
+def _exclusive_key_lock(path: Path, key: str):
+    """Serialize a cache miss→provider call→append for one request identity."""
+    path.parent.mkdir(parents=True, exist_ok=True)
+    lock_path = path.with_name(f".{path.name}.{key}.request.lock")
+    with lock_path.open("a", encoding="utf-8") as lock_file:
+        fcntl.flock(lock_file.fileno(), fcntl.LOCK_EX)
+        try:
+            yield
+        finally:
+            fcntl.flock(lock_file.fileno(), fcntl.LOCK_UN)
+
+
 CACHE_VERSION = "review-cache-v1"
 DEFAULT_PRICED_MODEL = DEFAULT_MODEL
 # Compatibility view; the catalog is the single source of truth.
@@ -171,6 +184,15 @@ class ReviewCache:
                 except (ValueError, TypeError, KeyError) as exc:
                     raise CacheCorrupt(f"{self.path}:{line_number}: {exc}") from exc
 
+    def refresh(self) -> None:
+        """Refresh entries from disk after waiting for another process."""
+        with _exclusive_jsonl_lock(self.path):
+            self._reload()
+
+    def singleflight(self, identity: dict[str, Any]):
+        """Lock one cache key while a caller rechecks, fetches, and persists."""
+        return _exclusive_key_lock(self.path, _digest(identity))
+
     def replay(self, request: ReviewRequest, model: str) -> ProviderReply:
         identity = request_identity(request, model)
         key = _digest(identity)
@@ -245,6 +267,15 @@ class BatchReviewCache:
                     self.entries[entry["key"]] = entry
                 except (ValueError, TypeError, KeyError) as exc:
                     raise CacheCorrupt(f"{self.path}:{line_number}: {exc}") from exc
+
+    def refresh(self) -> None:
+        """Refresh entries from disk after waiting for another process."""
+        with _exclusive_jsonl_lock(self.path):
+            self._reload()
+
+    def singleflight(self, identity: dict[str, Any]):
+        """Lock one batch key while a caller rechecks, fetches, and persists."""
+        return _exclusive_key_lock(self.path, _digest(identity))
 
     def replay(self, identity: dict[str, Any]) -> ProviderReply:
         key = _digest(identity)

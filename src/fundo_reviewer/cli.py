@@ -7,13 +7,14 @@ import hashlib
 import json
 import logging
 from collections import Counter
+from contextlib import ExitStack
 from pathlib import Path
 from typing import Any
 
 from fundo_reviewer.artifacts import write_json_atomic
 from fundo_reviewer.cache import (
     BatchReviewCache, CacheCorrupt, CacheMiss, ReviewCache, SpendLedger,
-    batch_identity, pricing_version,
+    batch_identity, pricing_version, request_identity,
     usage_derived_cost,
 )
 from fundo_reviewer.credit import FEATURE_POLICY_VERSION, OFFER_POLICY_VERSION, build_credit_report
@@ -91,83 +92,98 @@ def _run_batched(normalized, labels, *, mode, cache_path, ledger_path, model, pr
         batch = build_batch_request(requests)
         identity = batch_identity(requests, model, batch.system_prompt, batch.user_prompt)
         was_cache_hit = False
-        try:
-            reply = cache.replay(identity)
-        except CacheMiss:
-            if mode == "offline":
-                logger.error(
-                    "offline replay stopped: no cached response for batch %d/%d (%d rows)",
-                    batch_number, total_batches, len(chunk),
-                )
-                raise
-            assert budgeted is not None
-            logger.info(
-                "batch %d/%d cache miss; requesting provider (%d rows)",
-                batch_number, total_batches, len(chunk),
-            )
-            new_api_calls += 1
+        # Keep a cache-miss lock until the raw reply and validated outcomes are
+        # persisted; otherwise a second process could call during validation.
+        with ExitStack() as lock_scope:
             try:
-                reply = budgeted.review_batch(batch)
-            except FatalReviewError:
-                logger.error(
-                    "batch %d/%d stopped by provider; completed cache batches are preserved",
-                    batch_number, total_batches,
-                )
-                raise
-            except Exception as exc:
-                reply = ProviderReply(
-                    "provider_failure", raw_response={"error_type": type(exc).__name__, "message": "provider call failed"}
-                )
-            if reply.usage:
-                new_usage.update(reply.usage)
-        else:
-            was_cache_hit = True
-            cache_hits += len(chunk)
-            batch_hits += 1
-            if reply.usage:
-                historical_usage.update(reply.usage)
-            historical_cost += usage_derived_cost(reply.usage, model)
-        by_id = None
-        if reply.status == "completed" and isinstance(reply.parsed, list):
-            try:
-                by_id = {item["transaction_id"]: item for item in reply.parsed}
-                if len(by_id) != len(reply.parsed) or set(by_id) != {item.transaction_id for item in chunk}:
+                reply = cache.replay(identity)
+            except CacheMiss:
+                if mode == "offline":
+                    logger.error(
+                        "offline replay stopped: no cached response for batch %d/%d (%d rows)",
+                        batch_number, total_batches, len(chunk),
+                    )
+                    raise
+                assert budgeted is not None
+                lock_scope.enter_context(cache.singleflight(identity))
+                cache.refresh()
+                try:
+                    reply = cache.replay(identity)
+                except CacheMiss:
+                    logger.info(
+                        "batch %d/%d cache miss; requesting provider (%d rows)",
+                        batch_number, total_batches, len(chunk),
+                    )
+                    new_api_calls += 1
+                    try:
+                        reply = budgeted.review_batch(batch)
+                    except FatalReviewError:
+                        logger.error(
+                            "batch %d/%d stopped by provider; completed cache batches are preserved",
+                            batch_number, total_batches,
+                        )
+                        raise
+                    except Exception as exc:
+                        reply = ProviderReply(
+                            "provider_failure", raw_response={"error_type": type(exc).__name__, "message": "provider call failed"}
+                        )
+                    if reply.usage:
+                        new_usage.update(reply.usage)
+                else:
+                    was_cache_hit = True
+                    cache_hits += len(chunk)
+                    batch_hits += 1
+                    if reply.usage:
+                        historical_usage.update(reply.usage)
+                    historical_cost += usage_derived_cost(reply.usage, model)
+            else:
+                was_cache_hit = True
+                cache_hits += len(chunk)
+                batch_hits += 1
+                if reply.usage:
+                    historical_usage.update(reply.usage)
+                historical_cost += usage_derived_cost(reply.usage, model)
+            by_id = None
+            if reply.status == "completed" and isinstance(reply.parsed, list):
+                try:
+                    by_id = {item["transaction_id"]: item for item in reply.parsed}
+                    if len(by_id) != len(reply.parsed) or set(by_id) != {item.transaction_id for item in chunk}:
+                        by_id = None
+                except (KeyError, TypeError):
                     by_id = None
-            except (KeyError, TypeError):
-                by_id = None
-        if reply.status == "completed" and by_id is None:
-            reply = ProviderReply("invalid_response", raw_response=reply.raw_response, usage=reply.usage)
-        batch_outcomes = []
-        for request in requests:
-            item_reply = (
-                ProviderReply("completed", parsed=by_id[request.transaction.transaction_id],
-                              raw_response=reply.raw_response)
-                if by_id is not None else reply
+            if reply.status == "completed" and by_id is None:
+                reply = ProviderReply("invalid_response", raw_response=reply.raw_response, usage=reply.usage)
+            batch_outcomes = []
+            for request in requests:
+                item_reply = (
+                    ProviderReply("completed", parsed=by_id[request.transaction.transaction_id],
+                                  raw_response=reply.raw_response)
+                    if by_id is not None else reply
+                )
+                batch_outcomes.append(review_one(request, _StaticProvider(item_reply)))
+            validated = [_outcome_record(item) for item in batch_outcomes]
+            if was_cache_hit:
+                if cache.validated_outcomes(identity) != validated:
+                    raise CacheCorrupt("cached validated outcomes differ from replayed validation")
+            elif reply.status != "provider_failure":
+                # A returned but invalid/refused response is replayable with its
+                # explicit degraded status. A transport failure has no model
+                # decision to replay and must be eligible for a later online retry.
+                cache.append(identity, reply, validated)
+            batch_statuses = Counter(item.review_status for item in batch_outcomes)
+            status_summary = ",".join(f"{status}:{count}" for status, count in sorted(batch_statuses.items()))
+            logger.info(
+                "batch %d/%d complete source=%s rows=%d status=%s",
+                batch_number, total_batches, "cache" if was_cache_hit else "provider", len(chunk), status_summary,
             )
-            batch_outcomes.append(review_one(request, _StaticProvider(item_reply)))
-        validated = [_outcome_record(item) for item in batch_outcomes]
-        if was_cache_hit:
-            if cache.validated_outcomes(identity) != validated:
-                raise CacheCorrupt("cached validated outcomes differ from replayed validation")
-        elif reply.status != "provider_failure":
-            # A returned but invalid/refused response is replayable with its
-            # explicit degraded status. A transport failure has no model
-            # decision to replay and must be eligible for a later online retry.
-            cache.append(identity, reply, validated)
-        batch_statuses = Counter(item.review_status for item in batch_outcomes)
-        status_summary = ",".join(f"{status}:{count}" for status, count in sorted(batch_statuses.items()))
-        logger.info(
-            "batch %d/%d complete source=%s rows=%d status=%s",
-            batch_number, total_batches, "cache" if was_cache_hit else "provider", len(chunk), status_summary,
-        )
-        if model_spec(model).provider == "openrouter" and any(item.degraded for item in batch_outcomes):
-            # OpenRouter free/low-cost endpoints have returned malformed or
-            # incomplete batch JSON. Preserve the response, then stop rather
-            # than spend on every remaining batch with a broken contract.
-            raise FatalReviewError(
-                "OpenRouter batch response was degraded; cached for diagnosis, stopping before more calls"
-            )
-        outcomes.extend(batch_outcomes)
+            if model_spec(model).provider == "openrouter" and any(item.degraded for item in batch_outcomes):
+                # OpenRouter free/low-cost endpoints have returned malformed or
+                # incomplete batch JSON. Preserve the response, then stop rather
+                # than spend on every remaining batch with a broken contract.
+                raise FatalReviewError(
+                    "OpenRouter batch response was degraded; cached for diagnosis, stopping before more calls"
+                )
+            outcomes.extend(batch_outcomes)
     return outcomes, cache_hits, batch_hits, new_api_calls, new_usage, historical_usage, historical_cost
 
 
@@ -221,17 +237,32 @@ def run_pipeline(
                     )
                     raise  # no silent partial replay or fake keep
                 assert budgeted is not None
-                logger.info(
-                    "transaction %d/%d cache miss; requesting provider",
-                    position, total_transactions,
-                )
-                new_api_calls += 1
-                outcome = review_one(request, budgeted)
-                source = "provider"
-                if outcome.review_status in {"kept", "changed"}:
-                    cache.append(request, model, outcome, usage_derived_cost(outcome.usage, model))
-                if outcome.usage:
-                    new_usage.update(outcome.usage)
+                identity = request_identity(request, model)
+                with cache.singleflight(identity):
+                    cache.refresh()
+                    try:
+                        cached = cache.replay(request, model)
+                    except CacheMiss:
+                        logger.info(
+                            "transaction %d/%d cache miss; requesting provider",
+                            position, total_transactions,
+                        )
+                        new_api_calls += 1
+                        outcome = review_one(request, budgeted)
+                        source = "provider"
+                        if outcome.review_status in {"kept", "changed"}:
+                            cache.append(request, model, outcome, usage_derived_cost(outcome.usage, model))
+                        if outcome.usage:
+                            new_usage.update(outcome.usage)
+                    else:
+                        source = "cache"
+                        cache_hits += 1
+                        if cached.usage:
+                            historical_usage.update(cached.usage)
+                        historical_cost += usage_derived_cost(cached.usage, model)
+                        outcome = review_one(request, _StaticProvider(cached))
+                        if outcome.degraded:
+                            raise CacheCorrupt(f"cached proposal invalid for {transaction.transaction_id}: {outcome.error}")
             else:
                 cache_hits += 1
                 outcome = review_one(request, _StaticProvider(cached))
