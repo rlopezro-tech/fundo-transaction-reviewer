@@ -9,6 +9,8 @@ uv sync --group dev
 uv run --group dev pytest -q
 ```
 
+`scripts/run` is the short CLI launcher: it sets `PYTHONPATH` and loads `.env` when present. To configure hosted calls, copy `env.example` to `.env` and set `OPENAI_API_KEY`; never commit `.env`.
+
 Generate the synthetic fixtures (no Plaid account or API key needed):
 
 ```bash
@@ -20,7 +22,7 @@ The committed main report has 2,000 rows, but its LLM cache is partial. The mode
 To continue online when API quota is available, add `OPENAI_API_KEY=...` to a local `.env` (gitignored), then run:
 
 ```bash
-PYTHONPATH=src uv run --env-file .env python -m fundo_reviewer.cli --mode online --model gpt-6-luna --batch-size 80 --input data/transactions/main_90_days.json --output-dir reports/main
+./scripts/run --mode online --model gpt-6-luna --batch-size 80 --input data/transactions/main_90_days.json --output-dir reports/main
 ```
 
 This resumes from validated cached batches and can incur API charges. Successful main-run responses have an estimated usage-derived cost of **$0.0269049**; this is not a billing receipt. The two configured OpenAI organizations most recently returned 100k TPM limit errors. See [the final results](SOLUTION.md) before retrying.

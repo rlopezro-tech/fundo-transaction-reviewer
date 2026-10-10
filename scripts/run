@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+ROOT="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)"
+cd "$ROOT"
+
+if ! command -v uv >/dev/null 2>&1; then
+  echo "uv is required. Install it, then run: uv sync --group dev" >&2
+  exit 127
+fi
+
+export PYTHONPATH="$ROOT/src${PYTHONPATH:+:$PYTHONPATH}"
+if [[ -f "$ROOT/.env" ]]; then
+  exec uv run --env-file .env python -m fundo_reviewer.cli "$@"
+fi
+exec uv run python -m fundo_reviewer.cli "$@"
