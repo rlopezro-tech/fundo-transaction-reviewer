@@ -3,6 +3,7 @@
 import hashlib
 import json
 import logging
+import multiprocessing
 import os
 import subprocess
 import sys
@@ -37,6 +38,19 @@ SMALL = ROOT / "tests" / "fixtures" / "input_90_days.json"
 def _request():
     transaction = load_input(SMALL).transactions[0]
     return build_request(transaction, label_transaction(transaction))
+
+
+def _concurrent_ledger_reservation(path, barrier, results):
+    ledger = SpendLedger(Path(path), ceiling_usd=Decimal("0.015"))
+    barrier.wait()
+    try:
+        reservation = ledger.reserve_batch(
+            {"model": "gpt-6-luna", "batch": "same-request"},
+            "gpt-6-luna", "system", "user", max_output_tokens=16_000,
+        )
+        results.put(("reserved", str(reservation.reserved_usd)))
+    except BudgetExceeded:
+        results.put(("blocked", None))
 
 
 def test_cli_defaults_outputs_to_main_report_folder():
@@ -254,11 +268,36 @@ def test_spend_ledger_reservation_persists_and_budget_blocks_before_call(tmp_pat
     settled = ledger.settle(first, {"input_tokens": 100, "output_tokens": 40})
     assert settled == Decimal("0.000030")
     assert SpendLedger(path, ceiling_usd=Decimal("0.001")).settled_usd == settled
+    with pytest.raises(CacheCorrupt, match="not outstanding"):
+        ledger.settle(first, {"input_tokens": 100, "output_tokens": 40})
     with pytest.raises(BudgetExceeded):
         ledger.reserve(request, "gpt-6-luna", max_output_tokens=10_000)
     assert len(path.read_text().splitlines()) == 2
     with pytest.raises(ValueError, match="below"):
         SpendLedger(tmp_path / "invalid.jsonl", ceiling_usd=Decimal("10.00"))
+
+
+def test_spend_ledger_serializes_concurrent_reservations_under_ceiling(tmp_path):
+    path = tmp_path / "concurrent-spend.jsonl"
+    ceiling = Decimal("0.015")
+    context = multiprocessing.get_context("spawn")
+    barrier, results = context.Barrier(2), context.Queue()
+    processes = [
+        context.Process(target=_concurrent_ledger_reservation, args=(str(path), barrier, results))
+        for _ in range(2)
+    ]
+    for process in processes:
+        process.start()
+    outcomes = [results.get(timeout=20) for _ in processes]
+    for process in processes:
+        process.join(timeout=20)
+
+    assert all(process.exitcode == 0 for process in processes)
+    assert sorted(status for status, _ in outcomes) == ["blocked", "reserved"]
+    reserved_amount = Decimal(next(value for status, value in outcomes if status == "reserved"))
+    assert reserved_amount > ceiling / 2
+    ledger = SpendLedger(path, ceiling_usd=ceiling)
+    assert ledger.committed_usd == reserved_amount <= ceiling
 
 
 def test_unsafe_budget_blocks_provider_before_any_paid_call(tmp_path):

@@ -2,10 +2,12 @@
 
 from __future__ import annotations
 
+import fcntl
 import hashlib
 import json
 import logging
 import os
+from contextlib import contextmanager
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from decimal import Decimal
@@ -20,6 +22,19 @@ from fundo_reviewer.reviewer import (
 )
 
 logger = logging.getLogger(__name__)
+
+
+@contextmanager
+def _exclusive_ledger_lock(path: Path):
+    """Serialize ledger read/modify/append operations across local processes."""
+    path.parent.mkdir(parents=True, exist_ok=True)
+    lock_path = path.with_name(f".{path.name}.lock")
+    with lock_path.open("a", encoding="utf-8") as lock_file:
+        fcntl.flock(lock_file.fileno(), fcntl.LOCK_EX)
+        try:
+            yield
+        finally:
+            fcntl.flock(lock_file.fileno(), fcntl.LOCK_UN)
 
 
 CACHE_VERSION = "review-cache-v1"
@@ -119,7 +134,7 @@ class ReviewCache:
     def __init__(self, path: Path):
         self.path = path
         self.entries: dict[str, dict[str, Any]] = {}
-        if path.exists():
+        if self.path.exists():
             for line_number, line in enumerate(_read_jsonl(path), 1):
                 try:
                     entry = json.loads(line)
@@ -285,8 +300,13 @@ class SpendLedger:
         self.path = path
         self.ceiling_usd = ceiling_usd
         self.events: list[dict[str, Any]] = []
-        if path.exists():
-            for line_number, line in enumerate(_read_jsonl(path), 1):
+        with _exclusive_ledger_lock(self.path):
+            self._reload()
+
+    def _reload(self) -> None:
+        self.events = []
+        if self.path.exists():
+            for line_number, line in enumerate(_read_jsonl(self.path), 1):
                 try:
                     event = json.loads(line)
                     integrity = event.pop("integrity_sha256")
@@ -294,7 +314,7 @@ class SpendLedger:
                         raise ValueError("ledger integrity mismatch")
                     self.events.append(event)
                 except (ValueError, KeyError, TypeError) as exc:
-                    raise CacheCorrupt(f"{path}:{line_number}: {exc}") from exc
+                    raise CacheCorrupt(f"{self.path}:{line_number}: {exc}") from exc
         self._balances()  # validate event pairing on load
 
     def _balances(self) -> tuple[Decimal, Decimal, dict[str, Decimal]]:
@@ -321,14 +341,18 @@ class SpendLedger:
 
     @property
     def committed_usd(self) -> Decimal:
-        settled, outstanding, _ = self._balances()
-        return settled + outstanding
+        with _exclusive_ledger_lock(self.path):
+            self._reload()
+            settled, outstanding, _ = self._balances()
+            return settled + outstanding
 
     @property
     def settled_usd(self) -> Decimal:
-        return self._balances()[0]
+        with _exclusive_ledger_lock(self.path):
+            self._reload()
+            return self._balances()[0]
 
-    def _append(self, event: dict[str, Any]) -> None:
+    def _append_unlocked(self, event: dict[str, Any]) -> None:
         self.path.parent.mkdir(parents=True, exist_ok=True)
         with self.path.open("a", encoding="utf-8") as stream:
             stream.write(_canonical({**event, "integrity_sha256": _digest(event)}) + "\n")
@@ -344,15 +368,19 @@ class SpendLedger:
         # fixed framing/schema overhead. Standard price ignores discounts.
         input_bound = len((request.system_prompt + request.user_prompt).encode("utf-8")) + 3000
         reserved = usage_derived_cost({"input_tokens": input_bound, "output_tokens": max_output_tokens}, model)
-        if self.committed_usd + reserved > self.ceiling_usd:
-            raise BudgetExceeded(f"next call may exceed ${self.ceiling_usd} operating ceiling")
-        call_id = f"{request_key(request, model)}-{len(self.events):08d}"
-        self._append({
-            "type": "reserve", "call_id": call_id, "reserved_usd": str(reserved),
-            "request_key": request_key(request, model), "model": model,
-            "pricing_version": pricing_version(model),
-            "at_utc": datetime.now(timezone.utc).isoformat(),
-        })
+        key = request_key(request, model)
+        with _exclusive_ledger_lock(self.path):
+            self._reload()
+            settled, outstanding, _ = self._balances()
+            if settled + outstanding + reserved > self.ceiling_usd:
+                raise BudgetExceeded(f"next call may exceed ${self.ceiling_usd} operating ceiling")
+            call_id = f"{key}-{len(self.events):08d}"
+            self._append_unlocked({
+                "type": "reserve", "call_id": call_id, "reserved_usd": str(reserved),
+                "request_key": key, "model": model,
+                "pricing_version": pricing_version(model),
+                "at_utc": datetime.now(timezone.utc).isoformat(),
+            })
         return Reservation(call_id, reserved, model)
 
     def reserve_batch(
@@ -364,24 +392,32 @@ class SpendLedger:
             raise ValueError("max_output_tokens must be positive")
         input_bound = len((system_prompt + user_prompt).encode("utf-8")) + 6000
         reserved = usage_derived_cost({"input_tokens": input_bound, "output_tokens": max_output_tokens}, model)
-        if self.committed_usd + reserved > self.ceiling_usd:
-            raise BudgetExceeded(f"next batch may exceed ${self.ceiling_usd} operating ceiling")
         key = _digest(identity)
-        call_id = f"{key}-{len(self.events):08d}"
-        self._append({
-            "type": "reserve", "call_id": call_id, "reserved_usd": str(reserved),
-            "request_key": key, "model": model, "pricing_version": pricing_version(model),
-            "at_utc": datetime.now(timezone.utc).isoformat(),
-        })
+        with _exclusive_ledger_lock(self.path):
+            self._reload()
+            settled, outstanding, _ = self._balances()
+            if settled + outstanding + reserved > self.ceiling_usd:
+                raise BudgetExceeded(f"next batch may exceed ${self.ceiling_usd} operating ceiling")
+            call_id = f"{key}-{len(self.events):08d}"
+            self._append_unlocked({
+                "type": "reserve", "call_id": call_id, "reserved_usd": str(reserved),
+                "request_key": key, "model": model, "pricing_version": pricing_version(model),
+                "at_utc": datetime.now(timezone.utc).isoformat(),
+            })
         return Reservation(call_id, reserved, model)
 
     def settle(self, reservation: Reservation, usage: dict[str, int] | None) -> Decimal:
         cost = usage_derived_cost(usage, reservation.model)
         if cost > reservation.reserved_usd:
             raise BudgetExceeded("actual usage exceeded reserved worst-case cost; stop further calls")
-        self._append({
-            "type": "settle", "call_id": reservation.call_id,
-            "usage": usage, "usage_derived_cost_usd": str(cost),
-            "at_utc": datetime.now(timezone.utc).isoformat(),
-        })
+        with _exclusive_ledger_lock(self.path):
+            self._reload()
+            active_reservations = self._balances()[2]
+            if active_reservations.get(reservation.call_id) != reservation.reserved_usd:
+                raise CacheCorrupt(f"reservation {reservation.call_id} is not outstanding")
+            self._append_unlocked({
+                "type": "settle", "call_id": reservation.call_id,
+                "usage": usage, "usage_derived_cost_usd": str(cost),
+                "at_utc": datetime.now(timezone.utc).isoformat(),
+            })
         return cost

@@ -4,6 +4,8 @@ Active run files:
 
 - `batch_reviews.jsonl` — partial, validated main-cohort batch-response cache. It contains 10 of 25 batches; do not claim full no-key replay yet.
 - `spend_ledger.jsonl` — append-only OpenAI budget reservations and settlements used by the main CLI.
+
+The spend ledger serializes local reservation and settlement updates with a sidecar advisory lock, reloads current events before enforcing the budget ceiling, and rejects duplicate settlements. Its hidden lock file is runtime state and is gitignored. Do not share one ledger across hosts or network filesystems as a distributed lock service.
 - `new_input.jsonl` — complete cache for the separate three-transaction offline replay example.
 
 Cache and spend-ledger files are append-only JSONL. On load, an unterminated final fragment is discarded so a later run can resume after an interrupted append; malformed or integrity-invalid complete records remain fatal errors.
