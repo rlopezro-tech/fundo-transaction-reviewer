@@ -404,9 +404,24 @@ class BudgetedProvider:
         self.model = model
 
     def review(self, request: ReviewRequest) -> ProviderReply:
-        reservation = self.ledger.reserve(request, self.model, MAX_OUTPUT_TOKENS)
+        try:
+            reservation = self.ledger.reserve(request, self.model, MAX_OUTPUT_TOKENS)
+        except FatalReviewError:
+            raise
+        except Exception as exc:
+            raise FatalReviewError(
+                "spend ledger reservation failed before the provider request; no call was sent"
+            ) from exc
         reply = self.provider.review(request)
-        self.ledger.settle(reservation, reply.usage)
+        try:
+            self.ledger.settle(reservation, reply.usage)
+        except FatalReviewError:
+            raise
+        except Exception as exc:
+            raise FatalReviewError(
+                "spend ledger settlement failed after the provider response; usage may be billed, "
+                "reconcile the ledger before retrying"
+            ) from exc
         return reply
 
 
@@ -420,13 +435,28 @@ class BudgetedBatchProvider:
         identity = batch_identity(
             request.requests, self.model, request.system_prompt, request.user_prompt
         )
-        reservation = self.ledger.reserve_batch(
-            identity,
-            self.model,
-            request.system_prompt,
-            request.user_prompt,
-            BATCH_MAX_OUTPUT_TOKENS,
-        )
+        try:
+            reservation = self.ledger.reserve_batch(
+                identity,
+                self.model,
+                request.system_prompt,
+                request.user_prompt,
+                BATCH_MAX_OUTPUT_TOKENS,
+            )
+        except FatalReviewError:
+            raise
+        except Exception as exc:
+            raise FatalReviewError(
+                "spend ledger reservation failed before the provider request; no call was sent"
+            ) from exc
         reply = self.provider.review_batch(request)
-        self.ledger.settle(reservation, reply.usage)
+        try:
+            self.ledger.settle(reservation, reply.usage)
+        except FatalReviewError:
+            raise
+        except Exception as exc:
+            raise FatalReviewError(
+                "spend ledger settlement failed after the provider response; usage may be billed, "
+                "reconcile the ledger before retrying"
+            ) from exc
         return reply

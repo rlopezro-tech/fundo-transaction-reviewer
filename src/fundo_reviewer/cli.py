@@ -162,7 +162,7 @@ def _run_batched(normalized, labels, *, mode, cache_path, ledger_path, model, pr
                         reply = budgeted.review_batch(batch)
                     except FatalReviewError:
                         logger.error(
-                            "batch %d/%d stopped by provider; completed cache batches are preserved",
+                            "batch %d/%d stopped before completion; completed cache batches are preserved",
                             batch_number,
                             total_batches,
                         )

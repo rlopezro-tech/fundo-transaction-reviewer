@@ -505,6 +505,46 @@ def test_unsafe_budget_blocks_provider_before_any_paid_call(tmp_path):
     assert provider.calls == 0
 
 
+@pytest.mark.parametrize("batched", [False, True])
+@pytest.mark.parametrize("ledger_stage", ["reserve", "settle"])
+def test_ledger_failures_stop_budgeted_provider_without_exposing_details(batched, ledger_stage):
+    class BrokenLedger:
+        def reserve(self, *_args, **_kwargs):
+            if ledger_stage == "reserve":
+                raise CacheCorrupt("private ledger data")
+            return object()
+
+        def reserve_batch(self, *_args, **_kwargs):
+            if ledger_stage == "reserve":
+                raise CacheCorrupt("private ledger data")
+            return object()
+
+        def settle(self, *_args, **_kwargs):
+            if ledger_stage == "settle":
+                raise OSError("private filesystem details")
+
+    if batched:
+        provider = FakeBatchProvider()
+        budgeted = BudgetedBatchProvider(provider, BrokenLedger(), "gpt-6-luna")
+    else:
+        provider = FakeProvider()
+        budgeted = BudgetedProvider(provider, BrokenLedger(), "gpt-6-luna")
+
+    def call():
+        if batched:
+            return budgeted.review_batch(build_batch_request((_request(),)))
+        return budgeted.review(_request())
+
+    with pytest.raises(FatalReviewError) as error:
+        call()
+    assert "private" not in str(error.value)
+    assert provider.calls == (0 if ledger_stage == "reserve" else 1)
+    if ledger_stage == "reserve":
+        assert "no call was sent" in str(error.value)
+    else:
+        assert "usage may be billed" in str(error.value)
+
+
 def test_batch_key_changes_with_context_and_budget_blocks_before_call(tmp_path):
     first = _request()
     second_transaction = load_input(SMALL).transactions[1]
