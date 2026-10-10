@@ -24,3 +24,13 @@ jobs:
 
       - name: Run tests
         run: uv run --locked --group dev pytest -q
+
+      - name: Verify cache-only replay matches committed example
+        run: |
+          ./scripts/run --mode offline \
+            --input tests/fixtures/input_90_days.json \
+            --cache cache/new_input.jsonl \
+            --output-dir "${RUNNER_TEMP}/fundo-offline-replay"
+          cmp "${RUNNER_TEMP}/fundo-offline-replay/review_outcomes.json" reports/new_input/review_outcomes.json
+          cmp "${RUNNER_TEMP}/fundo-offline-replay/credit_report.json" reports/new_input/credit_report.json
+          cmp "${RUNNER_TEMP}/fundo-offline-replay/run_manifest.json" reports/new_input/run_manifest.json

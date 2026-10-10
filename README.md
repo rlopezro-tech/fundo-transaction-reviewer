@@ -9,7 +9,7 @@ uv sync --group dev
 uv run --group dev pytest -q
 ```
 
-GitHub Actions runs the same locked dependency install and test suite on pushes and pull requests; see [the test workflow](.github/workflows/tests.yml). The workflow needs no API key because the test suite uses deterministic fixtures and fake providers.
+GitHub Actions runs the locked dependency install and test suite, then verifies that the offline sample replay matches committed outputs byte-for-byte; see [the test workflow](.github/workflows/tests.yml). The workflow needs no API key or external model calls.
 
 `scripts/run` is the short CLI launcher: it sets `PYTHONPATH` and loads `.env` only when `--mode online` is explicit. To configure hosted calls, copy `env.example` to `.env` and set the key for the selected provider; never commit `.env`.
 
