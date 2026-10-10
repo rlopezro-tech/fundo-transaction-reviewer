@@ -4,17 +4,45 @@
 
 A deterministic Python batch pipeline for synthetic, Plaid-shaped transactions. It is an evaluation tool, not a production underwriting system. Ground truth is isolated from the reviewer and read only by the evaluator.
 
-```text
-transaction JSON → validate/window → keyword baseline → cached/provider review
-                                         ↓                        ↓
-                                  baseline features        validate proposal
-                                                                  ↓
-                                                      code-derived revenue
-                                                                  ↓
-                                                reviewed features + report
-                                                                  ↓
-                          separate synthetic truth → evaluation/sensitivity
+```mermaid
+flowchart TD
+    INPUT["data/transactions/*.json"] --> VALIDATE["load_input: validate, normalize, apply date and coverage window"]
+    VALIDATE --> BASELINE["legacy labels: 13 groups, business/personal, revenue eligibility"]
+    BASELINE --> CACHE{"Exact response in cache?"}
+
+    CACHE -- "yes: offline or online" --> REPLAY["Replay cached provider reply"]
+    CACHE -- "no + offline" --> MISS["Stop: missing cache entry; no provider/key loaded"]
+    CACHE -- "no + online" --> RESERVE["Reserve worst-case spend in ledger"]
+    RESERVE --> ROUTE["model_catalog selects provider adapter"]
+    RESERVE -. "append reservation" .-> LEDGER[("cache/spend_ledger.jsonl")]
+    ROUTE --> PROVIDER["OpenAI Responses or OpenRouter Chat Completions"]
+    PROVIDER -- "returned response" --> SETTLE["Record returned token usage in spend ledger"]
+    SETTLE -. "append settlement" .-> LEDGER
+    SETTLE --> PROPOSAL["reviewer validates proposal per transaction"]
+
+    REPLAY --> PROPOSAL
+    RESERVE -- "ledger failure" --> STOP["Stop; preserve completed cache; inspect ledger"]
+    PROVIDER -- "fatal request error" --> STOP
+    SETTLE -- "ledger failure; response may be billable" --> STOP
+    LEDGERTOOL["scripts/ledger status / reconcile"] -. "inspect or settle with verified usage" .-> LEDGER
+    PROPOSAL --> DECISION{"Valid keep/change proposal?"}
+    DECISION -- yes --> REVIEWED["Reviewed labels + reason/confidence/flag"]
+    DECISION -- "no: invalid, refused, incomplete, recoverable failure" --> FALLBACK["Keep baseline label; mark outcome degraded"]
+    BASELINE -. "fallback labels" .-> FALLBACK
+
+    REVIEWED -. "when cacheable" .-> CACHEWRITE["Persist response and validated outcomes"]
+    FALLBACK -. "returned batch response only" .-> CACHEWRITE
+    REVIEWED --> CREDIT["Code computes revenue, per-business features, and illustrative offer"]
+    FALLBACK --> CREDIT
+    BASELINE --> CREDIT
+    CREDIT --> OUTPUT["reports/<run>/: outcomes, credit report, run manifest"]
+
+    TRUTH["data/ground_truth/*.json (evaluator only)"] --> EVAL["evaluation.py: quality by reviewed/fallback scope + seeded sensitivity"]
+    OUTPUT --> EVAL
+    EVAL --> EVALOUT["reports/evaluation/"]
 ```
+
+The main review CLI does not load ground truth. In online mode it reserves the budget before a cache-miss provider request and settles from returned usage; a fatal request/ledger error stops the run. Recoverable or unusable item responses retain baseline labels as degraded outcomes. Cache persistence is conditional: failed transports are not cached, while returned batch responses (including degraded ones) are retained for replay/diagnosis. Offline mode uses only exact cache entries and fails explicitly on a miss. The evaluator is a separate command and joins the saved outcomes to the separate synthetic truth.
 
 ## Repository inputs and outputs
 
