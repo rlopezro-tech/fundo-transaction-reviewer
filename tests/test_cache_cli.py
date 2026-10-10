@@ -374,6 +374,32 @@ def test_online_fill_then_no_key_offline_replay_is_byte_identical(tmp_path, monk
     assert "scenario_id" not in cache_path.read_text()
 
 
+def test_manifest_hashes_exact_input_snapshot_used_for_review(tmp_path):
+    source = tmp_path / "input.json"
+    original = SMALL.read_bytes()
+    source.write_bytes(original)
+
+    class MutatingBatchProvider:
+        def review_batch(self, batch):
+            source.write_bytes(original + b"\n")
+            reviews = [{
+                "transaction_id": request.transaction.transaction_id,
+                "decision": "keep", "group": request.legacy.group,
+                "status": request.legacy.status, "confidence": 0.7,
+                "reason": "Validated against loaded snapshot",
+            } for request in batch.requests]
+            return ProviderReply("completed", parsed=reviews, raw_response={"test": True})
+
+    original_digest = hashlib.sha256(original).hexdigest()
+    manifest = run_pipeline(
+        source, tmp_path / "reports", "online", tmp_path / "cache.jsonl",
+        tmp_path / "spend.jsonl", provider=MutatingBatchProvider(), batch_size=80,
+    )
+
+    assert manifest["input_sha256"] == original_digest
+    assert hashlib.sha256(source.read_bytes()).hexdigest() != manifest["input_sha256"]
+
+
 def test_uncached_strict_offline_new_input_fails_and_online_failure_degrades(tmp_path):
     cache_path = tmp_path / "cache.jsonl"
     ledger_path = tmp_path / "spend.jsonl"

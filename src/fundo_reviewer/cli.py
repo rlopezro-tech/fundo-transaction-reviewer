@@ -231,7 +231,7 @@ def run_pipeline(
                     historical_usage.update(cached.usage)
                 historical_cost += usage_derived_cost(cached.usage, model)
             outcomes.append(outcome)
-    input_sha256 = hashlib.sha256(input_path.read_bytes()).hexdigest()
+    input_sha256 = normalized.source_sha256 or hashlib.sha256(input_path.read_bytes()).hexdigest()
     status_counts = dict(sorted(Counter(item.review_status for item in outcomes).items()))
     selected_model = model_spec(model)
     credit_report = build_credit_report(normalized, legacy, outcomes)

@@ -6,11 +6,12 @@ provider. The input contract is documented in docs/reference/INPUT_CONTRACT.md.
 
 from __future__ import annotations
 
+import hashlib
 import json
 import re
 from collections import Counter
 from copy import deepcopy
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from datetime import date, timedelta
 from decimal import Decimal
 from pathlib import Path
@@ -107,6 +108,7 @@ class NormalizedInput:
     business_coverage: tuple[BusinessCoverage, ...]
     transactions: tuple[NormalizedTransaction, ...]
     excluded: tuple[ExcludedTransaction, ...]
+    source_sha256: str | None = None
 
     @property
     def exclusion_counts(self) -> dict[str, int]:
@@ -130,7 +132,8 @@ def load_input(path: str | Path) -> NormalizedInput:
     """Read one JSON envelope without requiring truth, an API key, or Plaid."""
     path = Path(path)
     try:
-        contents = path.read_text(encoding="utf-8")
+        raw_contents = path.read_bytes()
+        contents = raw_contents.decode("utf-8")
     except (OSError, UnicodeError) as exc:
         raise InputValidationError(f"cannot read input {path}: {exc}") from exc
     try:
@@ -144,7 +147,8 @@ def load_input(path: str | Path) -> NormalizedInput:
         raise InputValidationError(
             f"invalid JSON in {path} at line {exc.lineno}, column {exc.colno}: {exc.msg}"
         ) from exc
-    return normalize_input(payload)
+    normalized = normalize_input(payload)
+    return replace(normalized, source_sha256=hashlib.sha256(raw_contents).hexdigest())
 
 
 def _object(value: Any, location: str) -> dict[str, Any]:

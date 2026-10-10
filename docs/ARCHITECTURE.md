@@ -40,7 +40,7 @@ transaction JSON → validate/window → keyword baseline → cached/provider re
 - **Artifact writes:** each JSON report is serialized to a same-directory temporary file and atomically replaced, so interruption during serialization cannot leave a truncated destination. The output set is not a multi-file transaction; the manifest hashes remain the consistency check across reports.
 - **Append-only records:** cache and spend-ledger readers discard and truncate only a final JSONL fragment missing its newline, then retain strict integrity checks for every complete record. This lets a resumed run recover from a process interruption without concealing corruption in committed records.
 - **Safety:** descriptions are untrusted JSON data; the provider has no tools. Structured output is checked again in application code.
-- **Reproducibility and cost tracking:** model/provider, versioned input/output price assumptions, usage, statuses, and output hashes are recorded in the run manifest; cache entries hash model/prompt/schema/input identity and OpenRouter model/response-format routing (legacy OpenAI keys remain compatible); the append-only ledger tracks reservations and settlements.
+- **Reproducibility and cost tracking:** the input SHA-256 is captured from the exact bytes parsed before any provider call, so later file changes cannot make a long-running report claim a different source. The manifest also records model/provider, versioned prices, usage, statuses, and output hashes; cache entries hash model/prompt/schema/input identity and OpenRouter model/response-format routing (legacy OpenAI keys remain compatible); the append-only ledger tracks reservations and settlements.
 
 ## Main modules
 

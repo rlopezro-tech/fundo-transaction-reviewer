@@ -88,7 +88,7 @@ def load_reviewed(
     legacy_labels: tuple[LegacyLabel, ...],
 ) -> tuple[dict[str, dict], dict[str, CreditLabel], dict]:
     manifest = _json(review_dir / "run_manifest.json")
-    digest = hashlib.sha256(input_path.read_bytes()).hexdigest()
+    digest = normalized.source_sha256 or hashlib.sha256(input_path.read_bytes()).hexdigest()
     if manifest.get("input_sha256") != digest or manifest.get("accepted_transactions") != len(normalized.transactions):
         raise ValueError("review manifest input hash or count does not match evaluation input")
     outcomes_path = review_dir / "review_outcomes.json"
@@ -327,7 +327,7 @@ def _quality_report(
         "evaluation_version": EVALUATION_VERSION,
         "feature_policy_version": FEATURE_POLICY_VERSION,
         "offer_policy_version": OFFER_POLICY_VERSION,
-        "input_sha256": hashlib.sha256(input_path.read_bytes()).hexdigest(),
+        "input_sha256": normalized.source_sha256 or hashlib.sha256(input_path.read_bytes()).hexdigest(),
         "truth_sha256": hashlib.sha256(truth_path.read_bytes()).hexdigest(),
         "review_manifest_input_sha256": manifest["input_sha256"],
         "counts": dict(sorted(counts.items())),

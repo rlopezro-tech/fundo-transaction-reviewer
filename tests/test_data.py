@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import hashlib
 from copy import deepcopy
 from datetime import date
 from decimal import Decimal
@@ -64,6 +65,17 @@ def test_file_parser_uses_decimal_not_binary_float(tmp_path: Path) -> None:
     result = load_input(path)
     assert result.transactions[0].amount == Decimal("-0.10")
     assert isinstance(result.transactions[0].raw["amount"], Decimal)
+
+
+def test_loaded_input_keeps_hash_of_exact_validated_bytes(tmp_path: Path) -> None:
+    path = tmp_path / "input.json"
+    original = (FIXTURES / "input_90_days.json").read_bytes()
+    path.write_bytes(original)
+
+    result = load_input(path)
+    path.write_bytes(original + b"\n")
+
+    assert result.source_sha256 == hashlib.sha256(original).hexdigest()
 
 
 def test_61_day_history_is_separate_and_not_scaled_to_90() -> None:
