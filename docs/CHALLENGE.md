@@ -2,6 +2,8 @@
 
 > **Submission status (2026-10-10):** Code, deterministic tests, synthetic data, credit calculations, and seeded sensitivity analysis are implemented. The paid-model evaluation stopped at 799 usable reviews out of 2,000 (one additional malformed response); 1,200 rows retain legacy labels after OpenAI organization-level token-per-minute limits. The complete no-key replay and full-cohort model-quality claim are therefore **not complete**. Results and limitations are in [`../SOLUTION.md`](../SOLUTION.md). The challenge text below is preserved as the original specification.
 
+For this handoff, the model run is **closed at its available partial result**; no additional paid requests are planned. This is a submission-scope decision, not a claim that the 2,000-row reviewer requirement was met.
+
 ## Context
 
 Fundo gives revenue-based advances to small businesses. To make an offer, we read the business's last 90 days of bank transactions and turn them into a few numbers: monthly revenue, NSF and overdraft count, payments to other funders, and high-risk activity. Those numbers become features for a risk model and inputs to the offer.

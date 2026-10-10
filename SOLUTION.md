@@ -2,7 +2,7 @@
 
 ## Status
 
-Implementation, synthetic-data tests, credit calculations, and sensitivity simulation are complete. **The paid model evaluation is partial:** out of 2,000 accepted transactions, 799 received valid model decisions, one response was invalid, and 1,200 retained the keyword baseline after provider failures. Both configured OpenAI organizations returned a 100k tokens-per-minute (TPM) limit error. The full cache-only replay is therefore not reproducible yet. The outcome snapshot is in `reports/main/`; measured and simulated results are distinguished below. All data is synthetic; no output is a real funding decision.
+Implementation, synthetic-data tests, credit calculations, and sensitivity simulation are complete for this handoff. **The paid model evaluation is intentionally final as a partial result:** out of 2,000 accepted transactions, 799 received valid model decisions, one response was invalid, and 1,200 retained the keyword baseline after provider failures. Both configured OpenAI organizations returned a 100k tokens-per-minute (TPM) limit error. No further paid model calls are planned; the full cache-only replay is not reproducible. The outcome snapshot is in `reports/main/`; measured and simulated results are distinguished below. All data is synthetic; no output is a real funding decision.
 
 ## What was built
 
