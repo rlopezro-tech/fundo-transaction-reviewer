@@ -11,7 +11,7 @@ uv run --group dev pytest -q
 
 GitHub Actions runs the same locked dependency install and test suite on pushes and pull requests; see [the test workflow](.github/workflows/tests.yml). The workflow needs no API key because the test suite uses deterministic fixtures and fake providers.
 
-`scripts/run` is the short CLI launcher: it sets `PYTHONPATH` and loads `.env` when present. To configure hosted calls, copy `env.example` to `.env` and set `OPENAI_API_KEY`; never commit `.env`.
+`scripts/run` is the short CLI launcher: it sets `PYTHONPATH` and loads `.env` only when `--mode online` is explicit. To configure hosted calls, copy `env.example` to `.env` and set the key for the selected provider; never commit `.env`.
 
 Generate the synthetic fixtures (no Plaid account or API key needed):
 
