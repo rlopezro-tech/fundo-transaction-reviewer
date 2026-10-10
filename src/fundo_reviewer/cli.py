@@ -17,6 +17,7 @@ from fundo_reviewer.cache import (
 from fundo_reviewer.credit import FEATURE_POLICY_VERSION, OFFER_POLICY_VERSION, build_credit_report
 from fundo_reviewer.data import load_input
 from fundo_reviewer.legacy import RULESET_VERSION, label_transactions
+from fundo_reviewer.model_catalog import model_spec
 from fundo_reviewer.provider import (
     DEFAULT_MODEL, BudgetedBatchProvider, BudgetedProvider, build_batch_request, create_provider,
 )
@@ -209,6 +210,7 @@ def run_pipeline(
             outcomes.append(outcome)
     input_sha256 = hashlib.sha256(input_path.read_bytes()).hexdigest()
     status_counts = dict(sorted(Counter(item.review_status for item in outcomes).items()))
+    selected_model = model_spec(model)
     credit_report = build_credit_report(normalized, legacy, outcomes)
     credit_path = output_dir / "credit_report.json"
     _write_json(credit_path, credit_report)
@@ -228,6 +230,12 @@ def run_pipeline(
         "excluded_counts": normalized.exclusion_counts,
         "mode": mode,
         "model": model,
+        "provider": selected_model.provider,
+        "pricing_assumption_usd_per_million_tokens": {
+            "input": str(selected_model.input_usd_per_million),
+            "output": str(selected_model.output_usd_per_million),
+            "pricing_version": selected_model.pricing_version,
+        },
         "versions": {
             "input_contract": normalized.contract_version,
             "ruleset": RULESET_VERSION,

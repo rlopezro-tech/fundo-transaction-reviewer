@@ -93,6 +93,12 @@
   "new_api_calls": 15,
   "new_provider_usage": {},
   "new_usage_derived_cost_usd": "0",
+  "pricing_assumption_usd_per_million_tokens": {
+    "input": "0.10",
+    "output": "0.50",
+    "pricing_version": "gpt-6-luna-standard-2026-10-08"
+  },
+  "provider": "openai",
   "review_outcomes_sha256": "687bc220860fb386dd929fa1454e337bb26c9ceef67df30dbf1cbaddaed5e37c",
   "review_status_counts": {
     "changed": 196,

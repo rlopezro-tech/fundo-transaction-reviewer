@@ -19,7 +19,7 @@ The local Qwen3.5 9B Q4 diagnostic matched baseline labels on 12/20 examples, ma
 When provider quota is available, run from the repository root:
 
 ```bash
-PYTHONPATH=src uv run --env-file .env python -m fundo_reviewer.cli --mode online --model gpt-6-luna --batch-size 80 --input data/transactions/main_90_days.json --output-dir reports/main
+./scripts/run --mode online --model gpt-6-luna --batch-size 80 --input data/transactions/main_90_days.json --output-dir reports/main
 ```
 
-The CLI reuses exact cached batches. Keep `.env` out of Git. The ledger conservatively reserves up to the configured $8 operating ceiling; an unresolved reservation is a safety hold, not confirmed spend. Do not raise the $10 challenge limit.
+The launcher loads ignored `.env` only for explicit online mode and the CLI reuses exact cached batches. For a new checkout, create `.env` from `env.example` and set `OPENAI_API_KEY`. Keep `.env` out of Git. The run manifest records the provider/model and versioned price assumption; the ledger conservatively reserves up to the configured $8 operating ceiling. An unresolved reservation is a safety hold, not confirmed spend. Do not raise the $10 challenge limit.

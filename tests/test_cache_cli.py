@@ -216,6 +216,11 @@ def test_alternative_model_batch_replays_without_key_at_its_own_price(tmp_path, 
                           model="gpt-5.6-luna", provider=fake, batch_size=80)
     assert online["degraded_count"] == 0
     assert online["versions"]["pricing"] == pricing_version("gpt-5.6-luna")
+    assert online["provider"] == "openai"
+    assert online["pricing_assumption_usd_per_million_tokens"] == {
+        "input": "0.20", "output": "1.20",
+        "pricing_version": pricing_version("gpt-5.6-luna"),
+    }
     assert online["new_usage_derived_cost_usd"] == str(usage_derived_cost(
         online["new_provider_usage"], "gpt-5.6-luna"
     ))
