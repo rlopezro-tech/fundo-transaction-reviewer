@@ -75,6 +75,7 @@ class OpenAIProvider:
         self.model = model
         self.client = OpenAI(api_key=api_key, max_retries=0, timeout=120.0)
         self._last_call_at: float | None = None
+        self.min_request_interval = max(0.0, float(os.environ.get("FUNDO_MIN_REQUEST_INTERVAL_SECONDS", "60")))
 
     def _request(self, system_prompt: str, user_prompt: str, text_format: type[BaseModel], max_output_tokens: int):
         from openai import RateLimitError
@@ -82,7 +83,8 @@ class OpenAIProvider:
         for attempt in range(4):
             try:
                 if self._last_call_at is not None:
-                    time.sleep(max(0.0, 7.0 - (time.monotonic() - self._last_call_at)))
+                    interval = getattr(self, "min_request_interval", 60.0)
+                    time.sleep(max(0.0, interval - (time.monotonic() - self._last_call_at)))
                 self._last_call_at = time.monotonic()
                 response = self.client.responses.parse(
                     model=self.model,
@@ -109,6 +111,10 @@ class OpenAIProvider:
                 # the run can resume from committed batch cache after reset.
                 if "requests per day" in message:
                     raise FatalReviewError("provider daily request quota exhausted; resume from cache after reset") from exc
+                # A TPM ceiling that reports a distant reset cannot be fixed
+                # by short retries; stop immediately so the run can resume later.
+                if "tokens per minute" in message or "tpm" in message:
+                    raise FatalReviewError("provider token-per-minute quota exhausted; resume from cache after reset") from exc
                 if attempt == 3:
                     raise FatalReviewError("provider minute request quota persisted after bounded retries; resume later") from exc
                 retry_after = (exc.response.headers.get("retry-after") if exc.response else None)
