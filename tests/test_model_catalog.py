@@ -23,15 +23,17 @@ def test_catalog_is_single_source_for_pricing_and_environment_metadata():
         assert pricing_version(model) == spec.pricing_version
 
 
-def test_env_example_documents_every_registered_hosted_provider_key():
+def test_env_example_documents_keys_without_secrets_and_local_env_is_ignored():
     project_root = Path(__file__).resolve().parents[1]
-    declared = {
-        line.split("=", 1)[0]
-        for line in (project_root / "env.example").read_text().splitlines()
-        if line and not line.startswith("#") and "=" in line
-    }
+    values = {}
+    for line in (project_root / "env.example").read_text().splitlines():
+        if line and not line.startswith("#") and "=" in line:
+            key, value = line.split("=", 1)
+            values[key] = value
     required = {spec.api_key_env for spec in registered_models() if spec.api_key_env}
-    assert required <= declared
+    assert required <= values.keys()
+    assert all(values[key] == "" for key in required), "env.example must never contain real API credentials"
+    assert ".env" in (project_root / ".gitignore").read_text().splitlines()
 
 
 def test_model_costs_remain_unchanged_after_catalog_extraction():
