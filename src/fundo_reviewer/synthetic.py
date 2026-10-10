@@ -17,7 +17,7 @@ from datetime import date, timedelta
 from pathlib import Path
 from typing import Any
 
-from fundo_reviewer.artifacts import write_bytes_atomic
+from fundo_reviewer.artifacts import artifact_set_lock, write_bytes_atomic
 from fundo_reviewer.data import load_input
 
 GENERATOR_VERSION = "synthetic-v1"
@@ -567,31 +567,34 @@ def write_files(output_root: Path) -> dict[str, str]:
     """Write fixtures and validate both transaction envelopes with the input contract."""
     files = generate_files()
     hashes: dict[str, str] = {}
-    for relative_path, contents in files.items():
-        path = output_root / relative_path
-        write_bytes_atomic(path, contents)
-        hashes[relative_path] = hashlib.sha256(contents).hexdigest()
-    for cohort in ("main_90_days", "short_61_days"):
-        normalized = load_input(output_root / "transactions" / f"{cohort}.json")
-        source = json.loads((output_root / "transactions" / f"{cohort}.json").read_text())
-        truth = json.loads((output_root / "ground_truth" / f"{cohort}.json").read_text())
-        accepted_ids = {record.transaction_id for record in normalized.transactions}
-        if accepted_ids != set(truth["labels"]) or len(accepted_ids) != len(source["transactions"]):
-            raise AssertionError(f"{cohort}: input/truth ID mismatch or excluded transaction")
-        counts = Counter(
-            truth["labels"][record.transaction_id]["scenario_id"]
-            for record in normalized.transactions
-        )
-        directions = Counter(
-            "inflow" if record.is_inflow else "outflow" for record in normalized.transactions
-        )
-        print(
-            f"{cohort}: {len(normalized.business_coverage)} businesses; {len(normalized.transactions)} transactions; "
-            f"coverage days {sorted({b.days for b in normalized.business_coverage})}; "
-            f"directions {dict(sorted(directions.items()))}; scenarios {dict(sorted(counts.items()))}"
-        )
-    for name, digest in sorted(hashes.items()):
-        print(f"sha256 {digest}  {output_root / name}")
+    with artifact_set_lock(output_root):
+        for relative_path, contents in files.items():
+            path = output_root / relative_path
+            write_bytes_atomic(path, contents)
+            hashes[relative_path] = hashlib.sha256(contents).hexdigest()
+        for cohort in ("main_90_days", "short_61_days"):
+            normalized = load_input(output_root / "transactions" / f"{cohort}.json")
+            source = json.loads((output_root / "transactions" / f"{cohort}.json").read_text())
+            truth = json.loads((output_root / "ground_truth" / f"{cohort}.json").read_text())
+            accepted_ids = {record.transaction_id for record in normalized.transactions}
+            if accepted_ids != set(truth["labels"]) or len(accepted_ids) != len(
+                source["transactions"]
+            ):
+                raise AssertionError(f"{cohort}: input/truth ID mismatch or excluded transaction")
+            counts = Counter(
+                truth["labels"][record.transaction_id]["scenario_id"]
+                for record in normalized.transactions
+            )
+            directions = Counter(
+                "inflow" if record.is_inflow else "outflow" for record in normalized.transactions
+            )
+            print(
+                f"{cohort}: {len(normalized.business_coverage)} businesses; {len(normalized.transactions)} transactions; "
+                f"coverage days {sorted({b.days for b in normalized.business_coverage})}; "
+                f"directions {dict(sorted(directions.items()))}; scenarios {dict(sorted(counts.items()))}"
+            )
+        for name, digest in sorted(hashes.items()):
+            print(f"sha256 {digest}  {output_root / name}")
     return hashes
 
 

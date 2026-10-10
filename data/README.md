@@ -11,3 +11,4 @@ PYTHONPATH=src uv run --locked python -m fundo_reviewer.synthetic --output-root 
 ```
 
 Generation overwrites the two fixture directories above.
+The generator validates input/truth ID alignment and serializes its four-file write set with a local advisory lock.
