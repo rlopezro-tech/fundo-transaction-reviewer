@@ -1,4 +1,5 @@
 from decimal import Decimal
+from pathlib import Path
 
 import pytest
 
@@ -19,6 +20,17 @@ def test_catalog_is_single_source_for_pricing_and_environment_metadata():
             spec.input_usd_per_million, spec.output_usd_per_million, spec.pricing_version
         )
         assert pricing_version(model) == spec.pricing_version
+
+
+def test_env_example_documents_every_registered_hosted_provider_key():
+    project_root = Path(__file__).resolve().parents[1]
+    declared = {
+        line.split("=", 1)[0]
+        for line in (project_root / "env.example").read_text().splitlines()
+        if line and not line.startswith("#") and "=" in line
+    }
+    required = {spec.api_key_env for spec in registered_models() if spec.api_key_env}
+    assert required <= declared
 
 
 def test_model_costs_remain_unchanged_after_catalog_extraction():
