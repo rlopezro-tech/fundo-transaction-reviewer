@@ -16,7 +16,7 @@ Status reflects repository evidence on the current branch. **Partial** means an 
 | One run command with API key in environment | Pass for online execution | `README.md`; `OPENAI_API_KEY` in local ignored `.env` | Verify from a clean checkout; API quota is currently a blocker |
 | Total LLM cost below $10 | Within limit by recorded estimate; not independently billed | Append-only provider ledgers; `SOLUTION.md` | Reconcile final usage and reservations; do not call usage estimate a receipt |
 | Central model/provider metadata and routing | Pass for registered hosted models | `src/fundo_reviewer/model_catalog.py`; CLI and pilot call the provider factory; pricing tests | A new provider still requires its adapter/factory entry; Ollama remains diagnostic-only |
-| Clean-checkout install and test | **Pass locally / CI pending** | Clean archives + CPython 3.12.14, 3.13.1, and 3.14.8 from `uv.lock`; `155 passed` on each; committed main report/cache consistency test; 3.12 launcher replay matched all three committed artifacts byte-for-byte | Push branch and confirm the configured Python 3.12–3.14 GitHub Actions matrix succeeds on its clean runners |
+| Clean-checkout install and test | **Pass locally / CI pending** | Clean archives + CPython 3.12.14, 3.13.1, and 3.14.8 from `uv.lock`; `156 passed` on each; committed main report/cache consistency test; 3.12 launcher replay matched all three committed artifacts byte-for-byte | Push branch and confirm the configured Python 3.12–3.14 GitHub Actions matrix succeeds on its clean runners |
 
 ## Submission decision
 
