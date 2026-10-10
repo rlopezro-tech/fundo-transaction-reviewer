@@ -20,7 +20,16 @@ from fundo_reviewer.pilot import PILOT_IDS
 ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_MODEL = "qwen3.5:9b-q4_K_M"
 MODEL_DIGEST = "56671c2ab9385f9cfcb404638e32cd62d88e3501d44822208363c010179a3c90"
-MODEL_ID = f"ollama:{DEFAULT_MODEL}@{MODEL_DIGEST}"
+
+
+def model_identity(model: str) -> str:
+    """Return a pinned local model identity; never reuse cache across unknown tags."""
+    if model != DEFAULT_MODEL:
+        raise ValueError(
+            f"local pilot only supports pinned model {DEFAULT_MODEL!r}; "
+            "add and verify a digest before using a different Ollama model"
+        )
+    return f"ollama:{model}@{MODEL_DIGEST}"
 
 
 class _StaticProvider:
@@ -90,7 +99,7 @@ def _call_ollama(model: str, system_prompt: str, user_prompt: str) -> ProviderRe
     return ProviderReply("completed", parsed=parsed.model_dump(mode="json")["reviews"], raw_response=raw, usage=usage)
 
 
-def _evaluate(outcomes: list[ReviewOutcome], truth: dict[str, dict]) -> dict:
+def _evaluate(outcomes: list[ReviewOutcome], truth: dict[str, dict], model_id: str) -> dict:
     by_id = {item.transaction_id: item for item in outcomes}
     if set(by_id) != set(truth):
         raise ValueError("pilot and truth ID sets differ")
@@ -120,7 +129,7 @@ def _evaluate(outcomes: list[ReviewOutcome], truth: dict[str, dict]) -> dict:
             "reason": outcome.proposal.reason if outcome.proposal else None,
         })
     return {
-        "model": MODEL_ID,
+        "model": model_id,
         "provider": "Ollama local; no OpenAI API call",
         "pilot_ids": list(PILOT_IDS),
         "sample_size": len(PILOT_IDS),
@@ -130,6 +139,7 @@ def _evaluate(outcomes: list[ReviewOutcome], truth: dict[str, dict]) -> dict:
 
 
 def run_pilot(model: str = DEFAULT_MODEL, cache_path: Path | None = None, output_path: Path | None = None) -> dict:
+    model_id = model_identity(model)
     transactions_path = ROOT / "data/transactions/main_90_days.json"
     truth_path = ROOT / "data/ground_truth/main_90_days.json"
     cache_path = cache_path or ROOT / "cache/experiments/local/qwen35_9b_pilot.jsonl"
@@ -142,7 +152,7 @@ def run_pilot(model: str = DEFAULT_MODEL, cache_path: Path | None = None, output
         for tx_id in PILOT_IDS
     )
     batch = build_batch_request(requests)
-    identity = batch_identity(requests, MODEL_ID, batch.system_prompt, batch.user_prompt)
+    identity = batch_identity(requests, model_id, batch.system_prompt, batch.user_prompt)
     cache = BatchReviewCache(cache_path)
     try:
         reply = cache.replay(identity)
@@ -172,7 +182,7 @@ def run_pilot(model: str = DEFAULT_MODEL, cache_path: Path | None = None, output
 
     truth_doc = json.loads(truth_path.read_text(encoding="utf-8"))
     truth = {tx_id: truth_doc["labels"][tx_id] for tx_id in PILOT_IDS}
-    report = _evaluate(outcomes, truth)
+    report = _evaluate(outcomes, truth, model_id)
     report.update({
         "cache_hit": cache_hit,
         "cache_file": str(cache_path.relative_to(ROOT)),
@@ -187,7 +197,7 @@ def run_pilot(model: str = DEFAULT_MODEL, cache_path: Path | None = None, output
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Run a 20-record local Ollama reviewer pilot")
-    parser.add_argument("--model", default=DEFAULT_MODEL)
+    parser.add_argument("--model", choices=(DEFAULT_MODEL,), default=DEFAULT_MODEL)
     args = parser.parse_args()
     report = run_pilot(args.model)
     print(json.dumps({key: report[key] for key in ("provider", "model", "sample_size", "metrics", "ollama_usage_tokens", "api_cost_usd", "cache_hit")}, sort_keys=True))
