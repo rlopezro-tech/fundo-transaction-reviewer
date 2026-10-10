@@ -1009,3 +1009,29 @@ def test_openai_non_rate_limit_transport_errors_are_fatal_without_retries():
         adapter.review_batch(build_batch_request((_request(),)))
     assert "sensitive provider error details" not in str(error.value)
     assert len(calls) == 1
+
+
+def test_openai_long_retry_after_stops_without_retrying_early():
+    calls = []
+
+    class LongCooldownResponses:
+        def parse(self, **kwargs):
+            calls.append(kwargs)
+            response = httpx.Response(
+                429,
+                headers={"retry-after": "30"},
+                request=httpx.Request("POST", "https://api.openai.com/v1/responses"),
+            )
+            raise RateLimitError(
+                "Temporary rate limit",
+                response=response,
+                body={"code": "rate_limit_exceeded", "message": "try again later"},
+            )
+
+    adapter = object.__new__(OpenAIProvider)
+    adapter.model = "gpt-6-luna"
+    adapter.client = SimpleNamespace(responses=LongCooldownResponses())
+    adapter._last_call_at = None
+    with pytest.raises(FatalReviewError, match="OpenAI requested a long rate-limit cooldown"):
+        adapter.review_batch(build_batch_request((_request(),)))
+    assert len(calls) == 1
