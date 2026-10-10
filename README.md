@@ -28,6 +28,19 @@ PYTHONPATH=src uv run --locked python -m fundo_reviewer.synthetic --output-root 
 - `cache/` — provider responses and spend ledgers used for exact replay.
 - `reports/main/` — main review outputs; `reports/evaluation/` — quality and sensitivity analysis.
 
+## Review another input
+
+Put a Plaid-shaped JSON input in `data/transactions/`, then use a separate cache and output folder for that run. This makes it obvious which source was reviewed and where its results went:
+
+```bash
+./scripts/run --mode online --model gpt-6-luna --batch-size 80 \
+  --input data/transactions/my_input.json \
+  --cache cache/my_input_reviews.jsonl \
+  --output-dir reports/my_input
+```
+
+The command uses the selected provider's key from `.env` and may incur API charges. Once every batch has a cache entry, replay the exact input without a key or provider call by changing `--mode online` to `--mode offline` and using the same `--input` and `--cache`. Do not put ground truth in the input or use real customer data for this challenge.
+
 ## Reproduce the cached example offline
 
 This replays the committed three-transaction example without an API key or provider call, and writes fresh output under `/tmp`:
