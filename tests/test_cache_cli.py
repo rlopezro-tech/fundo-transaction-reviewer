@@ -194,6 +194,56 @@ def test_cache_hit_miss_integrity_and_validated_only(tmp_path):
         ReviewCache(path)
 
 
+def test_review_cache_recovers_only_unterminated_final_record(tmp_path, caplog):
+    request = _request()
+    path = tmp_path / "reviews.jsonl"
+    store = ReviewCache(path)
+    outcome = review_one(request, FakeProvider())
+    store.append(request, "gpt-6-luna", outcome, usage_derived_cost(outcome.usage))
+    complete_records = path.read_bytes()
+    path.write_bytes(complete_records + b'{"partial":')
+
+    with caplog.at_level(logging.WARNING, logger="fundo_reviewer.cache"):
+        recovered = ReviewCache(path)
+
+    assert recovered.replay(request, "gpt-6-luna").status == "completed"
+    assert path.read_bytes() == complete_records
+    assert "discarded incomplete final JSONL record" in caplog.text
+
+
+def test_batch_cache_recovers_unterminated_final_record(tmp_path):
+    request = _request()
+    batch = build_batch_request((request,))
+    identity = batch_identity(batch.requests, "gpt-6-luna", batch.system_prompt, batch.user_prompt)
+    path = tmp_path / "batch.jsonl"
+    store = BatchReviewCache(path)
+    store.append(identity, ProviderReply("invalid_response", raw_response={"reason": "bad schema"}), [])
+    complete_records = path.read_bytes()
+    path.write_bytes(complete_records + b'{"partial":')
+
+    recovered = BatchReviewCache(path)
+
+    assert recovered.replay(identity).status == "invalid_response"
+    assert path.read_bytes() == complete_records
+
+
+def test_spend_ledger_recovers_unterminated_final_record_conservatively(tmp_path):
+    path = tmp_path / "spend.jsonl"
+    request = _request()
+    original = SpendLedger(path, ceiling_usd=Decimal("0.001"))
+    reservation = original.reserve(request, "gpt-6-luna")
+    complete_records = path.read_bytes()
+    path.write_bytes(complete_records + b'{"type":"settle"')
+
+    recovered = SpendLedger(path, ceiling_usd=Decimal("0.001"))
+
+    assert recovered.committed_usd == reservation.reserved_usd
+    assert recovered.settled_usd == 0
+    assert path.read_bytes() == complete_records
+    recovered.settle(reservation, {"input_tokens": 100, "output_tokens": 40})
+    assert SpendLedger(path).settled_usd == Decimal("0.000030")
+
+
 def test_spend_ledger_reservation_persists_and_budget_blocks_before_call(tmp_path):
     path = tmp_path / "spend.jsonl"
     request = _request()

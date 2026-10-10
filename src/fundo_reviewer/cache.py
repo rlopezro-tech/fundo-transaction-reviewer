@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import logging
 import os
 from dataclasses import dataclass
 from datetime import datetime, timezone
@@ -17,6 +18,8 @@ from fundo_reviewer.reviewer import (
     FLAG_POLICY_VERSION, PROMPT_VERSION, SCHEMA_VERSION,
     FatalReviewError, ProviderReply, ReviewOutcome, ReviewRequest,
 )
+
+logger = logging.getLogger(__name__)
 
 
 CACHE_VERSION = "review-cache-v1"
@@ -57,6 +60,20 @@ def _canonical(value: Any) -> str:
 
 def _digest(value: Any) -> str:
     return hashlib.sha256(_canonical(value).encode("utf-8")).hexdigest()
+
+
+def _read_jsonl(path: Path) -> list[str]:
+    """Read append-only records and discard only an unterminated final fragment."""
+    contents = path.read_bytes()
+    if contents and not contents.endswith(b"\n"):
+        last_record_end = contents.rfind(b"\n") + 1
+        with path.open("r+b") as stream:
+            stream.truncate(last_record_end)
+            stream.flush()
+            os.fsync(stream.fileno())
+        logger.warning("discarded incomplete final JSONL record from %s", path)
+        contents = contents[:last_record_end]
+    return contents.decode("utf-8").splitlines()
 
 
 def request_identity(request: ReviewRequest, model: str) -> dict[str, Any]:
@@ -103,7 +120,7 @@ class ReviewCache:
         self.path = path
         self.entries: dict[str, dict[str, Any]] = {}
         if path.exists():
-            for line_number, line in enumerate(path.read_text(encoding="utf-8").splitlines(), 1):
+            for line_number, line in enumerate(_read_jsonl(path), 1):
                 try:
                     entry = json.loads(line)
                     integrity = entry.pop("integrity_sha256")
@@ -179,7 +196,7 @@ class BatchReviewCache:
         self.path = path
         self.entries: dict[str, dict[str, Any]] = {}
         if path.exists():
-            for line_number, line in enumerate(path.read_text(encoding="utf-8").splitlines(), 1):
+            for line_number, line in enumerate(_read_jsonl(path), 1):
                 try:
                     entry = json.loads(line)
                     integrity = entry.pop("integrity_sha256")
@@ -269,7 +286,7 @@ class SpendLedger:
         self.ceiling_usd = ceiling_usd
         self.events: list[dict[str, Any]] = []
         if path.exists():
-            for line_number, line in enumerate(path.read_text(encoding="utf-8").splitlines(), 1):
+            for line_number, line in enumerate(_read_jsonl(path), 1):
                 try:
                     event = json.loads(line)
                     integrity = event.pop("integrity_sha256")
