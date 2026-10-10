@@ -64,6 +64,26 @@ class BatchReviewRequest:
     user_prompt: str
 
 
+def _fatal_rate_limit_message(error, provider: str) -> str | None:
+    """Classify provider quota failures that bounded retries cannot resolve."""
+    details = " ".join(
+        str(value)
+        for value in (error.code, error.type, error.body, str(error))
+        if value is not None
+    ).lower()
+    if (
+        "insufficient_quota" in details
+        or "credit_balance_exhausted" in details
+        or "no credits remaining" in details
+    ):
+        return f"{provider} API credit balance exhausted; add credits or use a funded project/key"
+    if "requests per day" in details:
+        return f"{provider} daily request quota exhausted; resume from cache after reset"
+    if "tokens per minute" in details or "tpm" in details:
+        return f"{provider} token-per-minute quota exhausted; resume from cache after reset"
+    return None
+
+
 def build_batch_request(requests: tuple[ReviewRequest, ...]) -> BatchReviewRequest:
     if not requests:
         raise ValueError("batch must contain at least one review request")
@@ -156,36 +176,9 @@ class OpenAIProvider(_StructuredReviewAdapter):
                 )
                 return response
             except RateLimitError as exc:
-                # Provider error codes are more stable than message wording;
-                # include the structured body for quota classification without
-                # exposing it in logs or user-facing errors.
-                message = " ".join(
-                    str(value)
-                    for value in (exc.code, exc.type, exc.body, str(exc))
-                    if value is not None
-                ).lower()
-                # A depleted billing balance is not a transient rate limit;
-                # retrying it only wastes time and obscures the real blocker.
-                if (
-                    "insufficient_quota" in message
-                    or "credit_balance_exhausted" in message
-                    or "no credits remaining" in message
-                ):
-                    raise FatalReviewError(
-                        "provider API credit balance exhausted; add credits or use a funded project/key"
-                    ) from exc
-                # Daily quota cannot be fixed by a short retry; surface it so
-                # the run can resume from committed batch cache after reset.
-                if "requests per day" in message:
-                    raise FatalReviewError(
-                        "provider daily request quota exhausted; resume from cache after reset"
-                    ) from exc
-                # A TPM ceiling that reports a distant reset cannot be fixed
-                # by short retries; stop immediately so the run can resume later.
-                if "tokens per minute" in message or "tpm" in message:
-                    raise FatalReviewError(
-                        "provider token-per-minute quota exhausted; resume from cache after reset"
-                    ) from exc
+                fatal_message = _fatal_rate_limit_message(exc, "OpenAI")
+                if fatal_message:
+                    raise FatalReviewError(fatal_message) from exc
                 if attempt == 3:
                     raise FatalReviewError(
                         "provider minute request quota persisted after bounded retries; resume later"
@@ -306,6 +299,9 @@ class OpenRouterProvider(_StructuredReviewAdapter):
                 )
                 return response
             except RateLimitError as exc:
+                fatal_message = _fatal_rate_limit_message(exc, "OpenRouter")
+                if fatal_message:
+                    raise FatalReviewError(fatal_message) from exc
                 if attempt == 3:
                     raise FatalReviewError(
                         "OpenRouter rate limit persisted after bounded retries"

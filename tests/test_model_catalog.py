@@ -1,12 +1,16 @@
 from decimal import Decimal
 from pathlib import Path
+from types import SimpleNamespace
 
+import httpx
 import pytest
+from openai import RateLimitError
 
 from fundo_reviewer import provider as provider_module
 from fundo_reviewer.cache import MODEL_PRICES, pricing_version, usage_derived_cost
 from fundo_reviewer.model_catalog import DEFAULT_MODEL, model_spec, registered_models
 from fundo_reviewer.provider import BatchProviderShape, OpenRouterProvider
+from fundo_reviewer.reviewer import FatalReviewError
 
 
 def test_catalog_is_single_source_for_pricing_and_environment_metadata():
@@ -105,6 +109,31 @@ def test_openrouter_adapter_uses_catalog_json_mode_without_network(model):
     adapter._request("system", "user", BatchProviderShape, 100)
     assert captured["model"] == spec.provider_model
     assert captured["response_format"] == {"type": "json_object"}
+
+
+def test_openrouter_structured_credit_exhaustion_stops_without_retries():
+    calls = []
+
+    class QuotaCompletions:
+        def create(self, **kwargs):
+            calls.append(kwargs)
+            response = httpx.Response(
+                429, request=httpx.Request("POST", "https://openrouter.ai/api/v1/chat/completions")
+            )
+            raise RateLimitError(
+                "Request rejected",
+                response=response,
+                body={"code": "insufficient_quota", "message": "account credit is depleted"},
+            )
+
+    adapter = object.__new__(OpenRouterProvider)
+    adapter.model = "openai/gpt-oss-20b"
+    adapter.response_format_kind = "json_schema"
+    adapter._last_call_at = None
+    adapter.client = SimpleNamespace(chat=SimpleNamespace(completions=QuotaCompletions()))
+    with pytest.raises(FatalReviewError, match="OpenRouter API credit balance exhausted"):
+        adapter.review_batch(SimpleNamespace(system_prompt="system", user_prompt="user"))
+    assert len(calls) == 1
 
 
 @pytest.mark.parametrize(
